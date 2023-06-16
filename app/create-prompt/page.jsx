@@ -63,7 +63,6 @@ const CreatePrompt = () => {
         imageUrl = imageResponse.data.secure_url;
       }
 
-      console.log('1');
       const response = await fetch('/api/prompt/new', {
         method: 'POST',
         body: JSON.stringify({
@@ -74,9 +73,7 @@ const CreatePrompt = () => {
         }),
       });
 
-      console.log('2');
       if (response.ok) {
-        console.log('3');
         router.push('/');
       }
     } catch (error) {
