@@ -1,30 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
 import PromptCard from "./PromptCard";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import {useSession} from "next-auth/react";
 
 const PromptCardList = ({ data, handleTagClick }) => {
+
   return (
-    <div className='mt-16 prompt_layout'>
-      {data.map((post) => (
-        <PromptCard
-          key={post._id}
-          post={post}
-          handleTagClick={handleTagClick}
-        />
-      ))}
-    </div>
+    <>
+      <div className='mt-16 prompt_layout'>
+        {data.map((post) => (
+          <PromptCard
+            key={post._id}
+            post={post}
+            handleTagClick={handleTagClick}
+          />
+        ))}
+      </div>
+      <ToastContainer />
+    </>
   );
 };
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
-
-  // Search states
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
+  const { data: session, status } = useSession();
 
   const fetchPosts = async () => {
     const response = await fetch("/api/prompt");
@@ -34,8 +39,10 @@ const Feed = () => {
   };
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    if (status !== 'loading') {
+      fetchPosts();
+    }
+  }, [status]);
 
   const filterPrompts = (searchtext) => {
     const regex = new RegExp(searchtext, "i"); // 'i' flag for case-insensitive search

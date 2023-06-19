@@ -11,9 +11,10 @@ const Home = () => (
     <p className='desc text-center'>
       Next-Post is an open-source platform to discover, create and share creative post!
     </p>
-    <Provider>
-      <Feed />
-    </Provider>
+    <Feed />
+    {/*<Provider>*/}
+    {/*  */}
+    {/*</Provider>*/}
   </section>
 );
 

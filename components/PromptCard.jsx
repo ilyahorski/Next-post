@@ -8,6 +8,8 @@ import { parseTags } from '@/utils/tagStringToArray';
 import axios from 'axios';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as Heart } from '@heroicons/react/24/solid';
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   const { data: session, status } = useSession();
@@ -18,6 +20,10 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   const [copied, setCopied] = useState('');
 
   const tags = parseTags(post.tag);
+  const notify = () =>
+    toast.info("Please sign in to your account.", {
+      position: toast.POSITION.TOP_CENTER
+    });
 
   const handleProfileClick = () => {
     if (post.creator._id === session?.user?.id) return router.push('/profile');
@@ -43,11 +49,6 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
         setLikes(response.data.likesCount);
       })
       .catch(error => console.error(error));
-  }, [post._id, status]);
-
-
-  useEffect(() => {
-    if (status === 'loading') return;
 
     axios.get(`/api/like/${post._id}/${session?.user?.id}`)
       .then(response => {
@@ -56,6 +57,7 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
         }
       })
       .catch(error => console.error(error));
+
   }, [post._id, status]);
 
   const toggleLike = () => {
@@ -65,6 +67,9 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
           setLiked(false);
         } else if (response.status === 201) {
           setLiked(true);
+        } else if (response.data === 'Failed to toggle like') {
+          console.log('toggleLike is called');
+          notify();
         }
 
         axios.get(`/api/like/${post._id}`)
@@ -73,7 +78,13 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
           })
           .catch(error => console.error(error));
       })
-      .catch(error => console.error(error));
+      .catch(error => {
+        if (error.response && error.response.status === 500) {
+          notify();
+        } else {
+          console.error(error);
+        }
+      });
   };
 
 
@@ -182,13 +193,9 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
           <div className='h-48 bg-gray-400 rounded mb-4'></div>
           <div className='space-y-4'>
             <div className='h-4 bg-gray-400 rounded w-full'></div>
-            <div className='h-4 bg-gray-400 rounded w-4/5'></div>
-            <div className='h-4 bg-gray-400 rounded w-3/4'></div>
           </div>
           <div className='flex space-x-2 mt-4'>
-            <div className='h-4 bg-gray-400 rounded w-1/6'></div>
-            <div className='h-4 bg-gray-400 rounded w-1/6'></div>
-            <div className='h-4 bg-gray-400 rounded w-1/6'></div>
+            <div className='h-4 bg-gray-400 rounded w-4/6'></div>
           </div>
         </div>
       )
