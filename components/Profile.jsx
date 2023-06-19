@@ -1,3 +1,4 @@
+
 import PromptCard from './PromptCard';
 
 const Profile = async ({ name, desc, data, handleEdit, handleDelete }) => {
@@ -9,16 +10,21 @@ const Profile = async ({ name, desc, data, handleEdit, handleDelete }) => {
       </h1>
       <p className='desc text-left'>{desc}</p>
 
-      <div className='mt-10 prompt_layout'>
-        {data.map((post) => (
-          <PromptCard
-            key={post._id}
-            post={post}
-            handleEdit={() => handleEdit && handleEdit(post)}
-            handleDelete={() => handleDelete && handleDelete(post)}
-          />
-        ))}
-      </div>
+      {data ? (
+        <div className='mt-10 prompt_layout'>
+          {data.map((post) => (
+            <PromptCard
+              key={post._id}
+              post={post}
+              handleEdit={() => handleEdit && handleEdit(post)}
+              handleDelete={() => handleDelete && handleDelete(post)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className='border-2 border-amber-950'>You are not authorized, Please Log in!</div>
+      )}
+
     </section>
   );
 };

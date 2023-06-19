@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import Profile from '@/components/Profile';
+import {useSession} from "next-auth/react";
 
 const UserProfile = ({ params }) => {
   const searchParams = useSearchParams();
   const userName = searchParams.get('name');
+  const { data: session, status } = useSession();
 
   const [userPosts, setUserPosts] = useState([]);
 
@@ -20,7 +22,7 @@ const UserProfile = ({ params }) => {
     };
 
     if (params?.id) fetchPosts();
-  }, [params.id]);
+  }, [params?.id]);
 
   return (
     <Profile

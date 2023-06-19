@@ -1,5 +1,8 @@
+'use client';
+
 import Feed from '@/components/Feed';
-import Provider from '@/app/provider';
+import Provider from "@/app/provider";
+import {SessionProvider} from "next-auth/react";
 
 const Home = () => (
   <section className='w-full flex-center flex-col'>
@@ -11,10 +14,9 @@ const Home = () => (
     <p className='desc text-center'>
       Next-Post is an open-source platform to discover, create and share creative post!
     </p>
-    <Feed />
-    {/*<Provider>*/}
-    {/*  */}
-    {/*</Provider>*/}
+    <SessionProvider>
+      <Feed />
+    </SessionProvider>
   </section>
 );
 

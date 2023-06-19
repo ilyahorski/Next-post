@@ -5,22 +5,25 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Profile from '@/components/Profile';
+import axios from "axios";
 
 const MyProfile = () => {
   const router = useRouter();
   const [myPosts, setMyPosts] = useState([]);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const response = await fetch(`/api/users/${session?.user.id}/posts`);
-      const data = await response.json();
 
-      setMyPosts(data);
-    };
+    if (status === 'loading' || !session) return;
 
-    if (session?.user.id) fetchPosts();
-  }, [session]);
+    axios.get(`/api/users/${session?.user?.id}/posts`)
+      .then(response => {
+        setMyPosts(response.data);
+      })
+      .catch(error => console.error(error));
+
+
+  }, [status, session?.user]);
 
   const handleEdit = (post) => {
     router.push(`/update-prompt?id=${post._id}`);
@@ -51,7 +54,6 @@ const MyProfile = () => {
       name='My'
       desc='Welcome to your personalized profile page. Share your exceptional prompts and inspire others with the power of your imagination'
       data={myPosts}
-      session={session}
       handleEdit={handleEdit}
       handleDelete={handleDelete}
     />

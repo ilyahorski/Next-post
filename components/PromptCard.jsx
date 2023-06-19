@@ -42,7 +42,7 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   };
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === 'loading' || !session) return;
 
     axios.get(`/api/like/${post._id}`)
       .then(response => {
@@ -58,7 +58,7 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
       })
       .catch(error => console.error(error));
 
-  }, [post._id, status]);
+  }, [post._id, status, session]);
 
   const toggleLike = () => {
     axios.post(`/api/like/${post._id}/${session?.user?.id}`, { userId: session?.user?.id, postId: post._id })
@@ -140,6 +140,7 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                 alt='image'
                 fill={true}
                 quality={50}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             </div>
             <p

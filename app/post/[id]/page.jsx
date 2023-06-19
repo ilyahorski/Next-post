@@ -45,19 +45,14 @@ const Post = () => {
   }, [status]);
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === 'loading' || !session || !postId) return;
 
     axios.get(`/api/like/${postId}`)
       .then(response => {
         setLikes(response.data.likesCount);
       })
       .catch(error => console.error(error));
-  }, [postId, status]);
 
-
-  useEffect(() => {
-    if (status === 'loading') return;
-    // Загрузка начального состояния "лайка"
     axios.get(`/api/like/${postId}/${session?.user?.id}`)
       .then(response => {
         if (response.data === 'Like exists') {
@@ -65,11 +60,13 @@ const Post = () => {
         }
       })
       .catch(error => console.error(error));
-  }, [postId, status]);
 
-  // Обработчик клика по кнопке "лайка"
+  }, [postId, status, session?.user]);
+
+
   const toggleLike = () => {
-    axios.post(`/api/like/${postId}/${session?.user?.id}`, { userId: session?.user?.id, postId: postId })
+    axios.post(`/api/like/${postId}/${session?.user?.id}`,
+      { userId: session?.user?.id, postId: postId })
       .then(response => {
         if (response.data === 'Like removed') {
           setLiked(false);

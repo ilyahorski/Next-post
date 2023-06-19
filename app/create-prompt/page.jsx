@@ -3,6 +3,8 @@
 import { useCallback, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 import Form from '@/components/Form';
 import axios from 'axios';
@@ -59,6 +61,9 @@ const CreatePrompt = () => {
         const imageResponse = await axios.post(
           `${process.env.NEXT_PUBLIC_CLOUDINARY_API_URL}`, formData,
         );
+        if (imageResponse.data.error) {
+          throw new Error('Failed to upload image');
+        }
         setPost({ ...post, image: imageResponse.data.secure_url });
         imageUrl = imageResponse.data.secure_url;
       }
@@ -73,26 +78,32 @@ const CreatePrompt = () => {
         }),
       });
 
-      if (response.ok) {
-        router.push('/');
+      if (!response.ok) {
+        throw new Error('Failed to post data');
       }
+
+      router.push('/');
     } catch (error) {
-      console.log(error);
+      console.error("An error occurred:", error);
+      toast.error('Data was not sent, please try later');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Form
-      type='Create'
-      post={post}
-      preview={preview}
-      handleFileChange={handleFileChange}
-      submitting={submitting}
-      handleInputChange={handleInputChange}
-      handleSubmit={handleSubmit}
-    />
+    <>
+      <Form
+        type='Create'
+        post={post}
+        preview={preview}
+        handleFileChange={handleFileChange}
+        submitting={submitting}
+        handleInputChange={handleInputChange}
+        handleSubmit={handleSubmit}
+      />
+      <ToastContainer />
+    </>
   );
 };
 

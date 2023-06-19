@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import Form from '@/components/Form';
 import axios from 'axios';
+import {toast} from "react-toastify";
 
 const UpdatePrompt = () => {
   const router = useRouter();
@@ -54,15 +55,12 @@ const UpdatePrompt = () => {
       });
     };
 
-    console.log(post);
     if (promptId) getPromptDetails();
-  }, []);
+  }, [promptId]);
 
-  const updatePrompt = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    if (!promptId) return alert('Missing PromptId!');
 
     let imageUrl = post.image;
 
@@ -75,6 +73,9 @@ const UpdatePrompt = () => {
         const imageResponse = await axios.post(
           `${process.env.NEXT_PUBLIC_CLOUDINARY_API_URL}`, formData,
         );
+        if (imageResponse.data.error) {
+          throw new Error('Failed to upload image');
+        }
         setPost({ ...post, image: imageResponse.data.secure_url });
         imageUrl = imageResponse.data.secure_url;
       }
@@ -88,11 +89,14 @@ const UpdatePrompt = () => {
         }),
       });
 
-      if (response.ok) {
-        router.push('/');
+      if (!response.ok) {
+        throw new Error('Failed to post data');
       }
+
+      router.push('/');
     } catch (error) {
-      console.log(error);
+      console.error("An error occurred:", error);
+      toast.error('Data was not sent, please try later');
     } finally {
       setIsSubmitting(false);
     }
@@ -106,7 +110,7 @@ const UpdatePrompt = () => {
       handleFileChange={handleFileChange}
       submitting={submitting}
       handleInputChange={handleInputChange}
-      handleSubmit={updatePrompt}
+      handleSubmit={handleSubmit}
     />
   );
 };
