@@ -11,7 +11,7 @@ import { HeartIcon as Heart } from '@heroicons/react/24/solid';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
-const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
+const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   const { data: session, status } = useSession();
   const pathName = usePathname();
   const router = useRouter();
@@ -91,7 +91,7 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   return (
     <>
       {!(status === 'loading') ? (
-        <div className='prompt_card'>
+        <div className='post_card'>
           <div className='flex justify-between items-start gap-5'>
             <div
               title='Click to open creator profile'
@@ -140,11 +140,11 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                 alt='image'
                 fill={true}
                 quality={50}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 1200px) 50vw"
               />
             </div>
             <p
-              className='my-4 font-satoshi text-sm text-gray-700'>{post.prompt}</p>
+              className='my-4 font-satoshi text-sm text-gray-700'>{post.post}</p>
             <div className='flex items-start justify-between'>
               <div className='flex flex-wrap items-center gap-2'>
                 {tags.map((tag, i) => (
@@ -205,4 +205,4 @@ const PromptCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   );
 };
 
-export default PromptCard;
+export default PostCard;

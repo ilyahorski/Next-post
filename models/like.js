@@ -8,7 +8,7 @@ const LikeSchema = new Schema({
   },
   post: {
     type: Schema.Types.ObjectId,
-    ref: 'Prompt',
+    ref: 'Post',
     required: true,
   },
 }, {

@@ -17,7 +17,7 @@ const Post = () => {
   const searchParams = useSearchParams();
   const postId = searchParams.get('id');
   const [post, setPost] = useState(
-    { prompt: '', tags: '', image: '', creator: '', createdAt: '' },
+    { post: '', tags: '', image: '', creator: '', createdAt: '' },
   );
   const [tags, setTags] = useState(null);
   const [likes, setLikes] = useState(0);
@@ -26,12 +26,12 @@ const Post = () => {
 
   useEffect(() => {
     if (status === 'loading') return;
-    const getPromptDetails = async () => {
-      const response = await fetch(`/api/prompt/${postId}`);
+    const getPostDetails = async () => {
+      const response = await fetch(`/api/post/${postId}`);
       const data = await response.json();
 
       setPost({
-        prompt: data.prompt,
+        post: data.post,
         tags: data.tag,
         image: data.image,
         creator: data.creator,
@@ -40,7 +40,7 @@ const Post = () => {
       setTags(parseTags(data.tag));
     };
 
-    if (postId) getPromptDetails();
+    if (postId) getPostDetails();
 
   }, [status]);
 
@@ -85,7 +85,7 @@ const Post = () => {
 
   return (
     <>
-      {post.prompt ? (
+      {post.post ? (
         <div
           className='flex-1 break-inside-avoid rounded-lg border border-gray-300 bg-white/40 bg-clip-padding p-6 backdrop-blur-lg backdrop-filter w-full h-fit;'>
           <div className='flex justify-between p-2 mb-4 items-center gap-5 border-gray-200 border-2 rounded-lg'>
@@ -129,7 +129,7 @@ const Post = () => {
                 quality={100}
               />
             </div>
-            <p className='my-4 font-satoshi text-[16px] text-gray-700'>{post.prompt}</p>
+            <p className='my-4 font-satoshi text-[16px] text-gray-700'>{post.post}</p>
             <div className='flex items-start justify-between'>
               <div className='flex flex-wrap items-center gap-2'>
                 {tags.map((tag, i) => (

@@ -7,12 +7,12 @@ import Form from '@/components/Form';
 import axios from 'axios';
 import {toast} from "react-toastify";
 
-const UpdatePrompt = () => {
+const UpdatePost = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const promptId = searchParams.get('id');
+  const postId = searchParams.get('id');
   const [fileSelected, setFileSelected] = useState('');
-  const [post, setPost] = useState({ prompt: '', tag: '', image: '' });
+  const [post, setPost] = useState({ post: '', tag: '', image: '' });
   const [submitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState(null);
 
@@ -44,19 +44,19 @@ const UpdatePrompt = () => {
   );
 
   useEffect(() => {
-    const getPromptDetails = async () => {
-      const response = await fetch(`/api/prompt/${promptId}`);
+    const getPostDetails = async () => {
+      const response = await fetch(`/api/post/${postId}`);
       const data = await response.json();
 
       setPost({
-        prompt: data.prompt,
+        post: data.post,
         tag: data.tag,
         image: data.image,
       });
     };
 
-    if (promptId) getPromptDetails();
-  }, [promptId]);
+    if (postId) getPostDetails();
+  }, [postId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,10 +80,10 @@ const UpdatePrompt = () => {
         imageUrl = imageResponse.data.secure_url;
       }
 
-      const response = await fetch(`/api/prompt/${promptId}`, {
+      const response = await fetch(`/api/post/${postId}`, {
         method: 'PATCH',
         body: JSON.stringify({
-          prompt: post.prompt,
+          post: post.post,
           tag: post.tag,
           image: imageUrl,
         }),
@@ -115,4 +115,4 @@ const UpdatePrompt = () => {
   );
 };
 
-export default UpdatePrompt;
+export default UpdatePost;

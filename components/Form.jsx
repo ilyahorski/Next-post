@@ -42,8 +42,8 @@ const Form = ({ type, post, handleInputChange, handleFileChange, preview, submit
           </span>
 
           <textarea
-            name='prompt'
-            value={post.prompt}
+            name='post'
+            value={post.post}
             onChange={handleInputChange}
             placeholder='Write your post here'
             required
@@ -64,7 +64,7 @@ const Form = ({ type, post, handleInputChange, handleFileChange, preview, submit
             onChange={handleInputChange}
             type='text'
             placeholder='#Tag'
-            pattern='#\w+(\s*,\s*#\w+)*\s*'
+            pattern='#[\p{L}\p{N}_]+(\s*,\s*#[\p{L}\p{N}_]+)*\s*'
             required
             className='form_input'
           />

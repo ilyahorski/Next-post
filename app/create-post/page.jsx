@@ -9,13 +9,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import Form from '@/components/Form';
 import axios from 'axios';
 
-const CreatePrompt = () => {
+const CreatePost = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
   const [submitting, setIsSubmitting] = useState(false);
   const [fileSelected, setFileSelected] = useState('');
-  const [post, setPost] = useState({ prompt: '', tag: '', image: '' });
+  const [post, setPost] = useState({ post: '', tag: '', image: '' });
 
   const [preview, setPreview] = useState(null);
 
@@ -68,10 +68,10 @@ const CreatePrompt = () => {
         imageUrl = imageResponse.data.secure_url;
       }
 
-      const response = await fetch('/api/prompt/new', {
+      const response = await fetch('/api/post/new', {
         method: 'POST',
         body: JSON.stringify({
-          prompt: post.prompt,
+          post: post.post,
           userId: session?.user.id,
           tag: post.tag,
           image: imageUrl,
@@ -107,4 +107,4 @@ const CreatePrompt = () => {
   );
 };
 
-export default CreatePrompt;
+export default CreatePost;

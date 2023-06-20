@@ -1,5 +1,5 @@
 
-import PromptCard from './PromptCard';
+import PostCard from './PostCard';
 
 const Profile = async ({ name, desc, data, handleEdit, handleDelete }) => {
 
@@ -11,9 +11,9 @@ const Profile = async ({ name, desc, data, handleEdit, handleDelete }) => {
       <p className='desc text-left'>{desc}</p>
 
       {data ? (
-        <div className='mt-10 prompt_layout'>
+        <div className='mt-10 post_layout'>
           {data.map((post) => (
-            <PromptCard
+            <PostCard
               key={post._id}
               post={post}
               handleEdit={() => handleEdit && handleEdit(post)}

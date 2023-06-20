@@ -1,8 +1,8 @@
 'use client';
 
 import Feed from '@/components/Feed';
-import Provider from "@/app/provider";
 import {SessionProvider} from "next-auth/react";
+import {ScrollToTop} from "@/components/ScrollToTop";
 
 const Home = () => (
   <section className='w-full flex-center flex-col'>
@@ -16,6 +16,7 @@ const Home = () => (
     </p>
     <SessionProvider>
       <Feed />
+      <ScrollToTop />
     </SessionProvider>
   </section>
 );
