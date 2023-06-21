@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import ReactTimeAgo from 'react-time-ago';
 import Image from 'next/image';
 import { supportedLocales, localeToFullLocale } from '@/utils/constants/supportedLocales';
-import Loading from '@/app/loading';
+import Loading from '@/app/profile/loading';
 import { parseTags } from '@/utils/tagStringToArray';
 import { ArrowUturnLeftIcon, HeartIcon as Heart } from '@heroicons/react/24/solid';
 import axios from 'axios';

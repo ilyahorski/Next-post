@@ -4,7 +4,7 @@ import Provider from '@/app/provider';
 import {useEffect, useState} from "react";
 import {supportedLocales} from "@/utils/constants/supportedLocales";
 import JavascriptTimeAgo from "javascript-time-ago";
-import Loading from "@/app/loading";
+import Loading from "@/app/profile/loading";
 
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);

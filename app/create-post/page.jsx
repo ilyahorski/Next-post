@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ToastContainer, toast } from "react-toastify";
@@ -19,19 +19,38 @@ const CreatePost = () => {
 
   const [preview, setPreview] = useState(null);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
+  const [crop, setCrop] = useState(null);
+  const [cropper, setCropper] = useState(false);
 
-    reader.onloadend = () => {
-      setPreview(reader.result);
-    };
+  // const handleFileChange = (file) => {
+  //   const reader = new FileReader();
+  //
+  //   if (file) {
+  //     reader.onloadend = () => {
+  //       setPreview(reader.result);
+  //       setFileSelected(file);
+  //     };
+  //     reader.readAsDataURL(file);
+  //
+  //   } else {
+  //     setFileSelected('');
+  //     setPreview(null);
+  //   }
+  // };
 
+  const handleFileChange = (file) => {
     if (file) {
-      reader.readAsDataURL(file);
       setFileSelected(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+        setCropper(true); // Устанавливаем состояние обрезки в true
+      };
+      reader.readAsDataURL(file);
     } else {
+      setFileSelected(null);
       setPreview(null);
+      setCropper(false); // Устанавливаем состояние обрезки в false
     }
   };
 
@@ -55,6 +74,12 @@ const CreatePost = () => {
     try {
       if (fileSelected) {
         const formData = new FormData();
+
+        if (crop) {
+          const croppedImage = await cropper.crop();
+          formData.append('file', croppedImage);
+        }
+
         formData.append('file', fileSelected);
         formData.append('upload_preset', 'u7gwudke');
 
@@ -97,10 +122,17 @@ const CreatePost = () => {
         type='Create'
         post={post}
         preview={preview}
+        setPreview={setPreview}
+        fileSelected={fileSelected}
+        setFileSelected={setFileSelected}
         handleFileChange={handleFileChange}
         submitting={submitting}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
+        crop={crop}
+        setCrop={setCrop}
+        cropper={cropper}
+        setCropper={setCropper}
       />
       <ToastContainer />
     </>

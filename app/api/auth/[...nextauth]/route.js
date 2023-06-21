@@ -49,7 +49,7 @@ const handler = NextAuth({
       }
     },
   },
-  debug: true,  // Enable debug logs
+  // debug: process.env.NODE_ENV !== "production"  // Enable debug logs
 });
 
 export { handler as GET, handler as POST };

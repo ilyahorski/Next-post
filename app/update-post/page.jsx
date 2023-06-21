@@ -16,15 +16,13 @@ const UpdatePost = () => {
   const [submitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState(null);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const handleFileChange = (file) => {
     const reader = new FileReader();
 
-    reader.onloadend = () => {
-      setPreview(reader.result);
-    };
-
     if (file) {
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
       reader.readAsDataURL(file);
       setFileSelected(file);
     } else {

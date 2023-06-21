@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import PostCard from "./PostCard";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import {useSession} from "next-auth/react";
+import { useSession } from "next-auth/react";
+import {CiCircleRemove} from "react-icons/ci";
 
 const PostCardList = ({ data, handleTagClick }) => {
 
@@ -76,15 +77,24 @@ const Feed = () => {
 
   return (
     <section className='feed'>
-      <form className='relative w-full flex-center'>
+      <form className='relative w-full flex-center items-center'>
         <input
           type='text'
           placeholder='Search for a tag or a username'
           value={searchText}
           onChange={handleSearchChange}
-          required
           className='search_input peer'
         />
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            setSearchText("");
+          }}
+          className='w-10 h-11 absolute right-0 top-0'
+        >
+          <CiCircleRemove
+            className='w-6 h-6'/>
+        </button>
       </form>
 
       {/* All Posts */}

@@ -140,7 +140,7 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                 alt='image'
                 fill={true}
                 quality={50}
-                sizes="(max-width: 1200px) 50vw"
+                sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
               />
             </div>
             <p

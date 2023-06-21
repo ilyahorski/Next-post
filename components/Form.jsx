@@ -1,7 +1,53 @@
+'use client'
+
 import Link from 'next/link';
 import Image from 'next/image';
+import {useCallback, useState} from 'react';
+import { useDropzone } from "react-dropzone";
+import { CiCircleRemove } from "react-icons/ci";
+import Cropp from "@/components/Cropp";
+import ImageCrop from "@/components/ImageCrop";
+import ImageCropper from "@/components/Crop";
 
-const Form = ({ type, post, handleInputChange, handleFileChange, preview, submitting, handleSubmit }) => {
+const Form = (
+  {
+    type,
+    post,
+    preview,
+    setPreview,
+    fileSelected,
+    setFileSelected,
+    crop,
+    setCrop,
+    cropper,
+    setCropper,
+    handleInputChange,
+    handleFileChange,
+    submitting,
+    handleSubmit
+  }) => {
+
+  const handleCrop = useCallback( (blob) => {
+    setFileSelected(blob);
+    setCropper(false); // Обрезка завершена, устанавливаем состояние обрезки в false
+  }, []);
+
+  const onDrop = useCallback((acceptedFiles) => {
+    handleFileChange(acceptedFiles[0]);
+  }, []);
+
+  const { getRootProps, open, isDragActive } = useDropzone({
+    accept: {
+      'image/jpeg': [],
+      'image/jpg': [],
+      'image/png': [],
+      'image/gif': []
+    },
+    onDrop,
+    noClick: true,
+    maxFiles: 1,
+  });
+
   return (
     <section className='w-full max-w-full flex-start flex-col'>
       <h1 className='head_text text-left'>
@@ -16,11 +62,25 @@ const Form = ({ type, post, handleInputChange, handleFileChange, preview, submit
         className='mt-10 w-full max-w-2xl flex flex-col gap-7 glassmorphism'
       >
         <label>
-          <input
-            type='file'
-            onChange={handleFileChange}
-            name='image'
-          />
+          <div className='relative w-full flex-center items-center'>
+            <div required {...getRootProps()} onClick={open}
+                 className='w-full cursor-pointer p-4 border-4 border-dashed border-gray-200 rounded-lg bg-white bg-opacity-50'>
+              {isDragActive ?
+                <p>Drop the file here...</p> :
+                <p>Drag 'n' drop some file here, or click to select file</p>
+              }
+            </div>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                handleFileChange(null);
+              }}
+              className='w-10 h-10 absolute right-0 bottom-3 text-red-700'
+            >
+              <CiCircleRemove
+                className='w-6 h-6'/>
+            </button>
+          </div>
           {post.image && !preview && (
             <div
               className={'relative my-4 w-full h-[400px] md:h-[600px] border-gray-200 border-2 bg-amber-50 rounded-lg'}>
@@ -28,12 +88,35 @@ const Form = ({ type, post, handleInputChange, handleFileChange, preview, submit
                      src={post.image ? post.image : '/assets/icons/loader.svg'} />
             </div>
           )}
-          <div
-            placeholder='Select post photo'
-            className={preview ? 'relative my-4 w-full h-[400px] md:h-[600px] border-gray-200 border-2 bg-amber-50 rounded-lg' : 'hidden'}>
-            <Image style={{ objectFit: 'contain' }} fill={true} alt={'selected image'}
-                   src={preview ? preview : '/assets/icons/loader.svg'} />
-          </div>
+          {/*<div*/}
+          {/*  placeholder='Select post photo'*/}
+          {/*  className={preview ? 'relative my-4 w-full h-[400px] md:h-[600px] border-gray-200 border-2 bg-amber-50 rounded-lg' : 'hidden'}>*/}
+          {/*  <Image style={{ objectFit: 'contain' }} fill={true} alt={'selected image'}*/}
+          {/*         src={preview ? preview : '/assets/icons/loader.svg'} />*/}
+          {/*</div>*/}
+          {/*<div*/}
+          {/*  placeholder='Select post photo'*/}
+          {/*  className={preview ? 'relative my-4 w-full h-[400px] md:h-[600px] border-gray-200 border-2 bg-amber-50 rounded-lg' : 'hidden'}>*/}
+          {/*  <ImageCrop preview={preview} setPreview={setPreview} setFileSelected={setFileSelected} />*/}
+          {/*</div>*/}
+          {/*<div>*/}
+          {/*  <ImageCropper*/}
+          {/*    image={preview}*/}
+          {/*    onCrop={setCroppedImage}*/}
+          {/*  />*/}
+          {/*  {croppedImage && <Image*/}
+          {/*    style={{ objectFit: 'contain' }}*/}
+          {/*    fill={true}*/}
+          {/*    alt={'selected image'}*/}
+          {/*    src={croppedImage} />*/}
+          {/*  }*/}
+          {/*</div>*/}
+          {preview && (
+            <ImageCropper
+              src={preview}
+              onCrop={handleCrop}
+            />
+          )}
         </label>
 
         <label>
