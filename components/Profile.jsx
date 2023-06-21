@@ -1,14 +1,8 @@
 'use client'
 
 import PostCard from './PostCard';
-import {useEffect} from "react";
 
 const Profile = async ({ name, desc, data, handleEdit, handleDelete }) => {
-
-  useEffect(() => {
-    console.log("data", data);
-  }, [data]);
-
   return (
     <section className='w-full'>
       <h1 className='head_text text-left'>

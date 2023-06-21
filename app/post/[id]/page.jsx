@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import ReactTimeAgo from 'react-time-ago';
 import Image from 'next/image';
 import { supportedLocales, localeToFullLocale } from '@/utils/constants/supportedLocales';
 import Loading from '@/app/profile/loading';
 import { parseTags } from '@/utils/tagStringToArray';
-import { ArrowUturnLeftIcon, HeartIcon as Heart } from '@heroicons/react/24/solid';
+import { HeartIcon as Heart } from '@heroicons/react/24/solid';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { HeartIcon } from '@heroicons/react/24/outline';
@@ -88,9 +88,9 @@ const Post = () => {
       {post.post ? (
         <div
           className='flex-1 break-inside-avoid rounded-lg border border-gray-300 bg-white/40 bg-clip-padding p-6 backdrop-blur-lg backdrop-filter w-full h-fit;'>
-          <div className='flex justify-between p-2 mb-4 items-center gap-5 border-gray-200 border-2 rounded-lg'>
+          <div className='flex justify-between flex-wrap p-2 mb-4 items-center gap-6 border-gray-200 border-2 rounded-lg'>
             <div
-              className='flex-1 flex justify-start items-center gap-3 cursor-pointer'
+              className='flex-1 overflow-auto flex justify-start items-center gap-3'
             >
               <Image
                 src={post.creator.image}
@@ -109,18 +109,16 @@ const Post = () => {
                 </p>
               </div>
             </div>
-            <div className='flex justify-center items-center font-inter text-sm text-gray-500'>
-              <div>
-                <ReactTimeAgo
-                  date={new Date(post.createdAt).getTime()}
-                  locale={locale in supportedLocales ? localeToFullLocale[locale] : 'en-GB'}
-                  timeStyle='round' />
-              </div>
+            <div className='flex overflow-auto justify-center items-center font-inter text-sm text-gray-600'>
+              <ReactTimeAgo
+                date={new Date(post.createdAt).getTime()}
+                locale={locale in supportedLocales ? localeToFullLocale[locale] : 'en-GB'}
+                timeStyle='round' />
             </div>
           </div>
 
           <div>
-            <div className='relative my-0.5 w-full h-[500px] border-gray-200 border-2 bg-amber-50 rounded-lg'>
+            <div className='relative my-0.5 w-full h-[700px] border-gray-200 border-2 bg-amber-50 rounded-lg'>
               <Image
                 style={{ objectFit: 'contain' }}
                 src={post.image}

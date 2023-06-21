@@ -1,6 +1,6 @@
 'use client';
 
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useState} from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ToastContainer, toast } from "react-toastify";
@@ -16,41 +16,21 @@ const CreatePost = () => {
   const [submitting, setIsSubmitting] = useState(false);
   const [fileSelected, setFileSelected] = useState('');
   const [post, setPost] = useState({ post: '', tag: '', image: '' });
-
   const [preview, setPreview] = useState(null);
 
-  const [crop, setCrop] = useState(null);
-  const [cropper, setCropper] = useState(false);
-
-  // const handleFileChange = (file) => {
-  //   const reader = new FileReader();
-  //
-  //   if (file) {
-  //     reader.onloadend = () => {
-  //       setPreview(reader.result);
-  //       setFileSelected(file);
-  //     };
-  //     reader.readAsDataURL(file);
-  //
-  //   } else {
-  //     setFileSelected('');
-  //     setPreview(null);
-  //   }
-  // };
-
   const handleFileChange = (file) => {
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setPreview(reader.result);
+    };
+
     if (file) {
-      setFileSelected(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
-        setCropper(true); // Устанавливаем состояние обрезки в true
-      };
       reader.readAsDataURL(file);
+      setFileSelected(file);
     } else {
-      setFileSelected(null);
+      setFileSelected('');
       setPreview(null);
-      setCropper(false); // Устанавливаем состояние обрезки в false
     }
   };
 
@@ -69,17 +49,18 @@ const CreatePost = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    if (!session || !session.user.id) {
+      console.error("Session or user ID is missing");
+      toast.error('Session is not available, please log in again');
+      setIsSubmitting(false);
+      return;
+    }
+
     let imageUrl = post.image;
 
     try {
       if (fileSelected) {
         const formData = new FormData();
-
-        if (crop) {
-          const croppedImage = await cropper.crop();
-          formData.append('file', croppedImage);
-        }
-
         formData.append('file', fileSelected);
         formData.append('upload_preset', 'u7gwudke');
 
@@ -97,7 +78,7 @@ const CreatePost = () => {
         method: 'POST',
         body: JSON.stringify({
           post: post.post,
-          userId: session?.user.id,
+          userId: session.user.id,
           tag: post.tag,
           image: imageUrl,
         }),
@@ -121,6 +102,7 @@ const CreatePost = () => {
       <Form
         type='Create'
         post={post}
+        session={session}
         preview={preview}
         setPreview={setPreview}
         fileSelected={fileSelected}
@@ -129,10 +111,6 @@ const CreatePost = () => {
         submitting={submitting}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
-        crop={crop}
-        setCrop={setCrop}
-        cropper={cropper}
-        setCropper={setCropper}
       />
       <ToastContainer />
     </>

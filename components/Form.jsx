@@ -2,34 +2,34 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import { useDropzone } from "react-dropzone";
-import { CiCircleRemove } from "react-icons/ci";
-import Cropp from "@/components/Cropp";
-import ImageCrop from "@/components/ImageCrop";
-import ImageCropper from "@/components/Crop";
+import CloseButton from "@/components/CloseButton";
 
 const Form = (
   {
     type,
     post,
     preview,
-    setPreview,
-    fileSelected,
-    setFileSelected,
-    crop,
-    setCrop,
-    cropper,
-    setCropper,
     handleInputChange,
     handleFileChange,
     submitting,
     handleSubmit
   }) => {
 
-  const handleCrop = useCallback( (blob) => {
-    setFileSelected(blob);
-    setCropper(false); // Обрезка завершена, устанавливаем состояние обрезки в false
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const onDrop = useCallback((acceptedFiles) => {
@@ -44,7 +44,7 @@ const Form = (
       'image/gif': []
     },
     onDrop,
-    noClick: true,
+    // noClick: true,
     maxFiles: 1,
   });
 
@@ -63,23 +63,27 @@ const Form = (
       >
         <label>
           <div className='relative w-full flex-center items-center'>
-            <div required {...getRootProps()} onClick={open}
-                 className='w-full cursor-pointer p-4 border-4 border-dashed border-gray-200 rounded-lg bg-white bg-opacity-50'>
-              {isDragActive ?
-                <p>Drop the file here...</p> :
-                <p>Drag 'n' drop some file here, or click to select file</p>
-              }
-            </div>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                handleFileChange(null);
-              }}
-              className='w-10 h-10 absolute right-0 bottom-3 text-red-700'
-            >
-              <CiCircleRemove
-                className='w-6 h-6'/>
-            </button>
+            {isMobile ? (
+              <div className='flex w-full justify-between items-center p-2 border-4 border-dashed border-gray-200 rounded-lg bg-white bg-opacity-50'>
+                <input
+                  type="file"
+                  onChange={(e) => handleFileChange(e.target.files[0])}
+                  name='image'
+                />
+                <CloseButton isMobile={isMobile} handleFileChange={handleFileChange} />
+              </div>
+            ) : (
+              <>
+                <div required {...getRootProps()} onClick={open}
+                     className='w-full cursor-pointer p-4 border-4 border-dashed border-gray-200 rounded-lg bg-white bg-opacity-50'>
+                  {isDragActive ?
+                    <p>Drop the file here...</p> :
+                    <p>Drag 'n' drop some file here, or click to select file</p>
+                  }
+                </div>
+                <CloseButton handleFileChange={handleFileChange} />
+              </>
+            )}
           </div>
           {post.image && !preview && (
             <div
@@ -88,35 +92,12 @@ const Form = (
                      src={post.image ? post.image : '/assets/icons/loader.svg'} />
             </div>
           )}
-          {/*<div*/}
-          {/*  placeholder='Select post photo'*/}
-          {/*  className={preview ? 'relative my-4 w-full h-[400px] md:h-[600px] border-gray-200 border-2 bg-amber-50 rounded-lg' : 'hidden'}>*/}
-          {/*  <Image style={{ objectFit: 'contain' }} fill={true} alt={'selected image'}*/}
-          {/*         src={preview ? preview : '/assets/icons/loader.svg'} />*/}
-          {/*</div>*/}
-          {/*<div*/}
-          {/*  placeholder='Select post photo'*/}
-          {/*  className={preview ? 'relative my-4 w-full h-[400px] md:h-[600px] border-gray-200 border-2 bg-amber-50 rounded-lg' : 'hidden'}>*/}
-          {/*  <ImageCrop preview={preview} setPreview={setPreview} setFileSelected={setFileSelected} />*/}
-          {/*</div>*/}
-          {/*<div>*/}
-          {/*  <ImageCropper*/}
-          {/*    image={preview}*/}
-          {/*    onCrop={setCroppedImage}*/}
-          {/*  />*/}
-          {/*  {croppedImage && <Image*/}
-          {/*    style={{ objectFit: 'contain' }}*/}
-          {/*    fill={true}*/}
-          {/*    alt={'selected image'}*/}
-          {/*    src={croppedImage} />*/}
-          {/*  }*/}
-          {/*</div>*/}
-          {preview && (
-            <ImageCropper
-              src={preview}
-              onCrop={handleCrop}
-            />
-          )}
+          <div
+            placeholder='Select post photo'
+            className={preview ? 'relative my-4 w-full h-[400px] md:h-[600px] border-gray-200 border-2 bg-amber-50 rounded-lg' : 'hidden'}>
+            <Image style={{ objectFit: 'contain' }} fill={true} alt={'selected image'}
+                   src={preview ? preview : '/assets/icons/loader.svg'} />
+          </div>
         </label>
 
         <label>

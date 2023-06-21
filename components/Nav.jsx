@@ -39,7 +39,14 @@ const Nav = () => {
               Create Post
             </Link>
 
-            <button type='button' onClick={() => signOut({ callbackUrl: '/' })} className='outline_btn'>
+            <button
+              type='button'
+              onClick={(e) => {
+                e.preventDefault();
+                signOut({ callbackUrl: '/' });
+              }}
+              className='outline_btn'
+            >
               Sign Out
             </button>
 
@@ -104,7 +111,8 @@ const Nav = () => {
                 </Link>
                 <button
                   type='button'
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault()
                     setToggleDropdown(false);
                     signOut('google', { callbackUrl: '/' });
                   }}
@@ -122,7 +130,8 @@ const Nav = () => {
                 <button
                   type='button'
                   key={provider.name}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault()
                     signIn(provider.id);
                   }}
                   className='black_btn'
