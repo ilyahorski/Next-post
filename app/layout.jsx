@@ -1,6 +1,7 @@
 import '@/styles/globals.css';
 import Nav from '@/components/Nav';
 import Provider from './provider';
+import {ToastContainer} from "react-toastify";
 
 export const metadata = {
   title: 'Next-post',

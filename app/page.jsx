@@ -3,6 +3,7 @@
 import Feed from '@/components/Feed';
 import { SessionProvider } from "next-auth/react";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import {ToastContainer} from "react-toastify";
 
 const Home = () => (
   <section className='w-full flex-center flex-col'>
@@ -17,6 +18,7 @@ const Home = () => (
     <SessionProvider>
       <Feed/>
       <ScrollToTop/>
+      <ToastContainer />
     </SessionProvider>
   </section>
 );

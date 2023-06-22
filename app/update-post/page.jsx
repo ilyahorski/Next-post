@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-
 import Form from '@/components/Form';
 import axios from 'axios';
-import {toast} from "react-toastify";
+import { notifyError } from "@/components/Notify";
 
 const UpdatePost = () => {
   const router = useRouter();
@@ -94,7 +93,7 @@ const UpdatePost = () => {
       router.push('/');
     } catch (error) {
       console.error("An error occurred:", error);
-      toast.error('Data was not sent, please try later');
+      notifyError('Failed to post data')
     } finally {
       setIsSubmitting(false);
     }

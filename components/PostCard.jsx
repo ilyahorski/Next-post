@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useSession } from 'next-auth/react';
+import {getProviders, useSession} from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { parseTags } from '@/utils/tagStringToArray';
 import axios from 'axios';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as Heart } from '@heroicons/react/24/solid';
-import { toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import Sceleton from "@/components/Sceleton";
+import { toggleLike } from "@/utils/toggleLike";
 
 const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   const { data: session, status } = useSession();
@@ -18,28 +18,16 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState('');
+  const [providers, setProviders] = useState(null);
 
   const tags = parseTags(post.tag);
-  const notify = () =>
-    toast.info("Please sign in to your account.", {
-      position: toast.POSITION.TOP_CENTER
-    });
 
-  const handleProfileClick = () => {
-    if (post.creator._id === session?.user?.id) return router.push('/profile');
-
-    router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
-  };
-
-  const handleCopy = () => {
-    setCopied(`https://next-post-two.vercel.app//post/${post.creator.username}?id=${post._id}`);
-    navigator.clipboard.writeText(`https://next-post-two.vercel.app//post/${post.creator.username}?id=${post._id}`);
-    setTimeout(() => setCopied(false), 3000);
-  };
-
-  const handlePostOpen = (post) => {
-    router.push(`/post/${post.creator.username}?id=${post._id}`);
-  };
+  useEffect(() => {
+    (async () => {
+      const res = await getProviders();
+      setProviders(res);
+    })();
+  }, [session]);
 
   useEffect(() => {
     if (status === 'loading' || !session) return;
@@ -60,37 +48,25 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
 
   }, [post._id, status, session]);
 
-  const toggleLike = () => {
-    axios.post(`/api/like/${post._id}/${session?.user?.id}`, { userId: session?.user?.id, postId: post._id })
-      .then(response => {
-        if (response.data === 'Like removed') {
-          setLiked(false);
-        } else if (response.status === 201) {
-          setLiked(true);
-        } else if (response.data === 'Failed to toggle like') {
-          console.log('toggleLike is called');
-          notify();
-        }
+  const handleProfileClick = () => {
+    if (post.creator._id === session?.user?.id) return router.push('/profile');
 
-        axios.get(`/api/like/${post._id}`)
-          .then(response => {
-            setLikes(response.data.likesCount);
-          })
-          .catch(error => console.error(error));
-      })
-      .catch(error => {
-        if (error.response && error.response.status === 500) {
-          notify();
-        } else {
-          console.error(error);
-        }
-      });
+    router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
   };
 
+  const handleCopy = () => {
+    setCopied(`https://next-post-two.vercel.app//post/${post.creator.username}?id=${post._id}`);
+    navigator.clipboard.writeText(`https://next-post-two.vercel.app//post/${post.creator.username}?id=${post._id}`);
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  const handlePostOpen = (post) => {
+    router.push(`/post/${post.creator.username}?id=${post._id}`);
+  };
 
   return (
     <>
-      {!(status === 'loading') ? (
+      {post && providers ? (
         <div className='post_card'>
           <div className='flex justify-between items-start gap-5'>
             <div
@@ -116,7 +92,7 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
               </div>
             </div>
 
-            <div className='copy_btn' onClick={handleCopy}>
+            <div className='copy_btn' onClick={() => handleCopy}>
               <Image
                 src={
                   copied
@@ -162,7 +138,7 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                 <p className='font-satoshi text-[16px] text-gray-700'>
                   {likes}
                 </p>
-                <button onClick={toggleLike}>
+                <button onClick={() => toggleLike({id: post._id, session: session?.user?.id, setLikes: setLikes, setLiked: setLiked})}>
                   {liked ? <Heart className='h-6 w-6 text-red-500 ' /> :
                     <HeartIcon className='h-6 w-6 ' />}
                 </button>
@@ -188,17 +164,7 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
           )}
         </div>
       ) : (
-        <div
-          className='flex-1 break-inside-avoid rounded-lg border border-gray-300 bg-white/20 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter md:w-[360px] w-full h-fit animate-pulse'>
-          <div className='h-6 bg-gray-400 rounded w-3/4 mb-4'></div>
-          <div className='h-48 bg-gray-400 rounded mb-4'></div>
-          <div className='space-y-4'>
-            <div className='h-4 bg-gray-400 rounded w-full'></div>
-          </div>
-          <div className='flex space-x-2 mt-4'>
-            <div className='h-4 bg-gray-400 rounded w-4/6'></div>
-          </div>
-        </div>
+        <Sceleton />
       )
       }
     </>

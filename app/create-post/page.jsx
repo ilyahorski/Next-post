@@ -3,8 +3,8 @@
 import {useCallback, useState} from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import { notifyError } from  '@/components/Notify'
 
 import Form from '@/components/Form';
 import axios from 'axios';
@@ -91,7 +91,7 @@ const CreatePost = () => {
       router.push('/');
     } catch (error) {
       console.error("An error occurred:", error);
-      toast.error('Data was not sent, please try later');
+      notifyError('Failed to post data');
     } finally {
       setIsSubmitting(false);
     }
@@ -99,6 +99,7 @@ const CreatePost = () => {
 
   return (
     <>
+      <ToastContainer />
       <Form
         type='Create'
         post={post}
@@ -112,7 +113,6 @@ const CreatePost = () => {
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
       />
-      <ToastContainer />
     </>
   );
 };
