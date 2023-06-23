@@ -6,8 +6,14 @@ import {useCallback, useEffect, useState} from 'react';
 import { useDropzone } from "react-dropzone";
 import CloseButton from "@/components/CloseButton";
 
+import { Cropper } from "react-advanced-cropper";
+import "react-advanced-cropper/dist/style.css";
+import 'react-advanced-cropper/dist/themes/compact.css';
+
 const Form = (
   {
+    cropperRef,
+    inputRef,
     type,
     post,
     preview,
@@ -44,7 +50,7 @@ const Form = (
       'image/gif': []
     },
     onDrop,
-    // noClick: true,
+    noClick: true,
     maxFiles: 1,
   });
 
@@ -69,6 +75,7 @@ const Form = (
                   type="file"
                   onChange={(e) => handleFileChange(e.target.files[0])}
                   name='image'
+                  ref={inputRef}
                 />
                 <CloseButton isMobile={isMobile} handleFileChange={handleFileChange} />
               </div>
@@ -92,13 +99,14 @@ const Form = (
                      src={post.image ? post.image : '/assets/icons/loader.svg'} />
             </div>
           )}
-          <div
-            placeholder='Select post photo'
-            className={preview ? 'relative my-4 w-full h-[400px] md:h-[600px] border-gray-200 border-2 bg-amber-50 rounded-lg' : 'hidden'}>
-            <Image style={{ objectFit: 'contain' }} fill={true} alt={'selected image'}
-                   src={preview ? preview : '/assets/icons/loader.svg'} />
-          </div>
         </label>
+        <Cropper
+          ref={cropperRef}
+          src={preview}
+          stencilProps={{
+            grid: true
+          }}
+        />
 
         <label>
           <span className='font-satoshi font-semibold text-base text-gray-700'>

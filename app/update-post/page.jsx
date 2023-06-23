@@ -1,44 +1,22 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Form from '@/components/Form';
 import axios from 'axios';
 import { notifyError } from "@/components/Notify";
+import {dataURLtoBlob} from "@/utils/dataUrlToBlob";
 
 const UpdatePost = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const postId = searchParams.get('id');
-  const [fileSelected, setFileSelected] = useState('');
   const [post, setPost] = useState({ post: '', tag: '', image: '' });
   const [submitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState(null);
 
-  const handleFileChange = (file) => {
-    const reader = new FileReader();
-
-    if (file) {
-      reader.onloadend = () => {
-        setPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-      setFileSelected(file);
-    } else {
-      setPreview(null);
-    }
-  };
-
-  const handleInputChange = useCallback(
-    (event) => {
-      const { name, value, files } = event.target;
-      setPost((prevPost) => ({
-        ...prevPost,
-        [name]: files ? files[0] : value,
-      }));
-    },
-    [setPost],
-  );
+  const cropperRef = useRef(null);
+  const inputRef = useRef();
 
   useEffect(() => {
     const getPostDetails = async () => {
@@ -55,16 +33,50 @@ const UpdatePost = () => {
     if (postId) getPostDetails();
   }, [postId]);
 
+  const clearFile = () => {
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  };
+
+  const handleFileChange = (file) => {
+    if (file) {
+      setPreview(URL.createObjectURL(file))
+    } else {
+      setPreview('');
+      clearFile();
+    }
+  };
+
+  const handleInputChange = useCallback(
+    (event) => {
+      const { name, value, files } = event.target;
+      setPost((prevPost) => ({
+        ...prevPost,
+        [name]: files ? files[0] : value,
+      }));
+    },
+    [setPost],
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    let blob;
     let imageUrl = post.image;
+    let cropper = cropperRef.current;
 
     try {
-      if (fileSelected) {
+      if (cropper) {
+        const canvas = cropper.getCanvas();
+        const dataURL = canvas.toDataURL();
+        blob = dataURLtoBlob({dataURL});
+      }
+
+      if (blob) {
         const formData = new FormData();
-        formData.append('file', fileSelected);
+        formData.append('file', blob);
         formData.append('upload_preset', 'u7gwudke');
 
         const imageResponse = await axios.post(
@@ -101,12 +113,14 @@ const UpdatePost = () => {
 
   return (
     <Form
+      cropperRef={cropperRef}
+      inputRef={inputRef}
       type='Edit'
       post={post}
       preview={preview}
       handleFileChange={handleFileChange}
-      submitting={submitting}
       handleInputChange={handleInputChange}
+      submitting={submitting}
       handleSubmit={handleSubmit}
     />
   );

@@ -11,7 +11,6 @@ import { HeartIcon as Heart } from '@heroicons/react/24/solid';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { HeartIcon } from '@heroicons/react/24/outline';
-import {notifyInfo} from "@/components/Notify";
 import {ToastContainer} from "react-toastify";
 import {toggleLike} from "@/utils/toggleLike";
 
@@ -65,35 +64,6 @@ const Post = () => {
       .catch(error => console.error(error));
 
   }, [postId, status, session?.user]);
-
-
-  // const toggleLike = () => {
-  //   axios.post(`/api/like/${postId}/${session?.user?.id}`,
-  //     { userId: session?.user?.id, postId: postId })
-  //     .then(response => {
-  //       if (response.data === 'Like removed') {
-  //         setLiked(false);
-  //       } else if (response.status === 201) {
-  //         setLiked(true);
-  //       } else if (response.data === 'Failed to toggle like') {
-  //         console.log('toggleLike is called');
-  //         notifyInfo();
-  //       }
-  //
-  //       axios.get(`/api/like/${postId}`)
-  //         .then(response => {
-  //           setLikes(response.data.likesCount);
-  //         })
-  //         .catch(error => console.error(error));
-  //     })
-  //     .catch(error => {
-  //       if (error.response && error.response.status === 500) {
-  //         notifyInfo();
-  //       } else {
-  //         console.error(error);
-  //       }
-  //     });
-  // };
 
   return (
     <>

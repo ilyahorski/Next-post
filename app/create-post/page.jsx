@@ -1,6 +1,6 @@
 'use client';
 
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ToastContainer } from "react-toastify";
@@ -8,29 +8,31 @@ import { notifyError } from  '@/components/Notify'
 
 import Form from '@/components/Form';
 import axios from 'axios';
+import {dataURLtoBlob} from "@/utils/dataUrlToBlob";
 
 const CreatePost = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
   const [submitting, setIsSubmitting] = useState(false);
-  const [fileSelected, setFileSelected] = useState('');
   const [post, setPost] = useState({ post: '', tag: '', image: '' });
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState('');
+
+  const cropperRef = useRef(null);
+  const inputRef = useRef();
+
+  const clearFile = () => {
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  };
 
   const handleFileChange = (file) => {
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      setPreview(reader.result);
-    };
-
     if (file) {
-      reader.readAsDataURL(file);
-      setFileSelected(file);
+      setPreview(URL.createObjectURL(file))
     } else {
-      setFileSelected('');
-      setPreview(null);
+      setPreview('');
+      clearFile();
     }
   };
 
@@ -51,17 +53,25 @@ const CreatePost = () => {
 
     if (!session || !session.user.id) {
       console.error("Session or user ID is missing");
-      toast.error('Session is not available, please log in again');
+      notifyError('Session is not available, please log in again');
       setIsSubmitting(false);
       return;
     }
 
+    let blob;
     let imageUrl = post.image;
+    let cropper = cropperRef.current;
 
     try {
-      if (fileSelected) {
+      if (cropper) {
+        const canvas = cropper.getCanvas();
+        const dataURL = canvas.toDataURL();
+        blob = dataURLtoBlob({dataURL});
+      }
+
+      if (blob) {
         const formData = new FormData();
-        formData.append('file', fileSelected);
+        formData.append('file', blob);
         formData.append('upload_preset', 'u7gwudke');
 
         const imageResponse = await axios.post(
@@ -101,16 +111,14 @@ const CreatePost = () => {
     <>
       <ToastContainer />
       <Form
+        cropperRef={cropperRef}
+        inputRef={inputRef}
         type='Create'
         post={post}
-        session={session}
         preview={preview}
-        setPreview={setPreview}
-        fileSelected={fileSelected}
-        setFileSelected={setFileSelected}
         handleFileChange={handleFileChange}
-        submitting={submitting}
         handleInputChange={handleInputChange}
+        submitting={submitting}
         handleSubmit={handleSubmit}
       />
     </>
