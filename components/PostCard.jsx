@@ -10,17 +10,32 @@ import { HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as Heart } from '@heroicons/react/24/solid';
 import Sceleton from "@/components/Sceleton";
 import { toggleLike } from "@/utils/toggleLike";
+import ReactTimeAgo from "react-time-ago";
+import {localeToFullLocale, supportedLocales} from "@/utils/constants/supportedLocales";
+import JavascriptTimeAgo from "javascript-time-ago";
+
+JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 
 const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   const { data: session, status } = useSession();
-  const pathName = usePathname();
-  const router = useRouter();
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState('');
   const [providers, setProviders] = useState(null);
+  const [localeLoaded, setLocaleLoaded] = useState(false);
 
+  const pathName = usePathname();
+  const router = useRouter();
+  const locale = navigator.language;
   const tags = parseTags(post.tag);
+
+  useEffect(() => {
+    const userLocale = navigator.language.split('-')[0];
+    setLocaleLoaded(true);
+    if (userLocale in supportedLocales) {
+      JavascriptTimeAgo.addLocale(supportedLocales[userLocale]);
+    }
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -66,9 +81,9 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
 
   return (
     <>
-      {post && providers ? (
+      {post && providers && localeLoaded ? (
         <div className='post_card'>
-          <div className='flex justify-between items-start gap-5'>
+          <div className='flex justify-between items-end gap-5 -mt-3'>
             <div
               title='Click to open creator profile'
               className='flex-1 flex justify-start items-center gap-3 cursor-pointer'
@@ -77,12 +92,12 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
               <Image
                 src={post.creator.image}
                 alt='user_image'
-                width={40}
-                height={40}
+                width={50}
+                height={50}
                 className='rounded-full object-contain'
               />
 
-              <div className='flex flex-col'>
+              <div className='flex flex-col gap-2'>
                 <h3 className='font-satoshi font-semibold text-gray-900'>
                   {post.creator.username}
                 </h3>
@@ -92,35 +107,45 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
               </div>
             </div>
 
-            <div className='copy_btn' onClick={() => handleCopy}>
-              <Image
-                src={
-                  copied
-                    ? '/assets/icons/tick.svg'
-                    : '/assets/icons/copy.svg'
-                }
-                alt={copied ? 'tick_icon' : 'copy_icon'}
-                width={12}
-                height={12}
-              />
+            <div className='flex flex-col items-end gap-2'>
+              <div className='flex overflow-auto justify-center items-center font-inter text-sm text-gray-600'>
+                <ReactTimeAgo
+                  date={new Date(post.createdAt).getTime()}
+                  locale={locale in supportedLocales ? localeToFullLocale[locale] : 'en-GB'}
+                  timeStyle='round' />
+              </div>
+              <div className='copy_btn' onClick={() => handleCopy}>
+                <Image
+                  src={
+                    copied
+                      ? '/assets/icons/tick.svg'
+                      : '/assets/icons/copy.svg'
+                  }
+                  alt={copied ? 'tick_icon' : 'copy_icon'}
+                  width={12}
+                  height={12}
+                />
+              </div>
             </div>
           </div>
 
           <div>
             <div title='Click to open a post page'
                  onClick={() => handlePostOpen(post)}
-                 className='relative my-4 w-full h-[300px] border-gray-200 border-2 bg-amber-50 rounded-lg cursor-pointer'>
+                 className='relative flex justify-center my-4 w-full h-fit cursor-pointer'>
               <Image
                 style={{ objectFit: 'contain' }}
                 src={post.image}
                 alt='image'
-                fill={true}
+                width={400}
+                height={400}
+                // fill={true}
                 quality={50}
                 sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
               />
             </div>
             <p
-              className='my-4 font-satoshi text-sm text-gray-700'>{post.post}</p>
+              className='my-4 pb-2 border-b-[1px] border-gray-400 font-satoshi text-sm text-gray-700'>{post.post}</p>
             <div className='flex items-start justify-between'>
               <div className='flex flex-wrap items-center gap-2'>
                 {tags.map((tag, i) => (

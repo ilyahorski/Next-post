@@ -6,9 +6,3 @@ export const dataURLtoBlob = ({dataURL}) => {
   }
   return new Blob([u8arr], {type:mime});
 }
-
-
-// export const dataURLtoBlob = async ({dataURL}) => {
-//   const res = await fetch(dataURL);
-//   return await res.blob();
-// }

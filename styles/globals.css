@@ -4,9 +4,48 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@layer utilities {
+  @variants responsive {
+    .masonry {
+      column-gap: 1.5em;
+      column-count: 1;
+    }
+    .masonry-sm {
+      column-gap: 1.5em;
+      column-count: 2;
+    }
+    .masonry-md {
+      column-gap: 1.5em;
+      column-count: 3;
+    }
+    .break-inside {
+      break-inside: avoid;
+    }
+  }
+}
+
 /* 
   Note: The styles for this gradient grid background is heavily inspired by the creator of this amazing site (https://dub.sh) – all credits go to them! 
 */
+
+.my-masonry-grid {
+  display: -webkit-box; /* Not needed if autoprefixing */
+  display: -ms-flexbox; /* Not needed if autoprefixing */
+  display: flex;
+  margin-left: -30px; /* gutter size offset */
+  margin-top: 30px;
+  width: auto;
+}
+.my-masonry-grid_column {
+  padding-left: 30px; /* gutter size */
+  background-clip: padding-box;
+}
+
+/* Style your items */
+.my-masonry-grid_column > div { /* change div to reference your elements you put in <Masonry> */
+  margin-bottom: 30px;
+}
 
 .main {
   width: 100vw;
@@ -38,6 +77,20 @@
   top: 0;
   opacity: 0.4;
   filter: invert(1);
+}
+
+.animate-gradient-x {
+  background-size: 200% 100%;
+  animation: gradient-x 5s linear infinite;
+}
+
+@keyframes gradient-x {
+  0% {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media screen and (max-width: 640px) {
@@ -96,14 +149,16 @@
   @apply rounded-xl border border-gray-200 bg-white/20 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur p-5;
 }
 
-.post_layout {
-  @apply space-y-6 py-8 lg:columns-2 lg:gap-6;
-}
+/*.post_layout {*/
+  /*@apply space-y-6 py-8 lg:columns-2 lg:gap-6;*/
+  /*@apply grid break-inside-avoid-column grid-cols-1 lg:grid-cols-2 border-2 border-red-500;*/
+  /*@apply masonry sm:masonry-sm md:masonry-md border-2 border-red-500;*/
+/*}*/
 
 /* PostCard Component */
 .post_card {
   @apply flex-1 break-inside-avoid rounded-lg border border-gray-300 bg-white/20 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter xs:w-[510px] w-[370px] h-fit;
-}
+  }
 
 /* Feed Component */
 .feed {

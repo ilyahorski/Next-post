@@ -30,16 +30,16 @@ export const ScrollToTop = () => {
   }, [])
 
   return (
-    <div className="fixed bottom-2 right-2">
+    <div className="fixed bottom-9 xs:right-1 xs:left-auto left-1">
       <button
         type="button"
         onClick={scrollToTop}
         className={classNames(
           isVisible ? 'opacity-100' : 'opacity-0',
-          'bg-cyan-600/60 hover:bg-cyan-700/80 focus:ring-cyan-500 hover:outline-none inline-flex items-center rounded-full p-3 text-white shadow-sm transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2',
+          'text-cyan-600/60 hover:bg-cyan-700/20 focus:text-cyan-500 hover:outline-none rounded-lg border-[1.5px] border-cyan-600 inline-flex items-center shadow-sm transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2',
         )}
       >
-        <BiArrowFromBottom className="h-4 w-4" aria-hidden="true" />
+        <BiArrowFromBottom className="h-7 w-7 xs:h-10 xs:w-10" aria-hidden="true" />
       </button>
     </div>
   )

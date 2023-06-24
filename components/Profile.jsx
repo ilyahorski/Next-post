@@ -1,6 +1,12 @@
 'use client'
 
 import PostCard from './PostCard';
+import Masonry from 'react-masonry-css'
+
+const breakpointColumnsObj = {
+  default: 2,
+  1130: 1,
+};
 
 const Profile = async ({ name, desc, data, handleEdit, handleDelete }) => {
   return (
@@ -11,16 +17,20 @@ const Profile = async ({ name, desc, data, handleEdit, handleDelete }) => {
       <p className='desc text-left'>{desc}</p>
 
       {data ? (
-        <div className='mt-10 post_layout'>
-          {data.map((post) => (
-            <PostCard
-              key={post._id}
-              post={post}
-              handleEdit={() => handleEdit && handleEdit(post)}
-              handleDelete={() => handleDelete && handleDelete(post)}
-            />
-          ))}
-        </div>
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="my-masonry-grid"
+            columnClassName="my-masonry-grid_column"
+          >
+            {data.map((post) => (
+              <PostCard
+                key={post._id}
+                post={post}
+                handleEdit={() => handleEdit && handleEdit(post)}
+                handleDelete={() => handleDelete && handleDelete(post)}
+              />
+            ))}
+          </Masonry>
       ) : (
         <div className='border-2 border-amber-950'>You are not authorized, Please Log in!</div>
       )}

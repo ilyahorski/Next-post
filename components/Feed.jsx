@@ -1,30 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import PostCard from "./PostCard";
-import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
 import { useSession } from "next-auth/react";
-import {CiCircleRemove} from "react-icons/ci";
+import { CiCircleRemove } from "react-icons/ci";
+import { PostCardList } from "@/components/PostCardList";
+import { EndMessage, LoadingBar } from "@/components/Loading";
 import InfiniteScroll from 'react-infinite-scroll-component';
-
-const PostCardList = ({ data, handleTagClick }) => {
-
-  return (
-    <>
-      <div className='mt-16 post_layout'>
-        {data.map((post) => (
-          <PostCard
-            key={post._id}
-            post={post}
-            handleTagClick={handleTagClick}
-          />
-        ))}
-      </div>
-      <ToastContainer />
-    </>
-  );
-};
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -104,7 +85,16 @@ const Feed = () => {
         dataLength={allPosts.length}
         next={fetchPosts}
         hasMore={true}
-        loader={<h4>Loading...</h4>}
+        loader={<LoadingBar />}
+        refreshFunction={fetchPosts}
+        pullDownToRefresh
+        pullDownToRefreshThreshold={100}
+        pullDownToRefreshContent={
+          <h3 style={{ textAlign: 'center' }}>&#8595; Pull down to refresh</h3>
+        }
+        releaseToRefreshContent={
+          <h3 style={{ textAlign: 'center' }}>&#8593; Release to refresh</h3>
+        }
       >
         {searchText ? (
           <PostCardList
