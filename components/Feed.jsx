@@ -6,6 +6,7 @@ import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useSession } from "next-auth/react";
 import {CiCircleRemove} from "react-icons/ci";
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const PostCardList = ({ data, handleTagClick }) => {
 
@@ -27,23 +28,29 @@ const PostCardList = ({ data, handleTagClick }) => {
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
+  const [page, setPage] = useState(1);
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
   const { data: session, status } = useSession();
 
   const fetchPosts = async () => {
-    const response = await fetch("/api/post");
-    const data = await response.json();
+    try {
+      const res = await fetch(`/api/post?page=1&limit=4`);
+      const newPosts = await res.json();
 
-    setAllPosts(data);
+      setAllPosts(allPosts.concat(newPosts));
+      setPage(page + 1);
+    } catch (error) {
+      console.error('Failed to load posts:', error);
+    }
   };
 
   useEffect(() => {
     if (status !== 'loading') {
       fetchPosts();
     }
-  }, [status]);
+  }, [status, page]);
 
   const filterPosts = (searchtext) => {
     const regex = new RegExp(searchtext, "i"); // 'i' flag for case-insensitive search
@@ -97,15 +104,21 @@ const Feed = () => {
         </button>
       </form>
 
-      {/* All Posts */}
-      {searchText ? (
-        <PostCardList
-          data={searchedResults}
-          handleTagClick={handleTagClick}
-        />
-      ) : (
-        <PostCardList data={allPosts} handleTagClick={handleTagClick} />
-      )}
+      <InfiniteScroll
+        dataLength={allPosts.length}
+        next={fetchPosts}
+        hasMore={true}
+        loader={<h4>Loading...</h4>}
+      >
+        {searchText ? (
+          <PostCardList
+            data={searchedResults}
+            handleTagClick={handleTagClick}
+          />
+        ) : (
+          <PostCardList data={allPosts} handleTagClick={handleTagClick} />
+        )}
+      </InfiniteScroll>
     </section>
   );
 };

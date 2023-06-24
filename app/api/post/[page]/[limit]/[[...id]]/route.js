@@ -1,17 +1,32 @@
 import Post from '@/models/post';
 import { connectToDB } from '@/utils/database';
 
-export const GET = async (request, { params }) => {
+export const GET = async (request) => {
+
+  const id = request.query.id[0];
+  const page = Number(request.query.page) || 1;
+  const limit = Number(request.query.limit) || 4;
+
   try {
     await connectToDB();
 
-    const post = await Post.findById(params.id).populate('creator');
-    if (!post) return new Response('Post Not Found', { status: 404 });
+    let posts;
 
-    return new Response(JSON.stringify(post), { status: 200 });
+    if (id) {
+      posts = await Post.findById(id).populate('creator');
+    } else {
+      posts = await Post.find({})
+        .sort({createdAt: -1})
+        .skip((page - 1))
+        .limit(limit)
+        .populate('creator');
+    }
 
+    if (!posts) return new Response('Post Not Found', { status: 404 });
+    return new Response(JSON.stringify(posts), { status: 200 });
   } catch (error) {
-    return new Response('Internal Server Error', { status: 500 });
+    console.log(error)
+    return new Response('Failed to fetch all posts', { status: 500 });
   }
 };
 
