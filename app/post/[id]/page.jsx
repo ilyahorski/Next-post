@@ -102,13 +102,11 @@ const Post = () => {
             </div>
 
             <div>
-              <div className='relative flex justify-center my-4 w-full h-[600px] rounded-lg'>
+              <div className='relative flex justify-center my-4 w-full h-[450px] xs:h-[600px] rounded-lg'>
                 <Image
                   style={{ objectFit: 'contain' }}
                   src={post.image}
                   alt='image'
-                  // width={400}
-                  // height={800}
                   fill={true}
                   quality={100}
                 />

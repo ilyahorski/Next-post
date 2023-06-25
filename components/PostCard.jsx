@@ -13,6 +13,7 @@ import { toggleLike } from "@/utils/toggleLike";
 import ReactTimeAgo from "react-time-ago";
 import {localeToFullLocale, supportedLocales} from "@/utils/constants/supportedLocales";
 import JavascriptTimeAgo from "javascript-time-ago";
+import {handleCopy} from "@/utils/handleCopy";
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 
@@ -69,12 +70,6 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
     router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
   };
 
-  const handleCopy = () => {
-    setCopied(`https://next-post-two.vercel.app//post/${post.creator.username}?id=${post._id}`);
-    navigator.clipboard.writeText(`https://next-post-two.vercel.app//post/${post.creator.username}?id=${post._id}`);
-    setTimeout(() => setCopied(false), 3000);
-  };
-
   const handlePostOpen = (post) => {
     router.push(`/post/${post.creator.username}?id=${post._id}`);
   };
@@ -107,14 +102,14 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
               </div>
             </div>
 
-            <div className='flex flex-col items-end gap-2'>
+            <div className='flex flex-col items-end gap-[6px]'>
               <div className='flex overflow-auto justify-center items-center font-inter text-sm text-gray-600'>
                 <ReactTimeAgo
                   date={new Date(post.createdAt).getTime()}
                   locale={locale in supportedLocales ? localeToFullLocale[locale] : 'en-GB'}
                   timeStyle='round' />
               </div>
-              <div className='copy_btn' onClick={() => handleCopy}>
+              <button className='copy_btn' onClick={() => handleCopy({post: post, setCopied: setCopied})}>
                 <Image
                   src={
                     copied
@@ -125,7 +120,7 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                   width={12}
                   height={12}
                 />
-              </div>
+              </button>
             </div>
           </div>
 

@@ -106,7 +106,7 @@
 }
 
 .app {
-  @apply relative z-10 flex justify-center items-center flex-col max-w-7xl mx-auto md:px-16 px-6;
+  @apply relative z-10 flex justify-center items-center flex-col max-w-7xl mx-auto px-6;
 }
 
 .black_btn {
@@ -118,7 +118,7 @@
 }
 
 .head_text {
-  @apply mt-5 text-5xl font-extrabold leading-[1.15] text-black sm:text-6xl;
+  @apply w-full text-5xl font-extrabold leading-[1.15] text-black;
 }
 
 .orange_gradient {
@@ -146,14 +146,8 @@
 }
 
 .glassmorphism {
-  @apply rounded-xl border border-gray-200 bg-white/20 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur p-5;
+  @apply rounded-xl border border-gray-200 bg-gray-500/20 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur;
 }
-
-/*.post_layout {*/
-  /*@apply space-y-6 py-8 lg:columns-2 lg:gap-6;*/
-  /*@apply grid break-inside-avoid-column grid-cols-1 lg:grid-cols-2 border-2 border-red-500;*/
-  /*@apply masonry sm:masonry-sm md:masonry-md border-2 border-red-500;*/
-/*}*/
 
 /* PostCard Component */
 .post_card {
@@ -167,7 +161,7 @@
 
 /* Form Component */
 .form_textarea {
-  @apply w-full flex rounded-lg h-[200px] mt-2 p-3 text-sm text-gray-500 outline-0;
+  @apply w-full flex rounded-lg min-h-[80px] h-[100px] xs:max-h-[450px] mt-2 p-3 text-sm text-gray-500 outline-0;
 }
 
 .form_input {

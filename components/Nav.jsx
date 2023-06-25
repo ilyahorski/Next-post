@@ -32,7 +32,7 @@ const Nav = () => {
       </Link>
 
       {/* Desktop Navigation */}
-      <div className='sm:flex hidden'>
+      <div className='xs:flex hidden'>
         {session?.user ? (
           <div className='flex gap-3 md:gap-5'>
             <Link href='/create-post' className='black_btn'>
@@ -81,7 +81,7 @@ const Nav = () => {
       </div>
 
       {/* Mobile Navigation */}
-      <div className='sm:hidden flex relative'>
+      <div className='xs:hidden flex relative'>
         {session?.user ? (
           <div className='flex'>
             <Image
@@ -94,7 +94,7 @@ const Nav = () => {
             />
 
             {toggleDropdown && (
-              <div className='dropdown'>
+              <div className='dropdown z-50'>
                 <Link
                   href='/profile'
                   className='dropdown_link'

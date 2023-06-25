@@ -40,8 +40,15 @@ const UpdatePost = () => {
   };
 
   const handleFileChange = (file) => {
+    let maxSize = 9000000; // 12MB
+
+    if (file && file.size > maxSize) {
+      notifyError("File is too large, please pick a file smaller than 9MB.");
+      return;
+    }
+
     if (file) {
-      setPreview(URL.createObjectURL(file))
+      setPreview(URL.createObjectURL(file));
     } else {
       setPreview('');
       clearFile();

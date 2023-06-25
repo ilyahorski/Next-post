@@ -1,5 +1,4 @@
 import PostCard from "@/components/PostCard";
-import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Masonry from 'react-masonry-css'
 
@@ -26,7 +25,6 @@ export const PostCardList = ({ data, handleTagClick }) => {
           />
         ))}
       </Masonry>
-      <ToastContainer />
     </>
   );
 };

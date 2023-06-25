@@ -3,7 +3,6 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { ToastContainer } from "react-toastify";
 import { notifyError } from  '@/components/Notify'
 
 import Form from '@/components/Form';
@@ -28,8 +27,15 @@ const CreatePost = () => {
   };
 
   const handleFileChange = (file) => {
+    let maxSize = 9000000; // 12MB
+
+    if (file && file.size > maxSize) {
+      notifyError("File is too large, please pick a file smaller than 9MB.");
+      return;
+    }
+
     if (file) {
-      setPreview(URL.createObjectURL(file))
+      setPreview(URL.createObjectURL(file));
     } else {
       setPreview('');
       clearFile();
@@ -108,20 +114,17 @@ const CreatePost = () => {
   };
 
   return (
-    <>
-      <ToastContainer />
-      <Form
-        cropperRef={cropperRef}
-        inputRef={inputRef}
-        type='Create'
-        post={post}
-        preview={preview}
-        handleFileChange={handleFileChange}
-        handleInputChange={handleInputChange}
-        submitting={submitting}
-        handleSubmit={handleSubmit}
-      />
-    </>
+    <Form
+      cropperRef={cropperRef}
+      inputRef={inputRef}
+      type='Create'
+      post={post}
+      preview={preview}
+      handleFileChange={handleFileChange}
+      handleInputChange={handleInputChange}
+      submitting={submitting}
+      handleSubmit={handleSubmit}
+    />
   );
 };
 
