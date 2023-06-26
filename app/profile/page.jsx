@@ -13,7 +13,6 @@ const MyProfile = () => {
   const { data: session, status } = useSession();
 
   useEffect(() => {
-
     if (status === 'loading' || !session) return;
 
     axios.get(`/api/users/${session?.user?.id}/posts`)
@@ -23,7 +22,7 @@ const MyProfile = () => {
       .catch(error => console.error(error));
 
 
-  }, [status, session?.user]);
+  }, [session?.user]);
 
   const handleEdit = (post) => {
     router.push(`/update-post?id=${post._id}`);
@@ -52,8 +51,8 @@ const MyProfile = () => {
   return (
     <Profile
       name='My'
-      desc='Welcome to your personalized profile page. Share your exceptional posts and inspire others with the power of your imagination'
       data={myPosts}
+      session={session?.user.id}
       handleEdit={handleEdit}
       handleDelete={handleDelete}
     />

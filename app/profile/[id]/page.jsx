@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-
 import Profile from '@/components/Profile';
 import {useSession} from "next-auth/react";
 
@@ -22,12 +21,11 @@ const UserProfile = ({ params }) => {
     };
 
     if (params?.id) fetchPosts();
-  }, [params?.id]);
+  }, []);
 
   return (
     <Profile
       name={userName}
-      desc={`Welcome to ${userName}'s personalized profile page. Explore ${userName}'s exceptional posts and be inspired by the power of their imagination`}
       data={userPosts}
     />
   );

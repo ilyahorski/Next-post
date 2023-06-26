@@ -6,6 +6,7 @@ import Form from '@/components/Form';
 import axios from 'axios';
 import { notifyError } from "@/components/Notify";
 import {dataURLtoBlob} from "@/utils/dataUrlToBlob";
+import {ToastContainer} from "react-toastify";
 
 const UpdatePost = () => {
   const router = useRouter();
@@ -43,7 +44,7 @@ const UpdatePost = () => {
     let maxSize = 9000000; // 12MB
 
     if (file && file.size > maxSize) {
-      notifyError("File is too large, please pick a file smaller than 9MB.");
+      alert("File is too large, please pick a file smaller than 9MB.");
       return;
     }
 
@@ -112,7 +113,7 @@ const UpdatePost = () => {
       router.push('/');
     } catch (error) {
       console.error("An error occurred:", error);
-      notifyError('Failed to post data')
+      alert('Failed to post data')
     } finally {
       setIsSubmitting(false);
     }
@@ -122,7 +123,7 @@ const UpdatePost = () => {
     <Form
       cropperRef={cropperRef}
       inputRef={inputRef}
-      type='Edit'
+      type='Updat'
       post={post}
       preview={preview}
       handleFileChange={handleFileChange}

@@ -58,7 +58,7 @@ const Form = (
   return (
     <section className='w-full max-w-full flex-start flex-col'>
       <h2 className='head_text text-center -mt-10'>
-        <span className='blue_gradient'>{type} Post</span>
+        <span className='blue_gradient'>{type}e Post</span>
       </h2>
 
       <form
@@ -156,12 +156,11 @@ const Form = (
               disabled={submitting}
               className='px-5 py-1.5 text-sm bg-primary-orange rounded-full text-white'
             >
-              {submitting ? `${type}ing...` : type}
+              {submitting ? `${type}ing...` : `${type}e`}
             </button>
           </div>
         </div>
       </form>
-      <ToastContainer autoClose={3000} />
     </section>
   );
 };

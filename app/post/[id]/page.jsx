@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import ReactTimeAgo from 'react-time-ago';
 import Image from 'next/image';
 import { supportedLocales, localeToFullLocale } from '@/utils/constants/supportedLocales';
-import Loading from '@/app/profile/loading';
+import Loading from "@/utils/loading";
 import { parseTags } from '@/utils/tagStringToArray';
 import { HeartIcon as Heart } from '@heroicons/react/24/solid';
 import axios from 'axios';
@@ -77,7 +77,7 @@ const Post = () => {
                 className='flex-1 overflow-auto flex justify-start items-center gap-3'
               >
                 <Image
-                  src={post.creator.image}
+                  src={post.creator.userImage ? post.creator.userImage : post.creator.image}
                   alt='user_image'
                   width={50}
                   height={50}

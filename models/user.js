@@ -13,6 +13,9 @@ const UserSchema = new Schema({
   image: {
     type: String,
   },
+  userImage: {
+    type: String,
+  },
   session: {
     type: String,
   },

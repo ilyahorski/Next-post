@@ -10,12 +10,28 @@ const Nav = () => {
 
   const [toggleDropdown, setToggleDropdown] = useState(false);
   const [providers, setProviders] = useState(null);
+  const [data, setData] = useState({ username: '', userImage: '', image: ''});
 
   useEffect(() => {
     (async () => {
       const res = await getProviders();
       setProviders(res);
     })();
+  }, [session]);
+
+  useEffect(() => {
+    const getUserData = async () => {
+      const response = await fetch(`/api/users/edit/${session?.user.id}`);
+      const data = await response.json();
+
+      setData({
+        username: data.username,
+        userImage: data.userImage,
+        image: data.image,
+      });
+    };
+
+    if (session) getUserData();
   }, [session]);
 
   return (
@@ -52,7 +68,7 @@ const Nav = () => {
 
             <Link href='/profile'>
               <Image
-                src={session?.user.image}
+                src={data?.userImage ? data?.userImage : session?.user.image}
                 width={37}
                 height={37}
                 className='rounded-full'
@@ -85,7 +101,7 @@ const Nav = () => {
         {session?.user ? (
           <div className='flex'>
             <Image
-              src={session?.user.image}
+              src={data?.userImage ? data?.userImage : session?.user.image}
               width={37}
               height={37}
               className='rounded-full'

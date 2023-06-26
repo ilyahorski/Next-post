@@ -8,6 +8,7 @@ import { notifyError } from  '@/components/Notify'
 import Form from '@/components/Form';
 import axios from 'axios';
 import {dataURLtoBlob} from "@/utils/dataUrlToBlob";
+import {ToastContainer} from "react-toastify";
 
 const CreatePost = () => {
   const router = useRouter();
@@ -30,7 +31,7 @@ const CreatePost = () => {
     let maxSize = 9000000; // 12MB
 
     if (file && file.size > maxSize) {
-      notifyError("File is too large, please pick a file smaller than 9MB.");
+      alert("File is too large, please pick a file smaller than 9MB.");
       return;
     }
 
@@ -59,7 +60,7 @@ const CreatePost = () => {
 
     if (!session || !session.user.id) {
       console.error("Session or user ID is missing");
-      notifyError('Session is not available, please log in again');
+      alert('Session is not available, please log in again');
       setIsSubmitting(false);
       return;
     }
@@ -107,7 +108,7 @@ const CreatePost = () => {
       router.push('/');
     } catch (error) {
       console.error("An error occurred:", error);
-      notifyError('Failed to post data');
+      alert('Failed to post data');
     } finally {
       setIsSubmitting(false);
     }
@@ -117,7 +118,7 @@ const CreatePost = () => {
     <Form
       cropperRef={cropperRef}
       inputRef={inputRef}
-      type='Create'
+      type='Creat'
       post={post}
       preview={preview}
       handleFileChange={handleFileChange}

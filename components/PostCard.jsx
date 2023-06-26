@@ -85,10 +85,11 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
               onClick={handleProfileClick}
             >
               <Image
-                src={post.creator.image}
+                src={post.creator.userImage ? post.creator.userImage : post.creator.image}
                 alt='user_image'
                 width={50}
                 height={50}
+                quality={100}
                 className='rounded-full object-contain'
               />
 
@@ -109,7 +110,11 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                   locale={locale in supportedLocales ? localeToFullLocale[locale] : 'en-GB'}
                   timeStyle='round' />
               </div>
-              <button className='copy_btn' onClick={() => handleCopy({post: post, setCopied: setCopied})}>
+              <button
+                title='Click to copy post link'
+                className='copy_btn'
+                onClick={() => handleCopy({post: post, setCopied: setCopied})}
+              >
                 <Image
                   src={
                     copied
@@ -175,7 +180,7 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                 Edit
               </button>
               <button
-                className='font-inter text-sm orange_gradient cursor-pointer'
+                className='font-inter text-sm red_gradient cursor-pointer'
                 onClick={handleDelete}
               >
                 Delete
