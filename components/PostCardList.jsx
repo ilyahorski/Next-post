@@ -1,4 +1,4 @@
-import PostCard from "@/components/PostCard";
+import PostCard from "~/components/PostCard";
 import 'react-toastify/dist/ReactToastify.css';
 import Masonry from 'react-masonry-css'
 

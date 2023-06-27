@@ -1,6 +1,6 @@
-import '@/styles/globals.css';
-import Nav from '@/components/Nav';
-import Provider from "@/app/provider";
+import '~/styles/globals.css';
+import Nav from '~/components/Nav';
+import Provider from "~/app/provider";
 
 export const metadata = {
   title: 'Next-post',

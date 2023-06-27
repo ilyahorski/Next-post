@@ -1,10 +1,10 @@
 'use client';
 
-import Provider from '@/app/provider';
+import Provider from '~/app/provider';
 import {useEffect, useState} from "react";
-import {supportedLocales} from "@/utils/constants/supportedLocales";
+import {supportedLocales} from "~/utils/constants/supportedLocales";
 import JavascriptTimeAgo from "javascript-time-ago";
-import Loading from "@/utils/loading";
+import Loading from "~/utils/loading";
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BiArrowFromBottom } from 'react-icons/bi'
 
-import { classNames } from '@/utils/classNames'
+import { classNames } from '~/utils/classNames'
 
 export const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false)

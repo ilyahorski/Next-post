@@ -4,15 +4,15 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ReactTimeAgo from 'react-time-ago';
 import Image from 'next/image';
-import { supportedLocales, localeToFullLocale } from '@/utils/constants/supportedLocales';
-import Loading from "@/utils/loading";
-import { parseTags } from '@/utils/tagStringToArray';
+import { supportedLocales, localeToFullLocale } from '~/utils/constants/supportedLocales';
+import Loading from "~/utils/loading";
+import { parseTags } from '~/utils/tagStringToArray';
 import { HeartIcon as Heart } from '@heroicons/react/24/solid';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { ToastContainer } from "react-toastify";
-import { toggleLike } from "@/utils/toggleLike";
+import { toggleLike } from "~/utils/toggleLike";
 
 const Post = () => {
   const { data: session, status } = useSession();

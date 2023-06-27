@@ -1,8 +1,8 @@
 'use client';
 
-import Feed from '@/components/Feed';
+import Feed from '~/components/Feed';
 import {SessionProvider, useSession} from "next-auth/react";
-import { ScrollToTop } from "@/components/ScrollToTop";
+import { ScrollToTop } from "~/components/ScrollToTop";
 import {ToastContainer} from "react-toastify";
 import Link from "next/link";
 

@@ -1,5 +1,5 @@
 import axios from "axios";
-import {notifyInfo} from "@/components/Notify";
+import {notifyInfo} from "~/components/Notify";
 
 export const toggleLike = ({id, session, setLiked, setLikes}) => {
   axios.post(`/api/like/${id}/${session}`,

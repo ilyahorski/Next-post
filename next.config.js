@@ -1,3 +1,6 @@
+const path = require('path');
+const withTM = require('next-transpile-modules')([]);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
@@ -19,6 +22,7 @@ const nextConfig = {
     ],
   },
   webpack(config) {
+    config.resolve.alias['~'] = path.resolve(__dirname);
     config.experiments = {
       ...config.experiments,
       topLevelAwait: true,
@@ -27,4 +31,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withTM(nextConfig);

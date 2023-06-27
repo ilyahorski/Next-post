@@ -1,8 +1,8 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
-import User from '@/models/user';
-import { connectToDB } from '@/utils/database';
+import User from '~/models/user';
+import { connectToDB } from '~/utils/database';
 
 const handler = NextAuth({
   providers: [
@@ -39,6 +39,7 @@ const handler = NextAuth({
             email: profile.email,
             username: profile.name,
             image: profile.picture,
+            userImage: '',
           });
         }
 

@@ -29,6 +29,15 @@
   Note: The styles for this gradient grid background is heavily inspired by the creator of this amazing site (https://dub.sh) – all credits go to them! 
 */
 
+.rmc-cropper-wrapper {
+  background: none !important;
+}
+
+.cropper {
+  color: #61DAFB; /* cropper's color */
+  max-height: 500px;
+}
+
 .my-masonry-grid {
   display: -webkit-box; /* Not needed if autoprefixing */
   display: -ms-flexbox; /* Not needed if autoprefixing */

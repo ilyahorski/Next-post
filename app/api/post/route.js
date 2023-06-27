@@ -1,5 +1,5 @@
-import Post from '@/models/post';
-import { connectToDB } from '@/utils/database';
+import Post from '~/models/post';
+import { connectToDB } from '~/utils/database';
 
 export const GET = async (request) => {
   const { searchParams } = new URL(request.url)
@@ -8,13 +8,15 @@ export const GET = async (request) => {
   try {
     await connectToDB();
 
+    const totalPosts = await Post.countDocuments({});
+
     const posts = await Post.find({})
       .sort({createdAt: -1})
       .skip((page - 1) * limit)
       .limit(limit)
       .populate('creator');
 
-    return new Response(JSON.stringify(posts), { status: 200 });
+    return new Response(JSON.stringify({ totalPosts, posts }), { status: 200 });
   } catch (error) {
     return new Response('Failed to fetch all posts', { status: 500 });
   }

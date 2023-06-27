@@ -3,23 +3,31 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { CiCircleRemove } from "react-icons/ci";
-import { PostCardList } from "@/components/PostCardList";
-import { EndMessage, LoadingBar } from "@/components/Loading";
+import { PostCardList } from "~/components/PostCardList";
+import { EndMessage, LoadingBar } from "~/components/Loading";
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
   const [page, setPage] = useState(1);
+  const [postsCount, setPostsCount] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
   const { data: session, status } = useSession();
 
   const fetchPosts = async () => {
+    if (allPosts.length >= postsCount) {
+      setHasMore(false);
+      return;
+    }
+
     const response = await fetch(`/api/post?page=${page}&limit=4`);
     const data = await response.json();
 
-    setAllPosts(allPosts.concat(data));
+    setPostsCount(data.totalPosts)
+    setAllPosts(allPosts.concat(data.posts));
     setPage(page + 1);
   };
 
@@ -84,9 +92,14 @@ const Feed = () => {
       <InfiniteScroll
         dataLength={allPosts.length}
         next={fetchPosts}
-        hasMore={true}
+        hasMore={hasMore}
         loader={<LoadingBar />}
         refreshFunction={fetchPosts}
+        endMessage={
+          <p style={{ textAlign: "center" }}>
+            <b>Yay! You have seen it all</b>
+          </p>
+        }
         pullDownToRefresh
         pullDownToRefreshThreshold={100}
         pullDownToRefreshContent={

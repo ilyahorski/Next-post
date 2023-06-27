@@ -1,5 +1,5 @@
-import Post from '@/models/post';
-import { connectToDB } from '@/utils/database';
+import Post from '~/models/post';
+import { connectToDB } from '~/utils/database';
 
 export const POST = async (request) => {
   const { userId, post, tag, image } = await request.json();

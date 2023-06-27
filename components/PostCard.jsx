@@ -4,16 +4,16 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import {getProviders, useSession} from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
-import { parseTags } from '@/utils/tagStringToArray';
+import { parseTags } from '~/utils/tagStringToArray';
 import axios from 'axios';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as Heart } from '@heroicons/react/24/solid';
-import Sceleton from "@/components/Sceleton";
-import { toggleLike } from "@/utils/toggleLike";
+import Sceleton from "~/components/Sceleton";
+import { toggleLike } from "~/utils/toggleLike";
 import ReactTimeAgo from "react-time-ago";
-import {localeToFullLocale, supportedLocales} from "@/utils/constants/supportedLocales";
+import {localeToFullLocale, supportedLocales} from "~/utils/constants/supportedLocales";
 import JavascriptTimeAgo from "javascript-time-ago";
-import {handleCopy} from "@/utils/handleCopy";
+import {handleCopy} from "~/utils/handleCopy";
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 

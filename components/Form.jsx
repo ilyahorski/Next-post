@@ -1,59 +1,18 @@
 'use client'
 
 import Link from 'next/link';
-import Image from 'next/image';
-import {useCallback, useEffect, useState} from 'react';
-import { useDropzone } from "react-dropzone";
-import CloseButton from "@/components/CloseButton";
+import ImageEditor from "~/components/ImageEditor";
 
-import { Cropper } from "react-advanced-cropper";
-import "react-advanced-cropper/dist/style.css";
-import 'react-advanced-cropper/dist/themes/compact.css';
-import {ToastContainer} from "react-toastify";
 
 const Form = (
   {
     cropperRef,
-    inputRef,
     type,
     post,
-    preview,
     handleInputChange,
-    handleFileChange,
     submitting,
     handleSubmit
   }) => {
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 940);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  const onDrop = useCallback((acceptedFiles) => {
-    handleFileChange(acceptedFiles[0]);
-  }, []);
-
-  const { getRootProps, open, isDragActive } = useDropzone({
-    accept: {
-      'image/jpeg': [],
-      'image/jpg': [],
-      'image/png': [],
-      'image/gif': []
-    },
-    onDrop,
-    noClick: true,
-    maxFiles: 1,
-  });
 
   return (
     <section className='w-full max-w-full flex-start flex-col'>
@@ -65,50 +24,7 @@ const Form = (
         onSubmit={handleSubmit}
         className='p-4 gap-5 glassmorphism mt-8 w-full flex flex-col xs:flex-row'
       >
-        <div className='xs:w-[50%] w-full'>
-          <label>
-            <div className='w-full flex-center items-center'>
-              {isMobile ? (
-                <div className='flex w-full justify-between items-center p-2 mb-2 border-4 border-dashed border-gray-200 rounded-lg bg-white bg-opacity-50'>
-                  <input
-                    type="file"
-                    onChange={(e) => handleFileChange(e.target.files[0])}
-                    name='image'
-                    ref={inputRef}
-                  />
-                  <CloseButton isMobile={isMobile} handleFileChange={handleFileChange} />
-                </div>
-              ) : (
-                <div className='w-full flex items-center gap-2 p-4 mb-2 h-[56px] border-4 border-dashed border-gray-300 rounded-lg bg-white bg-opacity-50'>
-                  <div required {...getRootProps()} onClick={open}
-                       className='w-full cursor-pointer'>
-                    {isDragActive ?
-                      <p>Drop the file here...</p> :
-                      <p>Drag 'n' drop image here, or click to select</p>
-                    }
-                  </div>
-                  <CloseButton handleFileChange={handleFileChange} />
-                </div>
-              )}
-            </div>
-            {post.image && !preview && (
-              <div
-                className={'relative my-4 w-full h-[350px] xs:h-[600px] border-gray-200 border-2 bg-amber-50 rounded-lg'}>
-                <Image style={{ objectFit: 'contain' }} fill={true} alt={'preview image'}
-                       src={post.image ? post.image : '/assets/icons/loader.svg'} />
-              </div>
-            )}
-          </label>
-          <div className={preview ? 'w-full h-[350px] xs:h-[600px]' : 'h-fit'}>
-            <Cropper
-              ref={cropperRef}
-              src={preview}
-              stencilProps={{
-                grid: true
-              }}
-            />
-          </div>
-        </div>
+        <ImageEditor post={post} cropperRef={cropperRef}/>
 
         <div className='xs:w-[50%] w-full'>
           <label>

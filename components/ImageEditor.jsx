@@ -1,0 +1,70 @@
+import CloseButton from "~/components/CloseButton";
+import Image from "next/image";
+import {useFileHandler} from "~/utils/hooks/useFileHandler";
+import {useImageDropzone} from "~/utils/hooks/useImageDropzone";
+import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
+import { Cropper } from 'react-mobile-cropper';
+import 'react-mobile-cropper/dist/style.css'
+
+const ImageEditor = ({ post, cropperRef }) => {
+  const { preview, inputRef, handleFileChange } = useFileHandler();
+  const { getRootProps, open, isDragActive } = useImageDropzone({handleFileChange});
+  const isMobile = useMobileCheck();
+
+  return (
+    <div className='xs:w-[50%] w-full'>
+      <label>
+        <div className='w-full flex-center items-center'>
+          {isMobile ? (
+            <div className='flex w-full justify-between items-center p-2 mb-2 border-4 border-dashed border-gray-200 rounded-lg bg-white bg-opacity-50'>
+              <input
+                type="file"
+                onChange={(e) => handleFileChange(e.target.files[0])}
+                name='image'
+                ref={inputRef}
+              />
+              <CloseButton isMobile={isMobile} handleFileChange={handleFileChange} />
+            </div>
+          ) : (
+            <div className='w-full flex items-center gap-2 p-4 mb-2 h-[56px] border-4 border-dashed border-gray-300 rounded-lg bg-white bg-opacity-50'>
+              <div required {...getRootProps()} onClick={open}
+                   className='w-full cursor-pointer'>
+                {isDragActive ?
+                  <p>Drop the file here...</p> :
+                  <p>Drag 'n' drop image here, or click to select</p>
+                }
+              </div>
+              <CloseButton handleFileChange={handleFileChange} />
+            </div>
+          )}
+        </div>
+        {/*{post.image && !preview && !post.userImage && (*/}
+        {/*  <div*/}
+        {/*    className={'relative my-4 w-full h-[350px] border-gray-200 border-2 bg-amber-50 rounded-lg'}>*/}
+        {/*    <Image style={{ objectFit: 'contain' }} fill={true} alt={'preview image'}*/}
+        {/*           src={post.image ? post.image : '/assets/icons/infinity1.svg'} />*/}
+        {/*  </div>*/}
+        {/*)}*/}
+        {/*{post.userImage && preview && (*/}
+        {/*  <div*/}
+        {/*    className={'relative my-4 w-full h-[350px] border-gray-200 border-2 bg-amber-50 rounded-lg'}>*/}
+        {/*    <Image style={{ objectFit: 'contain' }} fill={true} alt={'preview image'}*/}
+        {/*           src={post.userImage ? post.userImage : '/assets/icons/infinity1.svg'} />*/}
+        {/*  </div>*/}
+        {/*)}*/}
+      </label>
+      <div className={preview ? 'w-full h-[350px] xs:h-[600px]' : 'h-fit'}>
+        <Cropper
+          ref={cropperRef}
+          src={preview ? preview : (post.image ? post.image : post.userImage)}
+          className="cropper"
+          stencilProps={{
+            grid: true
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default ImageEditor;

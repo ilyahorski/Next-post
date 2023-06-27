@@ -1,5 +1,5 @@
-import Like from '@/models/like';
-import { connectToDB } from '@/utils/database';
+import Like from '~/models/like';
+import { connectToDB } from '~/utils/database';
 
 export const GET = async (request, { params }) => {
   try {

@@ -1,16 +1,18 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import {useSession} from 'next-auth/react';
+import {useEffect, useState} from 'react';
+import {usePathname, useRouter} from 'next/navigation';
 
-import Profile from '@/components/Profile';
+import Profile from '~/components/Profile';
 import axios from "axios";
+import {LoadingBar} from "~/components/Loading";
 
 const MyProfile = () => {
   const router = useRouter();
+  const pathname = usePathname()
   const [myPosts, setMyPosts] = useState([]);
-  const { data: session, status } = useSession();
+  const {data: session, status} = useSession();
 
   useEffect(() => {
     if (status === 'loading' || !session) return;
@@ -20,7 +22,6 @@ const MyProfile = () => {
         setMyPosts(response.data);
       })
       .catch(error => console.error(error));
-
 
   }, [session?.user]);
 
@@ -49,13 +50,19 @@ const MyProfile = () => {
   };
 
   return (
-    <Profile
-      name='My'
-      data={myPosts}
-      session={session?.user.id}
-      handleEdit={handleEdit}
-      handleDelete={handleDelete}
-    />
+    <>
+      {!session?.user ? (
+        <LoadingBar/>
+      ) : (
+        <Profile
+          name={pathname}
+          data={myPosts}
+          session={session?.user.id}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+        />
+      )}
+    </>
   );
 };
 
