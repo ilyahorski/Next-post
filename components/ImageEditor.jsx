@@ -38,20 +38,6 @@ const ImageEditor = ({ post, cropperRef }) => {
             </div>
           )}
         </div>
-        {/*{post.image && !preview && !post.userImage && (*/}
-        {/*  <div*/}
-        {/*    className={'relative my-4 w-full h-[350px] border-gray-200 border-2 bg-amber-50 rounded-lg'}>*/}
-        {/*    <Image style={{ objectFit: 'contain' }} fill={true} alt={'preview image'}*/}
-        {/*           src={post.image ? post.image : '/assets/icons/infinity1.svg'} />*/}
-        {/*  </div>*/}
-        {/*)}*/}
-        {/*{post.userImage && preview && (*/}
-        {/*  <div*/}
-        {/*    className={'relative my-4 w-full h-[350px] border-gray-200 border-2 bg-amber-50 rounded-lg'}>*/}
-        {/*    <Image style={{ objectFit: 'contain' }} fill={true} alt={'preview image'}*/}
-        {/*           src={post.userImage ? post.userImage : '/assets/icons/infinity1.svg'} />*/}
-        {/*  </div>*/}
-        {/*)}*/}
       </label>
       <div className={preview ? 'w-full h-[350px] xs:h-[600px]' : 'h-fit'}>
         <Cropper

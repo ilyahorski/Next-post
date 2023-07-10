@@ -20,11 +20,11 @@ const Home = () => {
         Next-Post is an open-source platform to discover, create and share creative post!
       </p>
       <SessionProvider>
-      <div className='flex xs:hidden w-full justify-center mt-3 -mb-6'>
-        <Link href='/create-post' className={(status === 'authenticated') ? 'black_btn' : 'hidden'}>
-          Create Post Here!
-        </Link>
-      </div>
+        <div className='flex xs:hidden w-full justify-center mt-3 -mb-6'>
+          <Link href='/create-post' className={(status === 'authenticated') ? 'black_btn' : 'hidden'}>
+            Create Post Here!
+          </Link>
+        </div>
         <Feed/>
         <ScrollToTop/>
         <ToastContainer/>

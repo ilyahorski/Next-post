@@ -1,3 +1,5 @@
+'use client'
+
 import PostCard from './PostCard';
 import Masonry from 'react-masonry-css'
 import ProfileHeader from "~/components/ProfileHeader";
