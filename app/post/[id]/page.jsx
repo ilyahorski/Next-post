@@ -13,11 +13,12 @@ import { useSession } from 'next-auth/react';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { ToastContainer } from "react-toastify";
 import { toggleLike } from "~/utils/toggleLike";
+import {io} from "socket.io-client";
 
 const Post = () => {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
-  const postId = searchParams.get('id');
+  const postIds = searchParams.get('id');
   const [post, setPost] = useState(
     { post: '', tags: '', image: '', creator: '', createdAt: '' },
   );
@@ -27,9 +28,43 @@ const Post = () => {
   const locale = navigator.language;
 
   useEffect(() => {
+    const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
+
+    socket.connect();
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (status === 'loading' || !session) return;
+
+    const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
+
+    socket.on('likesUpdated', ({ postId, likesCount }) => {
+      if (postId === postIds) {
+        setLikes(likesCount);
+      }
+    });
+
+    socket.on('likeStatus', ({ postId, liked }) => {
+      if (postId === postIds) {
+        setLiked(liked);
+      }
+    });
+
+    socket.on('connect', () => {
+      socket.emit('checkLikeStatus', { userId: session.user.id, postId: postIds });
+    });
+
+    return () => socket.disconnect();
+  }, [postIds, session, status, likes]);
+
+  useEffect(() => {
     if (status === 'loading') return;
     const getPostDetails = async () => {
-      const response = await fetch(`/api/post/${postId}`);
+      const response = await fetch(`/api/post/${postIds}`);
       const data = await response.json();
 
       setPost({
@@ -42,28 +77,9 @@ const Post = () => {
       setTags(parseTags(data.tag));
     };
 
-    if (postId) getPostDetails();
+    if (postIds) getPostDetails();
 
   }, [status]);
-
-  useEffect(() => {
-    if (status === 'loading' || !session || !postId) return;
-
-    axios.get(`/api/like/${postId}`)
-      .then(response => {
-        setLikes(response.data.likesCount);
-      })
-      .catch(error => console.error(error));
-
-    axios.get(`/api/like/${postId}/${session?.user?.id}`)
-      .then(response => {
-        if (response.data === 'Like exists') {
-          setLiked(true);
-        }
-      })
-      .catch(error => console.error(error));
-
-  }, [postId, status, session?.user]);
 
   return (
     <>
@@ -128,7 +144,7 @@ const Post = () => {
                     <p className='font-satoshi text-[16px] text-gray-700'>
                       {likes}
                     </p>
-                    <button onClick={() => toggleLike({id: postId, session: session?.user?.id, setLikes: setLikes, setLiked: setLiked})}>
+                    <button onClick={() => toggleLike({id: postIds, session: session?.user?.id, setLikes: setLikes, setLiked: setLiked})}>
                       {liked ? <Heart className='h-6 w-6 text-red-500 ' /> :
                         <HeartIcon className='h-6 w-6 ' />}
                     </button>

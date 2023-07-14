@@ -5,7 +5,6 @@ import Image from 'next/image';
 import {getProviders, useSession} from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { parseTags } from '~/utils/tagStringToArray';
-import axios from 'axios';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as Heart } from '@heroicons/react/24/solid';
 import Sceleton from "~/components/Sceleton";
@@ -14,6 +13,7 @@ import ReactTimeAgo from "react-time-ago";
 import {localeToFullLocale, supportedLocales} from "~/utils/constants/supportedLocales";
 import JavascriptTimeAgo from "javascript-time-ago";
 import {handleCopy} from "~/utils/handleCopy";
+import { io } from 'socket.io-client';
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 
@@ -29,6 +29,41 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   const router = useRouter();
   const locale = navigator.language;
   const tags = parseTags(post.tag);
+  const ENDPOINT = process.env.HEROKU_URL;
+
+  useEffect(() => {
+    const socket = io(ENDPOINT || 'https://next-post-bc80bba88d82.herokuapp.com/');
+
+    socket.connect();
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (status === 'loading' || !session) return;
+
+    const socket = io(ENDPOINT || 'https://next-post-bc80bba88d82.herokuapp.com/');
+
+    socket.on('likesUpdated', ({ postId, likesCount }) => {
+      if (postId === post._id) {
+        setLikes(likesCount);
+      }
+    });
+
+    socket.on('likeStatus', ({ postId, liked }) => {
+      if (postId === post._id) {
+        setLiked(liked);
+      }
+    });
+
+    socket.on('connect', () => {
+      socket.emit('checkLikeStatus', { userId: session.user.id, postId: post._id });
+    });
+
+    return () => socket.disconnect();
+  }, [post._id, session, status, likes]);
 
   useEffect(() => {
     const userLocale = navigator.language.split('-')[0];
@@ -44,25 +79,6 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
       setProviders(res);
     })();
   }, [session]);
-
-  useEffect(() => {
-    if (status === 'loading' || !session) return;
-
-    axios.get(`/api/like/${post._id}`)
-      .then(response => {
-        setLikes(response.data.likesCount);
-      })
-      .catch(error => console.error(error));
-
-    axios.get(`/api/like/${post._id}/${session?.user?.id}`)
-      .then(response => {
-        if (response.data === 'Like exists') {
-          setLiked(true);
-        }
-      })
-      .catch(error => console.error(error));
-
-  }, [post._id, status, session]);
 
   const handleProfileClick = () => {
     if (post.creator._id === session?.user?.id) return router.push('/profile');
