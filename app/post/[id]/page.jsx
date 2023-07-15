@@ -8,12 +8,13 @@ import { supportedLocales, localeToFullLocale } from '~/utils/constants/supporte
 import Loading from "~/utils/loading";
 import { parseTags } from '~/utils/tagStringToArray';
 import { HeartIcon as Heart } from '@heroicons/react/24/solid';
-import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { ToastContainer } from "react-toastify";
 import { toggleLike } from "~/utils/toggleLike";
 import {io} from "socket.io-client";
+import Comments from "~/components/Comments";
+import CommentForm from "~/components/CommentForm";
 
 const Post = () => {
   const { data: session, status } = useSession();
@@ -87,7 +88,7 @@ const Post = () => {
         <>
           <ToastContainer />
           <div
-            className='flex-1 p-3 break-inside-avoid rounded-lg border border-gray-300 bg-white/40 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit;'>
+            className='flex-1 p-3 mb-4 break-inside-avoid rounded-lg border border-gray-300 bg-white/40 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit;'>
             <div className='flex justify-between flex-wrap p-2 mb-4 items-center gap-6 border-gray-200 border-2 rounded-lg'>
               <div
                 className='flex-1 overflow-auto flex justify-start items-center gap-3'
@@ -127,7 +128,7 @@ const Post = () => {
                   quality={100}
                 />
               </div>
-              <div>
+              <div className='pb-1'>
                 <p className='my-4 pb-2 border-b-[1px] border-gray-400 font-satoshi text-[16px] text-gray-700'>{post.post}</p>
                 <div className='flex items-start justify-between'>
                   <div className='flex flex-wrap items-center gap-2'>
@@ -151,6 +152,8 @@ const Post = () => {
                   </div>
                 </div>
               </div>
+              <Comments postId={postIds} isMain={false}/>
+              <CommentForm postId={postIds} userId={session?.user?.id}/>
             </div>
           </div>
         </>

@@ -18,11 +18,23 @@ module.exports = {
     },
     extend: {
       extend: {
-        gridAutoFlow: ['dense']
+        gridAutoFlow: ['dense'],
+        borderWidth: ['focus'],
+        borderColor: ['focus'],
+        borderRadius: ['focus'],
       },
       fontFamily: {
         satoshi: ['Satoshi', 'sans-serif'],
         inter: ['Inter', 'sans-serif'],
+      },
+      fontSize: {
+        '7xs': '8px',
+        '6xs': '10px',
+        '5xs': '12px',
+        '4xs': '14px',
+        '3xs': '16px',
+        '2xs': '18px',
+        'xs': '20px',
       },
       colors: {
         'primary-50': '#88BDBC',

@@ -14,6 +14,8 @@ import {localeToFullLocale, supportedLocales} from "~/utils/constants/supportedL
 import JavascriptTimeAgo from "javascript-time-ago";
 import {handleCopy} from "~/utils/handleCopy";
 import { io } from 'socket.io-client';
+import Comments from "~/components/Comments";
+import CommentForm from "~/components/CommentForm";
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 
@@ -162,7 +164,7 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
             </div>
             <p
               className='my-4 pb-2 border-b-[1px] border-gray-400 font-satoshi text-sm text-gray-700'>{post.post}</p>
-            <div className='flex items-start justify-between'>
+            <div className='flex items-start justify-between pb-1'>
               <div className='flex flex-wrap items-center gap-2'>
                 {tags.map((tag, i) => (
                   <p
@@ -185,6 +187,8 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                 </button>
               </div>
             </div>
+            <Comments postId={post._id} isMain={true}/>
+            <CommentForm postId={post._id} userId={session?.user?.id}/>
           </div>
 
           {session?.user?.id === post.creator._id && /^\/profile/.test(pathName) && (

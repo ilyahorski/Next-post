@@ -1,9 +1,31 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* track */
+::-webkit-scrollbar-track {
+  background: #087c70bf;
+  border-radius: 5px;
+}
+
+/* handle */
+::-webkit-scrollbar-thumb {
+  background: #28CBA6;
+  border-radius: 5px;
+}
+
+/* handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  border: 1px solid #05050587;
+}
 
 @layer utilities {
   @variants responsive {
@@ -25,8 +47,8 @@
   }
 }
 
-/* 
-  Note: The styles for this gradient grid background is heavily inspired by the creator of this amazing site (https://dub.sh) – all credits go to them! 
+/*
+  note: the styles for this gradient grid background is heavily inspired by the creator of this amazing site (https://dub.sh) – all credits go to them!
 */
 
 .rmc-cropper-wrapper {
@@ -34,13 +56,13 @@
 }
 
 .cropper {
-  color: #61DAFB; /* cropper's color */
+  color: #61dafb; /* cropper's color */
   max-height: 500px;
 }
 
 .my-masonry-grid {
-  display: -webkit-box; /* Not needed if autoprefixing */
-  display: -ms-flexbox; /* Not needed if autoprefixing */
+  display: -webkit-box; /* not needed if autoprefixing */
+  display: -ms-flexbox; /* not needed if autoprefixing */
   display: flex;
   margin-left: -30px; /* gutter size offset */
   margin-top: 30px;
@@ -51,8 +73,8 @@
   background-clip: padding-box;
 }
 
-/* Style your items */
-.my-masonry-grid_column > div { /* change div to reference your elements you put in <Masonry> */
+/* style your items */
+.my-masonry-grid_column > div { /* change div to reference your elements you put in <masonry> */
   margin-bottom: 30px;
 }
 
@@ -108,7 +130,7 @@
   }
 }
 
-/* Tailwind Styles */
+/* tailwind styles */
 
 .main_gradient {
   @apply bg-gradient-to-tr from-violet-700/70 via-emerald-500/40 to-blue-500/60;
@@ -162,22 +184,22 @@
   @apply rounded-xl border border-gray-200 bg-gray-500/20 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur;
 }
 
-/* PostCard Component */
+/* postcard component */
 .post_card {
   @apply flex-1 break-inside-avoid rounded-lg border border-gray-300 bg-white/20 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter xs:w-[510px] w-[370px] h-fit;
   }
 
-/* Feed Component */
+/* feed component */
 .feed {
   @apply mt-16 mx-auto w-full max-w-xl flex justify-center items-center flex-col gap-2;
 }
 
-/* Profile Component */
+/* profile component */
 .profile {
   @apply mx-auto w-full flex justify-center items-center flex-col gap-2;
 }
 
-/* Form Component */
+/* form component */
 .form_textarea {
   @apply w-full flex rounded-lg min-h-[80px] h-[100px] xs:max-h-[450px] mt-2 p-3 text-sm text-gray-500 outline-0;
 }
@@ -186,7 +208,7 @@
   @apply w-full flex rounded-lg mt-2 p-3 text-sm text-gray-500 outline-0;
 }
 
-/* Nav Component */
+/* nav component */
 .logo_text {
   @apply max-sm:hidden font-satoshi font-semibold text-lg text-black tracking-wide;
 }

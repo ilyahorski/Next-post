@@ -3,12 +3,18 @@ const withTM = require('next-transpile-modules')([]);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   experimental: {
     appDir: true,
     serverComponentsExternalPackages: ['mongoose'],
   },
   images: {
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.unsplash.com',
+        port: '',
+      },
       {
         protocol: 'https',
         hostname: '**.cloudinary.com',
