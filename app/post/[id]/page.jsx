@@ -28,9 +28,9 @@ const Post = () => {
   const [liked, setLiked] = useState(false);
   const locale = navigator.language;
 
-  useEffect(() => {
-    const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
+  const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
 
+  useEffect(() => {
     socket.connect();
 
     return () => {
@@ -40,8 +40,6 @@ const Post = () => {
 
   useEffect(() => {
     if (status === 'loading' || !session) return;
-
-    const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
 
     socket.on('likesUpdated', ({ postId, likesCount }) => {
       if (postId === postIds) {

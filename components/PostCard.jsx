@@ -33,9 +33,9 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   const tags = parseTags(post.tag);
   const ENDPOINT = process.env.HEROKU_URL;
 
-  useEffect(() => {
-    const socket = io(ENDPOINT || 'https://next-post-bc80bba88d82.herokuapp.com/');
+  const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
 
+  useEffect(() => {
     socket.connect();
 
     return () => {
@@ -45,8 +45,6 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
 
   useEffect(() => {
     if (status === 'loading' || !session) return;
-
-    const socket = io(ENDPOINT || 'https://next-post-bc80bba88d82.herokuapp.com/');
 
     socket.on('likesUpdated', ({ postId, likesCount }) => {
       if (postId === post._id) {
@@ -187,8 +185,8 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                 </button>
               </div>
             </div>
-            <Comments postId={post._id} isMain={true}/>
-            <CommentForm postId={post._id} userId={session?.user?.id}/>
+            <Comments postId={post?._id} isMain={true}/>
+            <CommentForm postId={post?._id} userId={session?.user?.id}/>
           </div>
 
           {session?.user?.id === post.creator._id && /^\/profile/.test(pathName) && (
