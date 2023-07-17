@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import {useEffect, useState} from "react";
 import { useSession } from "next-auth/react";
 import { CiCircleRemove } from "react-icons/ci";
 import { PostCardList } from "~/components/PostCardList";
-import { EndMessage, LoadingBar } from "~/components/Loading";
+import { LoadingBar } from "~/components/Loading";
 import InfiniteScroll from 'react-infinite-scroll-component';
+// import ReactPlayer from 'react-player';
+// import FileUpload from "~/components/FileUpload";
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -16,6 +18,12 @@ const Feed = () => {
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
   const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status !== 'loading') {
+      fetchPosts();
+    }
+  }, [status]);
 
   const fetchPosts = async () => {
     if (allPosts.length >= postsCount) {
@@ -30,12 +38,6 @@ const Feed = () => {
     setAllPosts(allPosts.concat(data.posts));
     setPage(page + 1);
   };
-
-  useEffect(() => {
-    if (status !== 'loading') {
-      fetchPosts();
-    }
-  }, [status]);
 
   const filterPosts = (searchtext) => {
     const regex = new RegExp(searchtext, "i"); // 'i' flag for case-insensitive search
@@ -69,13 +71,15 @@ const Feed = () => {
 
   return (
     <section className='feed'>
+      {/*<FileUpload />*/}
+      {/*<ReactPlayer controls={true} url="https://storage.cloud.google.com/next-post-video/video_2023-07-18_16-47-42.mp4" />*/}
       <form className='relative w-full flex-center items-center'>
         <input
           type='text'
           placeholder='Search for a tag or a username'
           value={searchText}
           onChange={handleSearchChange}
-          className='search_input peer'
+          className='search_input peer dark:text-gray-300 dark:bg-gray-800/30'
         />
         <button
           onClick={(e) => {
@@ -93,7 +97,7 @@ const Feed = () => {
         dataLength={allPosts.length}
         next={fetchPosts}
         hasMore={hasMore}
-        loader={<LoadingBar />}
+        loader={<LoadingBar isMessage={false}/>}
         refreshFunction={fetchPosts}
         endMessage={
           <p style={{ textAlign: "center" }}>

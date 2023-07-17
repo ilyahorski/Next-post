@@ -2,15 +2,18 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import {useEffect, useRef, useState} from 'react';
 import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
+import DarkModeToggle from "~/components/ThemeModeToggle";
+import useClickOutside from "~/utils/hooks/useClickOutside";
 
 const Nav = () => {
   const { data: session, status } = useSession();
-
   const [toggleDropdown, setToggleDropdown] = useState(false);
   const [providers, setProviders] = useState(null);
   const [data, setData] = useState({ username: '', userImage: '', image: ''});
+  const ref = useRef(null);
+  useClickOutside(ref, () => setToggleDropdown(false));
 
   useEffect(() => {
     (async () => {
@@ -50,7 +53,9 @@ const Nav = () => {
       {/* Desktop Navigation */}
       <div className='xs:flex hidden'>
         {session?.user ? (
-          <div className='flex gap-3 md:gap-5'>
+          <div className='flex items-center gap-3 md:gap-5'>
+            <DarkModeToggle />
+
             <Link href='/create-post' className='black_btn'>
               Create Post
             </Link>
@@ -66,11 +71,14 @@ const Nav = () => {
               Sign Out
             </button>
 
-            <Link href='/profile'>
+            <Link
+              title='Click to open your profile page'
+              href='/profile'
+            >
               <Image
                 src={data?.userImage ? data?.userImage : session?.user.image}
-                width={37}
-                height={37}
+                width={40}
+                height={40}
                 className='rounded-full'
                 alt='profile'
               />
@@ -97,9 +105,11 @@ const Nav = () => {
       </div>
 
       {/* Mobile Navigation */}
-      <div className='xs:hidden flex relative'>
+      <div ref={ref} className='xs:hidden flex relative'>
         {session?.user ? (
-          <div className='flex'>
+          <div className='flex items-center gap-5'>
+            <DarkModeToggle />
+
             <Image
               src={data?.userImage ? data?.userImage : session?.user.image}
               width={37}
@@ -113,14 +123,14 @@ const Nav = () => {
               <div className='dropdown z-50'>
                 <Link
                   href='/profile'
-                  className='dropdown_link'
+                  className='dropdown_link_profile'
                   onClick={() => setToggleDropdown(false)}
                 >
                   My Profile
                 </Link>
                 <Link
                   href='/create-post'
-                  className='dropdown_link'
+                  className='dropdown_link_post'
                   onClick={() => setToggleDropdown(false)}
                 >
                   Create Post
@@ -132,7 +142,7 @@ const Nav = () => {
                     setToggleDropdown(false);
                     signOut('google', { callbackUrl: '/' });
                   }}
-                  className='mt-5 w-full black_btn'
+                  className='mt-5 w-full outline_btn'
                 >
                   Sign Out
                 </button>

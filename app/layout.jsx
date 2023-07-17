@@ -7,7 +7,7 @@ export const metadata = {
   description: 'Next platform for sharing your posts',
 };
 
-const RootLayout = ({ children }) => {
+const RootLayout = ({children}) => {
 
   return (
     <html lang='en'>
@@ -16,7 +16,7 @@ const RootLayout = ({ children }) => {
       </div>
       <Provider>
         <main className='app'>
-          <Nav />
+          <Nav/>
           {children}
         </main>
       </Provider>

@@ -110,17 +110,17 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
               />
 
               <div className='flex flex-col gap-2'>
-                <h3 className='font-satoshi font-semibold text-gray-900'>
+                <h3 className='font-satoshi font-semibold text-gray-900 dark:text-gray-400'>
                   {post.creator.username}
                 </h3>
-                <p className='font-inter text-sm text-gray-500'>
+                <p className='font-inter text-sm text-gray-500 dark:text-gray-300'>
                   {post.creator.email}
                 </p>
               </div>
             </div>
 
             <div className='flex flex-col items-end gap-[6px]'>
-              <div className='flex overflow-auto justify-center items-center font-inter text-sm text-gray-600'>
+              <div className='flex overflow-auto justify-center items-center font-inter text-sm text-gray-500'>
                 <ReactTimeAgo
                   date={new Date(post.createdAt).getTime()}
                   locale={locale in supportedLocales ? localeToFullLocale[locale] : 'en-GB'}
@@ -146,9 +146,11 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
           </div>
 
           <div>
-            <div title='Click to open a post page'
-                 onClick={() => handlePostOpen(post)}
-                 className='relative flex justify-center my-4 w-full h-fit cursor-pointer'>
+            <div
+              title='Click to open a post page'
+              onClick={() => handlePostOpen(post)}
+              className='relative flex justify-center my-4 w-full h-fit cursor-pointer'
+            >
               <Image
                 style={{ objectFit: 'contain' }}
                 src={post.image}
@@ -161,14 +163,17 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
               />
             </div>
             <p
-              className='my-4 pb-2 border-b-[1px] border-gray-400 font-satoshi text-sm text-gray-700'>{post.post}</p>
+              className='my-4 pb-2 border-b-[1px] border-gray-400 dark:text-gray-300 font-satoshi text-sm text-gray-700'
+            >
+              {post.post}
+            </p>
             <div className='flex items-start justify-between pb-1'>
               <div className='flex flex-wrap items-center gap-2'>
                 {tags.map((tag, i) => (
                   <p
                     key={i}
                     title={`Click to find all ${tag} posts`}
-                    className='font-inter text-sm blue_gradient cursor-pointer'
+                    className='font-inter text-sm text-cyan-500/60 cursor-pointer'
                     onClick={() => handleTagClick && handleTagClick(tag)}
                   >
                     {tag}
@@ -176,7 +181,7 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                 ))}
               </div>
               <div className='flex items-center gap-2'>
-                <p className='font-satoshi text-[16px] text-gray-700'>
+                <p className='font-satoshi text-[16px] text-gray-700 dark:text-gray-400'>
                   {likes}
                 </p>
                 <button onClick={() => toggleLike({id: post._id, session: session?.user?.id, setLikes: setLikes, setLiked: setLiked})}>
@@ -185,7 +190,13 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                 </button>
               </div>
             </div>
-            <Comments postId={post?._id} isMain={true}/>
+            <div
+              title='Click to open a comments'
+              className='cursor-pointer'
+              onClick={() => handlePostOpen(post)}
+            >
+              <Comments postId={post?._id} isMain={true}/>
+            </div>
             <CommentForm postId={post?._id} userId={session?.user?.id}/>
           </div>
 

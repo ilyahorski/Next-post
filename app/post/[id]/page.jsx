@@ -86,10 +86,10 @@ const Post = () => {
         <>
           <ToastContainer />
           <div
-            className='flex-1 p-3 mb-4 break-inside-avoid rounded-lg border border-gray-300 bg-white/40 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit;'>
+            className='flex-1 p-3 mb-4 break-inside-avoid rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-950/50 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit;'>
             <div className='flex justify-between flex-wrap p-2 mb-4 items-center gap-6 border-gray-200 border-2 rounded-lg'>
               <div
-                className='flex-1 overflow-auto flex justify-start items-center gap-3'
+                className='creator_info'
               >
                 <Image
                   src={post.creator.userImage ? post.creator.userImage : post.creator.image}
@@ -100,15 +100,15 @@ const Post = () => {
                 />
 
                 <div className='flex flex-col'>
-                  <h3 className='font-satoshi font-semibold text-gray-900'>
+                  <h3 className='font-satoshi font-semibold text-gray-500 dark:text-gray-300'>
                     {post.creator.username}
                   </h3>
-                  <p className='font-inter text-sm text-gray-500'>
+                  <p className='font-inter text-sm text-gray-500 dark:text-gray-500'>
                     {post.creator.email}
                   </p>
                 </div>
               </div>
-              <div className='flex h-12 justify-center items-start font-inter text-sm text-gray-700'>
+              <div className='flex h-12 justify-center items-start font-inter text-sm text-gray-700 dark:text-gray-400'>
                 <ReactTimeAgo
                   date={new Date(post.createdAt).getTime()}
                   locale={locale in supportedLocales ? localeToFullLocale[locale] : 'en-GB'}

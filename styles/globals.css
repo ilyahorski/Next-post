@@ -5,6 +5,38 @@
 @tailwind components;
 @tailwind utilities;
 
+.dark {
+  @apply text-zinc-50;
+}
+
+/* width */
+.comment-list::-webkit-scrollbar {
+  width: 2px;
+}
+
+/* track */
+.comment-list::-webkit-scrollbar-track {
+  background: #087c70bf;
+  border-radius: 5px;
+}
+
+/* handle */
+.comment-list::-webkit-scrollbar-thumb {
+  background: #28CBA6;
+  border-radius: 5px;
+}
+
+/* handle on hover */
+.comment-list::-webkit-scrollbar-thumb:hover {
+  border: 1px solid #05050587;
+}
+
+/* width */
+.creator_info::-webkit-scrollbar {
+  padding-top: 2px;
+  height: 1px;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
@@ -47,10 +79,6 @@
   }
 }
 
-/*
-  note: the styles for this gradient grid background is heavily inspired by the creator of this amazing site (https://dub.sh) – all credits go to them!
-*/
-
 .rmc-cropper-wrapper {
   background: none !important;
 }
@@ -78,38 +106,6 @@
   margin-bottom: 30px;
 }
 
-.main {
-  width: 100vw;
-  min-height: 100vh;
-  position: fixed;
-  display: flex;
-  justify-content: center;
-  padding: 120px 24px 160px 24px;
-  pointer-events: none;
-}
-
-.main:before {
-  background: radial-gradient(circle, rgba(17, 12, 152, 0) 0, #fafafa 100%);
-  position: absolute;
-  content: "";
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  top: 0;
-}
-
-.main:after {
-  content: "";
-  background-image: url("/assets/images/grid.svg");
-  z-index: 1;
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  opacity: 0.4;
-  filter: invert(1);
-}
-
 .animate-gradient-x {
   background-size: 200% 100%;
   animation: gradient-x 5s linear infinite;
@@ -130,7 +126,18 @@
   }
 }
 
+.main {
+  @apply w-screen min-h-screen fixed flex justify-center px-6 py-48 pointer-events-none before:block before:w-full before:h-full before:absolute before:top-0 before:bg-white/50 dark:before:bg-gray-800 before:z-10 after:block after:w-full after:h-full after:absolute after:top-0 after:opacity-40 after:invert after:z-10
+}
+
 /* tailwind styles */
+.comment-list {
+  @apply flex-1 rounded-lg max-h-[300px] mb-1 overflow-auto overscroll-contain border border-gray-600 p-0.5 bg-white/20 dark:bg-gray-600/10 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit;
+}
+
+.creator_info {
+  @apply flex-1 overflow-auto flex justify-start items-center gap-3
+}
 
 .main_gradient {
   @apply bg-gradient-to-tr from-violet-700/70 via-emerald-500/40 to-blue-500/60;
@@ -141,15 +148,23 @@
 }
 
 .black_btn {
-  @apply rounded-full border border-black bg-black py-1.5 px-5 text-white transition-all hover:bg-white hover:text-black text-center text-sm font-inter flex items-center justify-center;
+  @apply rounded-full border border-black bg-transparent dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 dark:hover:text-cyan-600 py-1.5 px-5 text-black transition-all hover:bg-white hover:text-cyan-600 text-center text-sm font-inter flex items-center justify-center;
 }
 
 .outline_btn {
-  @apply rounded-full border border-black bg-transparent py-1.5 px-5 text-black transition-all hover:bg-black hover:text-white text-center text-sm font-inter flex items-center justify-center;
+  @apply rounded-full border border-black bg-transparent dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 dark:hover:text-red-300 py-1.5 px-5 text-black transition-all hover:bg-white hover:text-red-500 text-center text-sm font-inter flex items-center justify-center;
+}
+
+.search_input {
+  @apply block w-full rounded-md border border-gray-200 bg-white py-2.5 font-satoshi pl-5 pr-12 text-sm shadow-lg font-medium focus:border-black focus:outline-none focus:ring-0;
+}
+
+.copy_btn {
+  @apply w-7 h-7 rounded-full bg-white/10 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur flex justify-center items-center cursor-pointer;
 }
 
 .head_text {
-  @apply w-full text-xl xs:text-5xl font-extrabold leading-[1.15] text-black;
+  @apply w-full text-3xl xs:text-5xl font-extrabold leading-[1.15] text-black;
 }
 
 .blue_gradient {
@@ -172,21 +187,13 @@
   @apply mt-5 text-lg text-gray-600 sm:text-xl max-w-2xl;
 }
 
-.search_input {
-  @apply block w-full rounded-md border border-gray-200 bg-white py-2.5 font-satoshi pl-5 pr-12 text-sm shadow-lg font-medium focus:border-black focus:outline-none focus:ring-0;
-}
-
-.copy_btn {
-  @apply w-7 h-7 rounded-full bg-white/10 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur flex justify-center items-center cursor-pointer;
-}
-
 .glassmorphism {
   @apply rounded-xl border border-gray-200 bg-gray-500/20 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur;
 }
 
 /* postcard component */
 .post_card {
-  @apply flex-1 break-inside-avoid rounded-lg border border-gray-300 bg-white/20 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter xs:w-[510px] w-[370px] h-fit;
+  @apply flex-1 break-inside-avoid rounded-lg border border-gray-300 dark:border-0 bg-white/20 dark:bg-gray-900/90 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter xs:w-[510px] w-[370px] h-fit;
   }
 
 /* feed component */
@@ -201,11 +208,11 @@
 
 /* form component */
 .form_textarea {
-  @apply w-full flex rounded-lg min-h-[80px] h-[100px] xs:max-h-[450px] mt-2 p-3 text-sm text-gray-500 outline-0;
+  @apply w-full flex rounded-lg min-h-[80px] h-[100px] xs:max-h-[450px] mt-2 p-3 text-sm text-gray-500 dark:text-gray-300 dark:bg-gray-600/30 outline-0;
 }
 
 .form_input {
-  @apply w-full flex rounded-lg mt-2 p-3 text-sm text-gray-500 outline-0;
+  @apply w-full flex rounded-lg mt-2 p-3 text-sm text-gray-500 outline-0 dark:text-gray-300 dark:bg-gray-600/30;
 }
 
 /* nav component */
@@ -214,11 +221,15 @@
 }
 
 .dropdown {
-  @apply absolute right-0 top-full mt-3 w-full p-5 rounded-lg bg-white min-w-[210px] flex flex-col gap-2 justify-end items-end;
+  @apply absolute right-0 top-full mt-3 w-full p-5 rounded-lg bg-white dark:bg-gray-600 min-w-[210px] flex flex-col gap-2 justify-end items-end;
 }
 
-.dropdown_link {
-  @apply text-sm font-inter text-gray-700 hover:text-gray-500 font-medium;
+.dropdown_link_profile {
+  @apply text-sm font-inter text-black dark:text-gray-100 hover:text-orange-400 dark:hover:text-orange-400 font-medium;
+}
+
+.dropdown_link_post {
+  @apply text-sm font-inter text-black dark:text-gray-100 hover:text-cyan-600 dark:hover:text-cyan-600 font-medium;
 }
 
 .flex-center {

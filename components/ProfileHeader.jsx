@@ -10,7 +10,7 @@ const ProfileHeader = ({name, session, data}) => {
       <div className='flex flex-col justify-end gap-[10px] pb-1 xs:pb-0 xs:-mb-2 xs:gap-0 w-[65%] h-[58px]'>
         <Link
           href={'/create-post'}
-          className={name === '/profile' ? 'flex gap-2 flex-end w-full text-l xs:text-2xl font-light leading-[1.15] blue_gradient' : 'hidden'}
+          className={name === '/profile' ? 'flex gap-2 flex-end w-full text-l xs:text-2xl font-light leading-[1.15] text-cyan-600' : 'hidden'}
         >
           Create post
         </Link>

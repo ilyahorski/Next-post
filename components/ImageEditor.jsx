@@ -1,5 +1,4 @@
 import CloseButton from "~/components/CloseButton";
-import Image from "next/image";
 import {useFileHandler} from "~/utils/hooks/useFileHandler";
 import {useImageDropzone} from "~/utils/hooks/useImageDropzone";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";

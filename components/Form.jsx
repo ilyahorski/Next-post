@@ -28,7 +28,7 @@ const Form = (
 
         <div className='xs:w-[50%] w-full'>
           <label>
-            <div className='flex w-full h-[56px] items-center justify-start font-satoshi font-semibold text-2xl text-gray-700'>
+            <div className='flex w-full h-[56px] items-center justify-start font-satoshi font-semibold text-2xl text-gray-700 dark:text-gray-300'>
               Post description
             </div>
 
@@ -44,7 +44,7 @@ const Form = (
           </label>
 
           <label>
-          <div className='mt-2 font-satoshi font-semibold text-base text-gray-700'>
+          <div className='mt-2 font-satoshi font-semibold text-base text-gray-700 dark:text-gray-300'>
             Field of Tag{' '}
             <span className='font-normal'>
               (#post, #photo, #tag, etc.)
@@ -63,7 +63,7 @@ const Form = (
           </label>
 
           <div className='flex-end mt-2 mx-3 mb-5 gap-4'>
-            <Link href='/' className='text-gray-500 text-sm'>
+            <Link href='/profile' className='text-gray-500 dark:text-gray-300 text-sm'>
               Cancel
             </Link>
 

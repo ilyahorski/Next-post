@@ -1,6 +1,8 @@
-export const LoadingBar = () => {
+const loaderStyle = "my-2 bg-gradient-to-r from-primary-100/30 via-primary-300 to-secondary-400/50 animate-gradient-x bg-rounded-md rounded-md"
+
+export const LoadingBar = ({ isMessage }) => {
   return (
-    <div className="h-3 -mt-3 mb-3 bg-gradient-to-r from-primary-100/30 via-primary-300 to-secondary-400/50 animate-gradient-x bg-rounded-md rounded-md">
+    <div className={isMessage ? `h-0.5 ${loaderStyle}` : `h-3 ${loaderStyle}`}>
     </div>
   );
 };

@@ -6,6 +6,7 @@ import {useEffect, useState, useRef} from "react";
 import {io} from "socket.io-client";
 import {localeToFullLocale, supportedLocales} from "~/utils/constants/supportedLocales";
 import JavascriptTimeAgo from "javascript-time-ago";
+import {LoadingBar} from "~/components/Loading";
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 
@@ -33,7 +34,6 @@ const Comments = ({postId, isMain}) => {
       if (comments.status && comments.status === 'error') {
         console.log('Error getting comments: ', comments.message);
       } else {
-        console.log('Received comments: ', comments);
         if (comments && comments.length > 0) {
           setCommentsList(isMain ? [comments[comments.length - 1]] : comments);
         }
@@ -70,16 +70,16 @@ const Comments = ({postId, isMain}) => {
 
   return (
     <>
-      {commentsList ? (
+      {commentsList[0] ? (
         <div
-          className='flex-1 break-inside-avoid rounded-lg max-h-[300px] mb-1 overflow-auto border border-gray-300 p-0.5 bg-white/20 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit;'>
+          className='comment-list'>
           {commentsList.map((comment, index) => (
             <div
               key={comment?._id}
               ref={index === commentsList.length - 1 ? endOfComments : null}
               className={!isMain
                 ?
-                'border-b-[1px] border-primary-300 flex flex-row justify-between flex-wrap m-1 items-start gap-2'
+                'border-b-[1px] border-black/20 dark:border-white/20 flex flex-row justify-between flex-wrap m-1 items-start gap-2'
                 :
                 'flex flex-row justify-between flex-wrap m-1 items-start gap-2'
             }>
@@ -97,16 +97,16 @@ const Comments = ({postId, isMain}) => {
                 </div>
 
                 <div className='flex flex-col gap-1'>
-                  <h3 className='font-satoshi font-semibold text-gray-600 text-sm'>
+                  <h3 className='font-satoshi font-semibold text-gray-600 dark:text-gray-400 text-sm'>
                     {comment?.commentatorId?.username}
                   </h3>
                   <div className='flex overflow-auto justify-start items-center '>
-                    <p className='font-satoshi font-normal text-gray-800 text-4xs'>
+                    <p className='font-satoshi font-normal text-gray-800 dark:text-gray-300 text-4xs'>
                       {comment?.comment}
                     </p>
                   </div>
 
-                  <div className='font-satoshi font-normal text-gray-400 text-5xs'>
+                  <div className='font-satoshi font-normal text-gray-400 dark:text-gray-400 text-5xs'>
                     <ReactTimeAgo
                       date={new Date(comment?.createdAt).getTime()}
                       locale={locale in supportedLocales ? localeToFullLocale[locale] : 'en-GB'}
@@ -117,7 +117,7 @@ const Comments = ({postId, isMain}) => {
             </div>
           ))}
         </div>
-      ) : (<></>)}
+      ) : (<LoadingBar isMessage={true} />)}
     </>
   );
 };

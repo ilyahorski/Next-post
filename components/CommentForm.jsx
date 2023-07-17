@@ -39,9 +39,10 @@ const CommentForm = ({ userId, postId }) => {
     <form
       onSubmit={handleSubmit(onSubmit)}
     >
-      <div className='flex w-full justify-between items-center gap-2 bg-white rounded-lg p-1'>
+      <div className='flex w-full justify-between items-center gap-2 bg-white dark:bg-gray-600/10 rounded-lg p-1'>
           <textarea
-            className='w-full min-h-[48px] h-[48px] pl-1 max-h-32 focus:outline-none focus:rounded-lg focus:border-[1px] focus:border-primary-50'
+            title='Write your comment here'
+            className='w-full min-h-[48px] h-[48px] pl-1 max-h-32 bg-white dark:bg-gray-600/10 outline-none rounded-lg focus:border-[1px] focus:border-primary-50'
             placeholder={'Comment message'}
             rows={4}
             cols={50}
@@ -59,10 +60,11 @@ const CommentForm = ({ userId, postId }) => {
         )}
 
         <button
+          title='Click to send a comment'
           type='submit'
           className='flex items-center justify-center w-10 h-10'
         >
-          <BiLogoTelegram className='w-10 h-10 text-primary-300'/>
+          <BiLogoTelegram className='w-8 h-8 text-primary-300'/>
         </button>
       </div>
     </form>

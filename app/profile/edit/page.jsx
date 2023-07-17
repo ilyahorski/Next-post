@@ -60,7 +60,7 @@ const MyProfile = () => {
 
         <div className='xs:w-[50%] w-full'>
           <label>
-            <div className='mt-2 font-satoshi font-semibold text-base text-gray-700'>
+            <div className='mt-2 font-satoshi font-semibold text-base text-gray-700 dark:text-gray-300'>
               Change nickname
             </div>
             <input
@@ -74,7 +74,7 @@ const MyProfile = () => {
           </label>
 
           <div className='flex-end mt-2 mx-3 mb-5 gap-4'>
-            <Link href='/' className='text-gray-500 text-sm'>
+            <Link href='/' className='text-gray-500 dark:text-gray-300 text-sm'>
               Cancel
             </Link>
 

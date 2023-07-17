@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -22,6 +23,9 @@ module.exports = {
         borderWidth: ['focus'],
         borderColor: ['focus'],
         borderRadius: ['focus'],
+        backgroundImage: {
+          'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        }
       },
       fontFamily: {
         satoshi: ['Satoshi', 'sans-serif'],
