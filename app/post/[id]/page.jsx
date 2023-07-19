@@ -15,6 +15,7 @@ import { toggleLike } from "~/utils/toggleLike";
 import {io} from "socket.io-client";
 import Comments from "~/components/Comments";
 import CommentForm from "~/components/CommentForm";
+import VideoPlayer from "~/components/VideoPlayer";
 
 const Post = () => {
   const { data: session, status } = useSession();
@@ -26,6 +27,7 @@ const Post = () => {
   const [tags, setTags] = useState(null);
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
+  const [type, setType] = useState('');
   const locale = navigator.language;
 
   const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
@@ -66,6 +68,11 @@ const Post = () => {
       const response = await fetch(`/api/post/${postIds}`);
       const data = await response.json();
 
+      const url = new URL(data.image);
+      const pathname = url.pathname;
+      const fileWithExtension = pathname.split("/").pop();
+      const fileType = fileWithExtension.split("-")[0];
+
       setPost({
         post: data.post,
         tags: data.tag,
@@ -74,6 +81,7 @@ const Post = () => {
         createdAt: data.createdAt,
       });
       setTags(parseTags(data.tag));
+      setType(fileType)
     };
 
     if (postIds) getPostDetails();
@@ -118,13 +126,18 @@ const Post = () => {
 
             <div>
               <div className='relative flex justify-center my-4 w-full h-[450px] xs:h-[600px] rounded-lg'>
-                <Image
-                  style={{ objectFit: 'contain' }}
-                  src={post.image}
-                  alt='image'
-                  fill={true}
-                  quality={100}
-                />
+                {type === 'image' ? (
+                  <Image
+                    style={{ objectFit: 'contain' }}
+                    src={post.post.image}
+                    alt='image'
+                    fill={true}
+                    quality={100}
+                    sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
+                  />
+                ) : (
+                  <VideoPlayer preview={''} post={post.image}/>
+                )}
               </div>
               <div className='pb-1'>
                 <p className='my-4 pb-2 border-b-[1px] border-gray-400 font-satoshi text-[16px] text-gray-700'>{post.post}</p>

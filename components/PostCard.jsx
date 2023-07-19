@@ -16,6 +16,7 @@ import {handleCopy} from "~/utils/handleCopy";
 import { io } from 'socket.io-client';
 import Comments from "~/components/Comments";
 import CommentForm from "~/components/CommentForm";
+import VideoPlayer from "~/components/VideoPlayer";
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 
@@ -32,6 +33,11 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
   const locale = navigator.language;
   const tags = parseTags(post.tag);
   const ENDPOINT = process.env.HEROKU_URL;
+
+  const url = new URL(post.image);
+  const pathname = url.pathname;
+  const fileWithExtension = pathname.split("/").pop();
+  const type = fileWithExtension.split("-")[0];
 
   const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
 
@@ -147,20 +153,25 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
 
           <div>
             <div
-              title='Click to open a post page'
-              onClick={() => handlePostOpen(post)}
+              // title='Click to open a post page'
+              // onClick={() => handlePostOpen(post)}
               className='relative flex justify-center my-4 w-full h-fit cursor-pointer'
             >
-              <Image
-                style={{ objectFit: 'contain' }}
-                src={post.image}
-                alt='image'
-                width={400}
-                height={400}
-                // fill={true}
-                quality={50}
-                sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
-              />
+              {type === 'image' ? (
+                <Image
+                  style={{ objectFit: 'contain' }}
+                  src={post.image}
+                  alt='image'
+                  width={400}
+                  height={400}
+                  // fill={true}
+                  quality={50}
+                  sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
+                />
+              ) : (
+                <VideoPlayer preview={''} post={post}/>
+              )}
+
             </div>
             <p
               className='my-4 pb-2 border-b-[1px] border-gray-400 dark:text-gray-300 font-satoshi text-sm text-gray-700'

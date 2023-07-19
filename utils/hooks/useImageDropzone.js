@@ -7,12 +7,7 @@ export function useImageDropzone({handleFileChange}) {
   }, [handleFileChange]);
 
   const { getRootProps, open, isDragActive } = useDropzone({
-    accept: {
-      'image/jpeg': [],
-      'image/jpg': [],
-      'image/png': [],
-      'image/gif': []
-    },
+    accept: ['image/*', 'video/*'],
     onDrop,
     noClick: true,
     maxFiles: 1,

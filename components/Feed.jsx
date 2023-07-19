@@ -6,8 +6,6 @@ import { CiCircleRemove } from "react-icons/ci";
 import { PostCardList } from "~/components/PostCardList";
 import { LoadingBar } from "~/components/Loading";
 import InfiniteScroll from 'react-infinite-scroll-component';
-// import ReactPlayer from 'react-player';
-// import FileUpload from "~/components/FileUpload";
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -71,8 +69,6 @@ const Feed = () => {
 
   return (
     <section className='feed'>
-      {/*<FileUpload />*/}
-      {/*<ReactPlayer controls={true} url="https://storage.cloud.google.com/next-post-video/video_2023-07-18_16-47-42.mp4" />*/}
       <form className='relative w-full flex-center items-center'>
         <input
           type='text'

@@ -6,6 +6,7 @@ import ImageEditor from "~/components/ImageEditor";
 
 const Form = (
   {
+    setFileData,
     cropperRef,
     type,
     post,
@@ -24,7 +25,7 @@ const Form = (
         onSubmit={handleSubmit}
         className='p-4 gap-5 glassmorphism mt-8 w-full flex flex-col xs:flex-row'
       >
-        <ImageEditor post={post} cropperRef={cropperRef}/>
+        <ImageEditor setFileData={setFileData} post={post} cropperRef={cropperRef}/>
 
         <div className='xs:w-[50%] w-full'>
           <label>

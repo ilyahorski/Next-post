@@ -25,6 +25,11 @@ const nextConfig = {
         hostname: '**.googleusercontent.com',
         port: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        port: '',
+      },
     ],
   },
   webpack(config) {

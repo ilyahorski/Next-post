@@ -1,7 +1,9 @@
 import {useState, useRef, useCallback} from 'react';
+import {v4 as uuidv4} from "uuid";
 
-export function useFileHandler() {
+export function useFileHandler(setFileData) {
   const [preview, setPreview] = useState(null);
+  const [fileType, setFileType] = useState('');
   const inputRef = useRef(null);
 
   const clearFile = () => {
@@ -10,24 +12,30 @@ export function useFileHandler() {
     }
   };
 
-  const handleFileChange = useCallback(
-    (file) => {
-    let maxSize = 7000000; // 7MB
-
-    if (file && file.size > maxSize) {
-      alert("File is too large, please pick a file smaller than or equal 7MB.");
-      return;
-    }
-
+  const handleFileChange = useCallback((file) => {
     if (file) {
-      setPreview(URL.createObjectURL(file));
+      const type = file.type.split('/')[0];
+      const extension = file.name.split('.').pop();
+      const uniqueName = `${type}-${extension}-${uuidv4()}.${extension}`;
+      const data = {
+        preview: URL.createObjectURL(file),
+        data: file,
+        name: uniqueName,
+        type: type
+      };
+
+      setPreview(data.preview);
+      setFileData(data)
+      setFileType(type)
     } else {
       setPreview('');
+      setFileData(null);
+      setFileType('')
       clearFile();
     }
   },
     [preview, setPreview],
   );
 
-  return { preview, inputRef, handleFileChange };
+  return { preview, fileType, inputRef, handleFileChange };
 }

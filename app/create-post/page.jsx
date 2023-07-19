@@ -8,6 +8,7 @@ import { useInputChangeHandler } from "~/utils/hooks/useInputChangeHandler";
 
 const CreatePost = () => {
   const [post, setPost] = useState({ post: '', tag: '', image: '' });
+  const [fileData, setFileData] = useState(null);
   const handleInputChange = useInputChangeHandler(setPost);
   const cropperRef = useRef(null);
   const { data: session } = useSession();
@@ -20,6 +21,7 @@ const CreatePost = () => {
   });
 
   const { handleSubmit, isSubmitting } = useSubmitHandler(
+    fileData,
     session,
     post,
     cropperRef,
@@ -33,6 +35,7 @@ const CreatePost = () => {
 
   return (
     <Form
+      setFileData={setFileData}
       cropperRef={cropperRef}
       type='Creat'
       post={post}

@@ -14,6 +14,7 @@ const UpdatePost = () => {
   const cropperRef = useRef(null);
   const postId = searchParams.get('id');
   const { data: session } = useSession();
+  const [fileData, setFileData] = useState(null);
 
   const buildRequestBody = ({post, imageUrl}) => ({
     post: post.post,
@@ -22,6 +23,7 @@ const UpdatePost = () => {
   });
 
   const { handleSubmit, isSubmitting } = useSubmitHandler(
+    fileData,
     session,
     post,
     cropperRef,
@@ -50,6 +52,7 @@ const UpdatePost = () => {
 
   return (
     <Form
+      setFileData={setFileData}
       cropperRef={cropperRef}
       type='Updat'
       post={post}

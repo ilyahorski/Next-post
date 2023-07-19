@@ -4,6 +4,7 @@ import axios from 'axios';
 import {dataURLtoBlob} from "~/utils/dataUrlToBlob";
 
 export const useSubmitHandler = (
+  fileData,
   session,
   post,
   cropperRef,
@@ -16,6 +17,8 @@ export const useSubmitHandler = (
 ) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const LOCAL = 'http://localhost:4000';
+  const HEROKU = 'https://next-post-bc80bba88d82.herokuapp.com';
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -34,27 +37,54 @@ export const useSubmitHandler = (
       let cropper = cropperRef.current;
 
       try {
+        if (fileData.type === 'video') {
+          try {
+            const formData = new FormData();
+            formData.append("file", fileData.data);
+            formData.append("filename", fileData.name);
+
+            const response = await axios.post(`${HEROKU}/cloud-upload`, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                'Access-Control-Allow-Origin': "https://next-post-two.vercel.app",
+              },
+            });
+
+            const responseWithBody = await response.data;
+            setPost({ ...post, image: responseWithBody.publicUrl });
+            imageUrl = responseWithBody.publicUrl;
+          } catch (e) {
+            console.log(e, 'Error');
+          }
+        }
+
         if (cropper) {
           const canvas = cropper.getCanvas();
           if (canvas !== null) {
-            const dataURL = canvas.toDataURL('image/jpeg', 0.7);
+            const dataURL = canvas.toDataURL('image/jpeg', 1);
             blob = dataURLtoBlob({dataURL});
           }
         }
 
-        if (blob) {
-          const formData = new FormData();
-          formData.append('file', blob);
-          formData.append('upload_preset', 'u7gwudke');
+        if (blob && fileData.type === 'image') {
+          try {
+            const formData = new FormData();
+            formData.append('file', blob);
+            formData.append("filename", fileData.name);
 
-          const imageResponse = await axios.post(
-            `${process.env.NEXT_PUBLIC_CLOUDINARY_API_URL}`, formData,
-          );
-          if (imageResponse.data.error) {
-            throw new Error('Failed to upload image');
+            const response = await axios.post(`${HEROKU}/cloud-upload`, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                'Access-Control-Allow-Origin': "https://next-post-two.vercel.app",
+              },
+            });
+
+            const responseWithBody = await response.data;
+            setPost({ ...post, image: responseWithBody.publicUrl });
+            imageUrl = responseWithBody.publicUrl;
+          } catch (e) {
+            console.log(e, 'Error');
           }
-          setPost({ ...post, image: imageResponse.data.secure_url });
-          imageUrl = imageResponse.data.secure_url;
         }
 
         const requestBody = buildRequestBody({post, session, imageUrl});
@@ -64,7 +94,7 @@ export const useSubmitHandler = (
         });
 
         if (!response.ok) {
-          throw new Error('Failed to post data');
+          throw new Error('Failed to post data try again');
         }
 
         router.push(routerDestination);
