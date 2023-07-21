@@ -20,7 +20,7 @@ import VideoPlayer from "~/components/VideoPlayer";
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 
-const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
+const PostCard = ({ post, myPosts, setMyPosts, handleTagClick }) => {
   const { data: session, status } = useSession();
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -92,8 +92,32 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
     router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
   };
 
-  const handlePostOpen = (post) => {
+  const handlePostOpen = () => {
     router.push(`/post/${post.creator.username}?id=${post._id}`);
+  };
+
+  const handleEdit = () => {
+    router.push(`/update-post?id=${post._id}`);
+  };
+
+  const handleDelete = async () => {
+    const hasConfirmed = confirm(
+      'Are you sure you want to delete this post?',
+    );
+
+    if (hasConfirmed) {
+      try {
+        await fetch(`/api/post/${post._id.toString()}`, {
+          method: 'DELETE',
+        });
+
+        const filteredPosts = myPosts.filter((item) => item._id !== post._id);
+
+        setMyPosts(filteredPosts);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   return (
@@ -153,13 +177,17 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
 
           <div>
             <div
-              // title='Click to open a post page'
-              // onClick={() => handlePostOpen(post)}
-              className='relative flex justify-center my-4 w-full h-fit cursor-pointer'
+              title={type === 'image' ? 'Click to open a post page' : null}
+              onClick={() => {
+                if (type === 'image') {
+                  handlePostOpen(post);
+                }
+                }}
+              className='relative flex justify-center my-4 w-full h-fit'
             >
               {type === 'image' ? (
                 <Image
-                  style={{ objectFit: 'contain' }}
+                  style={{ objectFit: 'contain', cursor: 'pointer' }}
                   src={post.image}
                   alt='image'
                   width={400}
@@ -169,11 +197,12 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
                   sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
                 />
               ) : (
-                <VideoPlayer preview={''} post={post}/>
+                <VideoPlayer full={false} preview={''} post={post}/>
               )}
 
             </div>
             <p
+              onClick={() => handlePostOpen()}
               className='my-4 pb-2 border-b-[1px] border-gray-400 dark:text-gray-300 font-satoshi text-sm text-gray-700'
             >
               {post.post}
@@ -204,7 +233,7 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
             <div
               title='Click to open a comments'
               className='cursor-pointer'
-              onClick={() => handlePostOpen(post)}
+              onClick={() => handlePostOpen()}
             >
               <Comments postId={post?._id} isMain={true}/>
             </div>
@@ -215,13 +244,13 @@ const PostCard = ({ post, handleEdit, handleDelete, handleTagClick }) => {
             <div className='mt-5 flex-center gap-4 border-t border-gray-100 pt-3'>
               <button
                 className='font-inter text-sm green_gradient cursor-pointer'
-                onClick={handleEdit}
+                onClick={() => handleEdit()}
               >
                 Edit
               </button>
               <button
                 className='font-inter text-sm red_gradient cursor-pointer'
-                onClick={handleDelete}
+                onClick={() => handleDelete()}
               >
                 Delete
               </button>

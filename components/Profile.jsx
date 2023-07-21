@@ -9,7 +9,7 @@ const breakpointColumnsObj = {
   1130: 1,
 };
 
-const Profile = ({ name, session, data, handleEdit, handleDelete }) => {
+const Profile = ({ name, myPosts, setMyPosts, session, data}) => {
   return (
     <section className='profile'>
       <ProfileHeader
@@ -27,8 +27,8 @@ const Profile = ({ name, session, data, handleEdit, handleDelete }) => {
           <PostCard
             key={post._id}
             post={post}
-            handleEdit={() => handleEdit && handleEdit(post)}
-            handleDelete={() => handleDelete && handleDelete(post)}
+            myPosts={myPosts}
+            setMyPosts={setMyPosts}
           />
         ))}
       </Masonry>

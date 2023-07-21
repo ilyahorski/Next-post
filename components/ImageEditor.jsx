@@ -6,14 +6,14 @@ import {Cropper} from 'react-mobile-cropper';
 import 'react-mobile-cropper/dist/style.css'
 import VideoPlayer from "~/components/VideoPlayer";
 
-const ImageEditor = ({setFileData, post, cropperRef}) => {
+const ImageEditor = ({setFileData, dataType, googleDataType, post, cropperRef}) => {
   const {preview, fileType, inputRef, handleFileChange} = useFileHandler(setFileData);
   const {getRootProps, open, isDragActive} = useImageDropzone({handleFileChange});
   const isMobile = useMobileCheck();
 
 
   return (
-    <div className='xs:w-[50%] w-full'>
+    <div className='xs:w-[50%] w-full h-fit'>
       <label>
         <div className='w-full flex-center items-center'>
           {isMobile ? (
@@ -42,12 +42,12 @@ const ImageEditor = ({setFileData, post, cropperRef}) => {
           )}
         </div>
       </label>
-      {fileType === 'image' ? (
-        <div className={preview ? 'w-full h-[350px] xs:h-[600px]' : 'h-fit'}>
+      {fileType === 'image' || dataType === 'image' || googleDataType === 'lh3' ? (
+        <div className={preview || post.userImage || post.image ? 'w-full h-[450px] xs:h-[350px] sm:h-[400px] md:h-[500px] lg:h-[600px]' : 'hidden'}>
           <Cropper
             ref={cropperRef}
-            src={preview ? preview : (post.image ? post.image : post.userImage)}
-            className="cropper"
+            src={preview ? preview : (post.userImage ? post.userImage : post.image)}
+            className='cropper'
             stencilProps={{
               grid: true
             }}

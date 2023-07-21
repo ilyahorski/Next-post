@@ -86,7 +86,7 @@ const Post = () => {
 
     if (postIds) getPostDetails();
 
-  }, [status]);
+  }, []);
 
   return (
     <>
@@ -94,7 +94,7 @@ const Post = () => {
         <>
           <ToastContainer />
           <div
-            className='flex-1 p-3 mb-4 break-inside-avoid rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-950/50 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit;'>
+            className='flex-1 p-3 mb-4 break-inside-avoid rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-950/50 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit -mt-8'>
             <div className='flex justify-between flex-wrap p-2 mb-4 items-center gap-6 border-gray-200 border-2 rounded-lg'>
               <div
                 className='creator_info'
@@ -129,24 +129,24 @@ const Post = () => {
                 {type === 'image' ? (
                   <Image
                     style={{ objectFit: 'contain' }}
-                    src={post.post.image}
+                    src={post.image}
                     alt='image'
                     fill={true}
                     quality={100}
                     sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
                   />
                 ) : (
-                  <VideoPlayer preview={''} post={post.image}/>
+                  <VideoPlayer full={true} preview={''} post={post}/>
                 )}
               </div>
               <div className='pb-1'>
-                <p className='my-4 pb-2 border-b-[1px] border-gray-400 font-satoshi text-[16px] text-gray-700'>{post.post}</p>
+                <p className='my-4 pb-2 border-b-[1px] border-gray-400 font-satoshi text-[16px] text-gray-700 dark:text-gray-300'>{post.post}</p>
                 <div className='flex items-start justify-between'>
                   <div className='flex flex-wrap items-center gap-2'>
                     {tags.map((tag, i) => (
                       <p
                         key={i}
-                        className='font-inter text-sm blue_gradient cursor-pointer'
+                        className='font-inter text-sm text-cyan-500/60 cursor-pointer'
                       >
                         {tag}
                       </p>

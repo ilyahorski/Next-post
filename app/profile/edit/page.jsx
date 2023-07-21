@@ -16,6 +16,9 @@ const MyProfile = () => {
   const userId = searchParams.get('id');
   const cropperRef = useRef(null);
   const { data: session } = useSession();
+  const [fileData, setFileData] = useState(null);
+  const [userDataType, setUserDataType] = useState('');
+  const [googleDataType, setGoogleDataType] = useState('');
 
   const buildRequestBody = ({post, imageUrl}) => ({
     username: post.username,
@@ -24,6 +27,7 @@ const MyProfile = () => {
   });
 
   const { handleSubmit, isSubmitting } = useSubmitHandler(
+    fileData,
     session,
     post,
     cropperRef,
@@ -45,18 +49,23 @@ const MyProfile = () => {
         userImage: data.userImage,
         image: data.image,
       });
+      setUserDataType(data.userImage.split('/')[4].split('-')[0])
+      setGoogleDataType(data.image.split('/')[2].split('.')[0])
     };
 
     if (userId) getUserData();
   }, [userId]);
 
   return (
-    <section className='w-full max-w-full flex-start flex-col'>
+    <section className='w-full max-w-full flex-start flex-col -mt-8 xs:mt-0'>
+      <div className='head_text text-start xs:text-5xl xs:-mt-4 mb-4'>
+        <span className='orange_gradient'>Edit profile page</span>
+      </div>
       <form
         onSubmit={handleSubmit}
-        className='p-4 gap-5 glassmorphism mt-8 w-full flex flex-col xs:flex-row'
+        className='p-4 gap-5 glassmorphism w-full flex flex-col xs:flex-row min-h-[400px] h-fit'
       >
-        <ImageEditor post={post} cropperRef={cropperRef}/>
+        <ImageEditor setFileData={setFileData} dataType={userDataType} googleDataType={googleDataType} post={post} cropperRef={cropperRef}/>
 
         <div className='xs:w-[50%] w-full'>
           <label>

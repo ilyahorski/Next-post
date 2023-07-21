@@ -15,6 +15,14 @@ const Form = (
     handleSubmit
   }) => {
 
+  let dataType
+  if (post?.image) {
+    const url = new URL(post?.image);
+    const pathname = url.pathname;
+    const fileWithExtension = pathname.split("/").pop();
+    dataType = fileWithExtension.split("-")[0];
+  }
+
   return (
     <section className='w-full max-w-full flex-start flex-col'>
       <h2 className='head_text text-center -mt-10'>
@@ -25,7 +33,7 @@ const Form = (
         onSubmit={handleSubmit}
         className='p-4 gap-5 glassmorphism mt-8 w-full flex flex-col xs:flex-row'
       >
-        <ImageEditor setFileData={setFileData} post={post} cropperRef={cropperRef}/>
+        <ImageEditor setFileData={setFileData} dataType={dataType} googleDataType={null} post={post} cropperRef={cropperRef}/>
 
         <div className='xs:w-[50%] w-full'>
           <label>

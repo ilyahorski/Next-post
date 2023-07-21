@@ -140,7 +140,7 @@ const Nav = () => {
                   onClick={(e) => {
                     e.preventDefault()
                     setToggleDropdown(false);
-                    signOut('google', { callbackUrl: '/' });
+                    signOut( { callbackUrl: '/' });
                   }}
                   className='mt-5 w-full outline_btn'
                 >

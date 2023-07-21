@@ -83,11 +83,6 @@
   background: none !important;
 }
 
-.cropper {
-  color: #61dafb; /* cropper's color */
-  max-height: 500px;
-}
-
 .my-masonry-grid {
   display: -webkit-box; /* not needed if autoprefixing */
   display: -ms-flexbox; /* not needed if autoprefixing */
@@ -124,6 +119,10 @@
   .main {
     padding: 0;
   }
+}
+
+.cropper {
+  @apply text-cyan-600 max-h-[500px]
 }
 
 .main {
@@ -164,7 +163,7 @@
 }
 
 .head_text {
-  @apply w-full text-3xl xs:text-5xl font-extrabold leading-[1.15] text-black;
+  @apply w-full text-3xl sm:text-5xl font-extrabold leading-[1.15] text-black;
 }
 
 .blue_gradient {
