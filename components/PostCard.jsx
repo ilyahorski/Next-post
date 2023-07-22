@@ -106,7 +106,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
     router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
   };
 
-  const handlePostOpen = () => {
+  const handlePostOpen = (post) => {
     router.push(`/post/${post.creator.username}?id=${post._id}`);
   };
 
@@ -218,8 +218,9 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
 
             </div>
             <p
-              onClick={() => handlePostOpen()}
-              className='my-4 pb-2 border-b-[1px] border-gray-400 dark:text-gray-300 font-satoshi text-sm text-gray-700'
+              title={type === 'image' ? 'Click to open a post page' : null}
+              onClick={() => handlePostOpen(post)}
+              className='my-4 pb-2 border-b-[1px] border-gray-400 dark:text-gray-300 font-satoshi text-sm text-gray-700 cursor-pointer'
             >
               {post.post}
             </p>
@@ -249,7 +250,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
             <div
               title='Click to open a comments'
               className='cursor-pointer'
-              onClick={() => handlePostOpen()}
+              onClick={() => handlePostOpen(post)}
             >
               <Comments postId={post?._id} isMain={true}/>
             </div>

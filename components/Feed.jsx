@@ -9,6 +9,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import {BsColumns} from "react-icons/bs";
 import {TbColumns1} from "react-icons/tb";
 import {DisplayContext} from "~/app/provider";
+import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -20,6 +21,7 @@ const Feed = () => {
   const [searchedResults, setSearchedResults] = useState([]);
   const {data: session, status} = useSession();
   const {columnView, setColumnView} = useContext(DisplayContext);
+  const isMobile = useMobileCheck();
 
   useEffect(() => {
     if (status !== 'loading') {
@@ -74,7 +76,7 @@ const Feed = () => {
   return (
     <section className='feed'>
       <div className='flex w-full items-center justify-between gap-3'>
-        <div className='cursor-pointer'>
+        <div className={isMobile ? 'hidden' : 'cursor-pointer'}>
           {columnView ? (
             <BsColumns
               onClick={() => setColumnView(!columnView)}

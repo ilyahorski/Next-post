@@ -86,7 +86,7 @@ const Post = () => {
 
     if (postIds) getPostDetails();
 
-  }, []);
+  }, [session]);
 
   return (
     <>
