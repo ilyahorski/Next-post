@@ -1,11 +1,14 @@
 "use client";
 
-import {useEffect, useState} from "react";
-import { useSession } from "next-auth/react";
-import { CiCircleRemove } from "react-icons/ci";
-import { PostCardList } from "~/components/PostCardList";
-import { LoadingBar } from "~/components/Loading";
+import {useContext, useEffect, useState} from "react";
+import {useSession} from "next-auth/react";
+import {CiCircleRemove} from "react-icons/ci";
+import {PostCardList} from "~/components/PostCardList";
+import {LoadingBar} from "~/components/Loading";
 import InfiniteScroll from 'react-infinite-scroll-component';
+import {BsColumns} from "react-icons/bs";
+import {TbColumns1} from "react-icons/tb";
+import {DisplayContext} from "~/app/provider";
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -15,7 +18,8 @@ const Feed = () => {
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
-  const { data: session, status } = useSession();
+  const {data: session, status} = useSession();
+  const {columnView, setColumnView} = useContext(DisplayContext);
 
   useEffect(() => {
     if (status !== 'loading') {
@@ -69,25 +73,41 @@ const Feed = () => {
 
   return (
     <section className='feed'>
-      <form className='relative w-full flex-center items-center'>
-        <input
-          type='text'
-          placeholder='Search for a tag or a username'
-          value={searchText}
-          onChange={handleSearchChange}
-          className='search_input peer dark:text-gray-300 dark:bg-gray-800/30'
-        />
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            setSearchText("");
-          }}
-          className='w-10 h-11 absolute right-0 top-0'
-        >
-          <CiCircleRemove
-            className='w-6 h-6'/>
-        </button>
-      </form>
+      <div className='flex w-full items-center justify-between gap-3'>
+        <div className='cursor-pointer'>
+          {columnView ? (
+            <BsColumns
+              onClick={() => setColumnView(!columnView)}
+              className='w-8 h-8 font-light'
+            />
+          ) : (
+            <TbColumns1
+              onClick={() => setColumnView(!columnView)}
+              className='w-8 h-8 font-light'
+            />
+          )
+          }
+        </div>
+        <form className='relative w-full flex-center items-center'>
+          <input
+            type='text'
+            placeholder='Search for a tag or a username'
+            value={searchText}
+            onChange={handleSearchChange}
+            className='search_input peer dark:text-gray-300 dark:bg-gray-800/30'
+          />
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setSearchText("");
+            }}
+            className='w-10 h-11 absolute right-0 top-0'
+          >
+            <CiCircleRemove
+              className='w-6 h-6'/>
+          </button>
+        </form>
+      </div>
 
       <InfiniteScroll
         dataLength={allPosts.length}
@@ -96,26 +116,31 @@ const Feed = () => {
         loader={<LoadingBar isMessage={false}/>}
         refreshFunction={fetchPosts}
         endMessage={
-          <p style={{ textAlign: "center" }}>
+          <p style={{textAlign: "center"}}>
             <b>Yay! You have seen it all</b>
           </p>
         }
-        // pullDownToRefresh
-        // pullDownToRefreshThreshold={100}
-        // pullDownToRefreshContent={
-        //   <h3 style={{ textAlign: 'center' }}>&#8595; Pull down to refresh</h3>
-        // }
-        // releaseToRefreshContent={
-        //   <h3 style={{ textAlign: 'center' }}>&#8593; Release to refresh</h3>
-        // }
+        pullDownToRefresh
+        pullDownToRefreshThreshold={100}
+        pullDownToRefreshContent={
+          <h3 style={{ textAlign: 'center', marginTop: '50px' }}>&#8595; Pull down to refresh</h3>
+        }
+        releaseToRefreshContent={
+          <h3 style={{ textAlign: 'center', marginTop: '50px' }}>&#8593; Release to refresh</h3>
+        }
       >
         {searchText ? (
           <PostCardList
+            columnView={columnView}
             data={searchedResults}
             handleTagClick={handleTagClick}
           />
         ) : (
-          <PostCardList data={allPosts} handleTagClick={handleTagClick} />
+          <PostCardList
+            columnView={columnView}
+            data={allPosts}
+            handleTagClick={handleTagClick}
+          />
         )}
       </InfiniteScroll>
     </section>

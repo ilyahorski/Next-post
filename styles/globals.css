@@ -192,8 +192,8 @@
 
 /* postcard component */
 .post_card {
-  @apply flex-1 break-inside-avoid rounded-lg border border-gray-300 dark:border-0 bg-white/20 dark:bg-gray-900/90 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter xs:w-[510px] w-[370px] h-fit;
-  }
+  @apply border-2 border-pink-700 flex-1 break-inside-avoid rounded-lg  dark:border-0 bg-white/20 dark:bg-gray-900/90 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter xs:w-[510px] w-[370px] h-fit;
+}
 
 /* feed component */
 .feed {

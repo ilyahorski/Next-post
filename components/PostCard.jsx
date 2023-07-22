@@ -20,19 +20,22 @@ import VideoPlayer from "~/components/VideoPlayer";
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 
-const PostCard = ({ post, myPosts, setMyPosts, handleTagClick }) => {
+const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   const { data: session, status } = useSession();
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState('');
   const [providers, setProviders] = useState(null);
   const [localeLoaded, setLocaleLoaded] = useState(false);
+  const [dimensions, setDimensions] = useState({width: 0, height: 0});
 
   const pathName = usePathname();
   const router = useRouter();
   const locale = navigator.language;
   const tags = parseTags(post.tag);
   const ENDPOINT = process.env.HEROKU_URL;
+  const JSImage = window.Image;
+  const postCardStyle = 'flex-1 h-fit break-inside-avoid rounded-lg dark:border-0 bg-white/20 dark:bg-gray-900/90 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter'
 
   const url = new URL(post.image);
   const pathname = url.pathname;
@@ -40,6 +43,17 @@ const PostCard = ({ post, myPosts, setMyPosts, handleTagClick }) => {
   const type = fileWithExtension.split("-")[0];
 
   const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
+
+
+  useEffect(() => {
+    const img = new JSImage();
+
+    img.onload = function() {
+      setDimensions({width: this.width, height: this.height});
+    }
+
+    img.src = post.image;
+  }, [post.image]);
 
   useEffect(() => {
     socket.connect();
@@ -123,8 +137,8 @@ const PostCard = ({ post, myPosts, setMyPosts, handleTagClick }) => {
   return (
     <>
       {post && providers && localeLoaded ? (
-        <div className='post_card'>
-          <div className='flex justify-between items-end gap-5 -mt-3'>
+        <div className={`${postCardStyle} ${columnView ? ' sm:w-[510px] w-[370px]' : 'sm:w-[510px] w-[370px]'}`}>
+        <div className='flex justify-between items-end gap-5 -mt-3'>
             <div
               title='Click to open creator profile'
               className='flex-1 flex justify-start items-center gap-3 cursor-pointer'
@@ -186,16 +200,18 @@ const PostCard = ({ post, myPosts, setMyPosts, handleTagClick }) => {
               className='relative flex justify-center my-4 w-full h-fit'
             >
               {type === 'image' ? (
-                <Image
-                  style={{ objectFit: 'contain', cursor: 'pointer' }}
-                  src={post.image}
-                  alt='image'
-                  width={400}
-                  height={400}
-                  // fill={true}
-                  quality={50}
-                  sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
-                />
+                <div className='relative flex justify-center my-4 w-full '>
+                  <Image
+                    style={{ objectFit: 'contain', cursor: 'pointer' }}
+                    src={post.image}
+                    alt='image'
+                    width={dimensions.width}
+                    height={dimensions.height}
+                    // fill={true}
+                    quality={50}
+                    sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
+                  />
+                </div>
               ) : (
                 <VideoPlayer full={false} preview={''} post={post}/>
               )}

@@ -85,7 +85,8 @@ const Nav = () => {
             </Link>
           </div>
         ) : (
-          <>
+          <div className='flex items-center gap-3 md:gap-5'>
+            <DarkModeToggle />
             {providers &&
               Object.values(providers).map((provider) => (
                 <button
@@ -100,7 +101,7 @@ const Nav = () => {
                   Sign in with {provider.name}
                 </button>
               ))}
-          </>
+          </div>
         )}
       </div>
 

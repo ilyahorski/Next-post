@@ -29,7 +29,7 @@ const MyProfile = () => {
       {!session?.user ? (
         <LoadingBar/>
       ) : (
-        <Profile // ЧЕКНИ ЧТО БУДЕТ ЕСЛИ ОСТАВИТЬ ТОЛЬКО ПРФИЛЬ В АДРЕСЕ И ИСПРАВЬ ЭТО
+        <Profile
           name={pathname}
           data={myPosts}
           session={session?.user.id}

@@ -4,9 +4,11 @@ import { SessionProvider } from 'next-auth/react';
 import { createContext, useEffect, useState } from 'react';
 
 export const ThemeContext = createContext();
+export const DisplayContext = createContext();
 
 const Provider = ({children}) => {
   const [darkMode, setDarkMode] = useState(false);
+  const [columnView, setColumnView] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -21,9 +23,11 @@ const Provider = ({children}) => {
 
   return (
     <ThemeContext.Provider value={{darkMode, setDarkMode}}>
-      <SessionProvider>
-        {children}
-      </SessionProvider>
+      <DisplayContext.Provider value={{columnView, setColumnView}}>
+        <SessionProvider>
+          {children}
+        </SessionProvider>
+      </DisplayContext.Provider>
     </ThemeContext.Provider>
   )
 };
