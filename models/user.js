@@ -19,6 +19,18 @@ const UserSchema = new Schema({
   session: {
     type: String,
   },
+  socketId: {
+    type: [String],
+  },
+  status: {
+    type: String,
+    enum: ['online', 'offline'],
+    default: 'offline'
+  },
+  blockedUsers: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  }],
 });
 
 const User = models.User || model('User', UserSchema);

@@ -9,26 +9,60 @@
   @apply text-zinc-50;
 }
 
+.custom-height {
+  @apply h-screen;
+  height: calc(100vh - 80px);
+}
+
+.message-list::-webkit-scrollbar{
+  width: 0;
+}
+
 /* width */
 .comment-list::-webkit-scrollbar {
   width: 2px;
+  border-radius: 5px;
 }
 
 /* track */
 .comment-list::-webkit-scrollbar-track {
   background: #087c70bf;
-  border-radius: 5px;
+  border-radius: 7px;
 }
 
 /* handle */
 .comment-list::-webkit-scrollbar-thumb {
   background: #28CBA6;
-  border-radius: 5px;
+  border-radius: 7px;
 }
 
 /* handle on hover */
 .comment-list::-webkit-scrollbar-thumb:hover {
   border: 1px solid #05050587;
+  border-radius: 7px;
+}
+/* width */
+.chat-list::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 7px;
+}
+
+/* track */
+.chat-list::-webkit-scrollbar-track {
+  background: #addacf;
+  border-radius: 5px;
+}
+
+/* handle */
+.chat-list::-webkit-scrollbar-thumb {
+  background: #5C807CBF;
+  border-radius: 5px;
+}
+
+/* handle on hover */
+.chat-list::-webkit-scrollbar-thumb:hover {
+  border: 1px solid #05050587;
+  border-radius: 5px;
 }
 
 /* width */
@@ -129,7 +163,14 @@
   @apply w-screen min-h-screen fixed flex justify-center px-6 py-48 pointer-events-none before:block before:w-full before:h-full before:absolute before:top-0 before:bg-white/50 dark:before:bg-gray-800 before:z-10 after:block after:w-full after:h-full after:absolute after:top-0 after:opacity-40 after:invert after:z-10
 }
 
-/* tailwind styles */
+.message-list {
+  @apply flex flex-col gap-2 px-1 mb-2 max-h-[93%] flex-1 rounded-lg overflow-auto overscroll-contain
+}
+
+.chat-list {
+  @apply mb-6 max-h-[93%] bg-amber-400 flex-1 rounded-lg overflow-auto overscroll-contain p-0.5 bg-white/20 dark:bg-gray-600/10 bg-clip-padding backdrop-blur-lg backdrop-filter;
+}
+
 .comment-list {
   @apply flex-1 rounded-lg max-h-[300px] mb-1 overflow-auto overscroll-contain border border-gray-600 p-0.5 bg-white/20 dark:bg-gray-600/10 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit;
 }
@@ -146,12 +187,16 @@
   @apply relative z-10 flex justify-center items-center flex-col max-w-7xl mx-auto px-6;
 }
 
+.chat_btn {
+  @apply rounded-full border border-black bg-transparent dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 dark:hover:text-lime-400 py-1.5 px-5 text-black transition-all hover:bg-white hover:text-lime-600 text-center text-sm font-inter flex items-center justify-center;
+}
+
 .black_btn {
-  @apply rounded-full border border-black bg-transparent dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 dark:hover:text-cyan-600 py-1.5 px-5 text-black transition-all hover:bg-white hover:text-cyan-600 text-center text-sm font-inter flex items-center justify-center;
+  @apply rounded-full border border-black bg-transparent dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 dark:hover:text-cyan-400 py-1.5 px-5 text-black transition-all hover:bg-white hover:text-cyan-600 text-center text-sm font-inter flex items-center justify-center;
 }
 
 .outline_btn {
-  @apply rounded-full border border-black bg-transparent dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 dark:hover:text-red-300 py-1.5 px-5 text-black transition-all hover:bg-white hover:text-red-500 text-center text-sm font-inter flex items-center justify-center;
+  @apply rounded-full border border-black bg-transparent dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 dark:hover:text-red-400 py-1.5 px-5 text-black transition-all hover:bg-white hover:text-red-600 text-center text-sm font-inter flex items-center justify-center;
 }
 
 .search_input {

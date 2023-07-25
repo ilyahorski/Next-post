@@ -6,6 +6,7 @@ import {useEffect, useRef, useState} from 'react';
 import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
 import DarkModeToggle from "~/components/ThemeModeToggle";
 import useClickOutside from "~/utils/hooks/useClickOutside";
+import {usePathname} from "next/navigation";
 
 const Nav = () => {
   const { data: session, status } = useSession();
@@ -13,6 +14,8 @@ const Nav = () => {
   const [providers, setProviders] = useState(null);
   const [data, setData] = useState({ username: '', userImage: '', image: ''});
   const ref = useRef(null);
+  const pathname = usePathname().split('/')[1]
+
   useClickOutside(ref, () => setToggleDropdown(false));
 
   useEffect(() => {
@@ -38,7 +41,7 @@ const Nav = () => {
   }, [session]);
 
   return (
-    <nav className='flex-between w-full mb-16 pt-3'>
+    <nav className={`${pathname === 'chat' ? 'w-[100dvw] px-2' : 'w-full'} flex-between mb-16 pt-3`}>
       <Link href='/' className='flex gap-2 flex-center'>
         <Image
           src='/assets/images/logo.png'
@@ -51,10 +54,14 @@ const Nav = () => {
       </Link>
 
       {/* Desktop Navigation */}
-      <div className='xs:flex hidden'>
+      <div className='md:flex hidden'>
         {session?.user ? (
           <div className='flex items-center gap-3 md:gap-5'>
             <DarkModeToggle />
+
+            <Link href='/chat' className='chat_btn'>
+              Open Chats
+            </Link>
 
             <Link href='/create-post' className='black_btn'>
               Create Post
@@ -106,7 +113,7 @@ const Nav = () => {
       </div>
 
       {/* Mobile Navigation */}
-      <div ref={ref} className='xs:hidden flex relative'>
+      <div ref={ref} className='md:hidden flex relative'>
         {session?.user ? (
           <div className='flex items-center gap-5'>
             <DarkModeToggle />
