@@ -1,43 +1,57 @@
 'use client'
 
-import {io} from "socket.io-client";
 import CommentMessageForm from "./CommentMessageForm";
+import {useContext} from "react";
+import {SocketContext} from "~/utils/context/SocketContext";
 
-const MessageForm = ({ chat, messageInput, setMessageInput, sortedMessages, setSortedMessages }) => {
+const MessageForm = ({ id, chat, session }) => {
+  const socket = useContext(SocketContext);
 
-  // const onFormSubmit = (data) => {
-  //   const commentData = {
-  //     commentatorId: userId,
-  //     postId: postId,
-  //     comment: data.message
-  //   };
-  //
-  //   const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
-  //
-  //   socket.emit('sendComment', commentData);
-  //
-  //   socket.on('commentSent', (response) => {
-  //     if (response.status === 'success') {
-  //       console.log('Comment sent successfully');
-  //     } else {
-  //       console.log('Error sending comment: ', response.message);
-  //     }
-  //   });
-  // };
+  const onFormSubmit = async (data) => {
+    let newMessage
 
-  const onFormSubmit = (event) => {
-    event.preventDefault();
-    const newMessage = {
-      _id: `messageid${sortedMessages.length}`,
-      writerId: 'userid1',
-      chatId: chat._id,
-      message: messageInput,
-      messageStatus: 'sent',
-      deletedBy: null,
-      createdAt: new Date(),
-    };
-    setSortedMessages([...sortedMessages, newMessage]);
-    setMessageInput("");
+    if (session.user) {
+      newMessage = {
+        writerId: session?.user?.id,
+        chatId: id,
+        message: data.message,
+        messageStatus: 'sent',
+        deletedBy: null,
+      };
+    }
+
+    if(socket) {
+      socket.emit('sendMessage', newMessage);
+
+      socket.on('messageSent', async (response) => {
+        if (response.status === 'success') {
+          const chatData = {
+            chatName: chat.chatName,
+            chatImage: chat.chatImage,
+            lastMessage: response?.newMessage._id
+          };
+
+          const fetchResponse = await fetch(`/api/chats/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify(chatData),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!fetchResponse.ok) {
+            throw new Error('Failed to update chat');
+          }
+
+        } else {
+          console.log('Error sending message: ', response.message);
+        }
+      });
+
+      return () => {
+        socket.off('messageSent');
+      };
+    }
   };
 
   return (

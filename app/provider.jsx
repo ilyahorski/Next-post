@@ -2,6 +2,7 @@
 
 import { SessionProvider } from 'next-auth/react';
 import { createContext, useEffect, useState } from 'react';
+import SocketProvider from "~/utils/context/SocketContext";
 
 export const ThemeContext = createContext();
 export const DisplayContext = createContext();
@@ -25,7 +26,9 @@ const Provider = ({children}) => {
     <ThemeContext.Provider value={{darkMode, setDarkMode}}>
       <DisplayContext.Provider value={{columnView, setColumnView}}>
         <SessionProvider>
-          {children}
+          <SocketProvider>
+            {children}
+          </SocketProvider>
         </SessionProvider>
       </DisplayContext.Provider>
     </ThemeContext.Provider>

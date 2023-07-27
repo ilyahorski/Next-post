@@ -1,11 +1,16 @@
 import Chat from '~/models/chat';
 import { connectToDB } from '~/utils/database';
+import User from "~/models/user";
+import {Schema} from "mongoose";
 
 export const GET = async (request, { params }) => {
   try {
     await connectToDB();
 
-    const chat = await Chat.findById(params.id).populate('creatorId').populate('membersList');
+    const chat = await Chat.findById(params.id)
+      .populate('creatorId')
+      .populate('membersList')
+
     if (!chat) return new Response('Chat Not Found', { status: 404 });
 
     return new Response(JSON.stringify(chat), { status: 200 });
@@ -15,23 +20,37 @@ export const GET = async (request, { params }) => {
   }
 };
 
-export const POST = async (request, { params }) => {
-  const { creatorId, membersList, chatName, lastMessage, secretToken } = await request.json();
+export const PATCH = async (request, { params }) => {
+  const { chatName, chatImage, lastMessage } = await request.json();
 
   try {
     await connectToDB();
 
-    const newChat = await Chat.create({
-      creatorId,
-      membersList,
-      chatName,
-      lastMessage,
-      secretToken,
-    });
+    const chatData = await Chat.findById(params.id)
+      .populate('creatorId')
+      .populate('membersList')
 
-    return new Response(JSON.stringify(newChat), { status: 201 });
+    if (!chatData) {
+      return new Response('Data not found', { status: 404 });
+    }
+
+    if (chatName !== undefined) {
+      chatData.chatName = chatName;
+    }
+
+    if (chatImage !== undefined) {
+      chatData.chatImage = chatImage;
+    }
+
+    if (lastMessage !== undefined) {
+      chatData.lastMessage = lastMessage;
+    }
+
+    await chatData.save();
+
+    return new Response('Successfully updated', { status: 200 });
   } catch (error) {
-    return new Response('Error Creating Chat', { status: 500 });
+    return new Response('Error Updating Chat', { status: 500 });
   }
 };
 

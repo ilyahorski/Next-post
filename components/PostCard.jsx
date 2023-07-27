@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {useContext, useEffect, useState} from 'react';
 import Image from 'next/image';
 import {getProviders, useSession} from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -13,10 +13,10 @@ import ReactTimeAgo from "react-time-ago";
 import {localeToFullLocale, supportedLocales} from "~/utils/constants/supportedLocales";
 import JavascriptTimeAgo from "javascript-time-ago";
 import {handleCopy} from "~/utils/handleCopy";
-import { io } from 'socket.io-client';
 import Comments from "~/components/Comments";
 import CommentForm from "~/components/CommentForm";
 import VideoPlayer from "~/components/VideoPlayer";
+import {SocketContext} from "~/utils/context/SocketContext";
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 
@@ -42,7 +42,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   const fileWithExtension = pathname.split("/").pop();
   const type = fileWithExtension.split("-")[0];
 
-  const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
+  const socket = useContext(SocketContext);
 
 
   useEffect(() => {
@@ -56,34 +56,32 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   }, [post.image]);
 
   useEffect(() => {
-    socket.connect();
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
     if (status === 'loading' || !session) return;
 
-    socket.on('likesUpdated', ({ postId, likesCount }) => {
-      if (postId === post._id) {
-        setLikes(likesCount);
-      }
-    });
+    if (socket) {
+      socket.on('likesUpdated', ({ postId, likesCount }) => {
+        if (postId === post._id) {
+          setLikes(likesCount);
+        }
+      });
 
-    socket.on('likeStatus', ({ postId, liked }) => {
-      if (postId === post._id) {
-        setLiked(liked);
-      }
-    });
+      socket.on('likeStatus', ({ postId, liked }) => {
+        if (postId === post._id) {
+          setLiked(liked);
+        }
+      });
 
-    socket.on('connect', () => {
-      socket.emit('checkLikeStatus', { userId: session.user.id, postId: post._id });
-    });
+      socket.on('connect', () => {
+        socket.emit('checkLikeStatus', { userId: session.user.id, postId: post._id });
+      });
 
-    return () => socket.disconnect();
-  }, [post._id, session, status, likes]);
+      return () => {
+        socket.off('likesUpdated');
+        socket.off('likeStatus');
+        socket.off('connect');
+      };
+    }
+  }, [post._id, session, status, likes, socket]);
 
   useEffect(() => {
     const userLocale = navigator.language.split('-')[0];

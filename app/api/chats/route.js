@@ -5,9 +5,11 @@ export const GET = async (request, { params }) => {
   try {
     await connectToDB();
 
-    const chats = await Chat.find({})
+    const userId = request.headers.get('userId');
+
+    const chats = await Chat.find({ "membersList": userId })
       .populate('creatorId')
-      .populate('membersList');
+      .populate('membersList')
 
     if (!chats) return new Response('Chats Not Found', { status: 404 });
 
@@ -15,5 +17,25 @@ export const GET = async (request, { params }) => {
 
   } catch (error) {
     return new Response('Internal Server Error', { status: 500 });
+  }
+};
+
+export const POST = async (request, { params }) => {
+  const { creatorId, membersList, chatName, lastMessage, secretToken } = await request.json();
+
+  try {
+    await connectToDB();
+
+    const newChat = await Chat.create({
+      creatorId,
+      membersList,
+      chatName,
+      lastMessage,
+      secretToken,
+    });
+
+    return new Response(JSON.stringify(newChat), { status: 201 });
+  } catch (error) {
+    return new Response('Error Creating Chat', { status: 500 });
   }
 };

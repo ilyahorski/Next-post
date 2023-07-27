@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import {useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useRef, useState} from 'react';
 import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
 import DarkModeToggle from "~/components/ThemeModeToggle";
 import useClickOutside from "~/utils/hooks/useClickOutside";
 import {usePathname} from "next/navigation";
+import {SocketContext} from "~/utils/context/SocketContext";
 
 const Nav = () => {
   const { data: session, status } = useSession();
@@ -15,8 +16,16 @@ const Nav = () => {
   const [data, setData] = useState({ username: '', userImage: '', image: ''});
   const ref = useRef(null);
   const pathname = usePathname().split('/')[1]
+  const socket = useContext(SocketContext);
 
   useClickOutside(ref, () => setToggleDropdown(false));
+
+  const handleSignOut = (e) => {
+    e.preventDefault();
+    setToggleDropdown(false);
+    socket.disconnect();
+    signOut({callbackUrl: '/'});
+  }
 
   useEffect(() => {
     (async () => {
@@ -69,10 +78,7 @@ const Nav = () => {
 
             <button
               type='button'
-              onClick={(e) => {
-                e.preventDefault();
-                signOut({ callbackUrl: '/' });
-              }}
+              onClick={handleSignOut}
               className='outline_btn'
             >
               Sign Out
@@ -143,13 +149,16 @@ const Nav = () => {
                 >
                   Create Post
                 </Link>
+                <Link
+                  href='/chat'
+                  className='dropdown_link_chat'
+                  onClick={() => setToggleDropdown(false)}
+                >
+                  Open Chats
+                </Link>
                 <button
                   type='button'
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setToggleDropdown(false);
-                    signOut( { callbackUrl: '/' });
-                  }}
+                  onClick={handleSignOut}
                   className='mt-5 w-full outline_btn'
                 >
                   Sign Out

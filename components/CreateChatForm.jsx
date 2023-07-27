@@ -6,6 +6,7 @@ import {RiCloseCircleLine} from "react-icons/ri";
 import {BiMessageSquareAdd} from "react-icons/bi";
 import {useSession} from "next-auth/react";
 import { v4 as uuidv4 } from 'uuid';
+import {GoSidebarExpand} from "react-icons/go";
 
 const CreateChatForm = ({ closeForm }) => {
   const { data: session, status } = useSession();
@@ -60,8 +61,9 @@ const CreateChatForm = ({ closeForm }) => {
 
     const chat = {
       creatorId: session?.user?.id,
-      membersList: selectedUsers.map(user => user._id),
+      membersList: selectedUsers,
       chatName: chatName,
+      chatImage: null,
       lastMessage: null,
       secretToken: uuidv4()
     };
@@ -106,16 +108,16 @@ const CreateChatForm = ({ closeForm }) => {
             type="submit"
             onClick={closeForm}
           >
-            <RiCloseCircleLine className='text-primary-300 w-[40px] h-[40px]' />
+            <GoSidebarExpand className='text-primary-300 w-[40px] h-[40px]' />
           </button>
         </div>
         <div className='flex flex-col w-full border border-black rounded p-2 mb-3'>
           <h2>Selected users:</h2>
           <ul className='flex w-full flex-wrap gap-1'>
-            {selectedUsers.map((user) => (
+            {selectedUsers.map((user, index) => (
               <li
                 className='flex w-auto border border-gray-500 rounded p-1'
-                key={user.id}
+                key={index + 0.3}
               >
                 <div className='flex gap-2 h-[30px] justify-center items-center'>
                   <Image
@@ -150,7 +152,7 @@ const CreateChatForm = ({ closeForm }) => {
         <div className='chat-list'>
           {filteredUsers.map((user, index) => (
             <div
-              key={user.id}
+              key={index}
               className={'flex flex-row justify-between flex-wrap p-2 m-1 items-center gap-2 border-b border-primary-300'}>
               <div
                 className='flex gap-2 justify-start items-center'

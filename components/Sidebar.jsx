@@ -1,21 +1,29 @@
 'use client'
 
-import {useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import Link from "next/link";
 import Image from "next/image";
-import {RxHamburgerMenu} from "react-icons/rx";
 import {useSession} from "next-auth/react";
+import {GoSidebarCollapse} from "react-icons/go";
+import {SocketContext} from "~/utils/context/SocketContext";
 
 const Sidebar = ({ openForm }) => {
   const { data: session, status } = useSession();
   const [chats, setChats] = useState([]);
   const [search, setSearch] = useState('');
 
+  const socket = useContext(SocketContext);
+
   useEffect(() => {
     if (status === 'loading') return;
 
     const getChats = async () => {
-      const response = await fetch(`/api/chats`);
+      const response = await fetch(`/api/chats`, {
+        headers: {
+          'userId': session?.user?.id
+        }
+      });
+
       const data = await response.json();
 
       setChats(data);
@@ -24,6 +32,21 @@ const Sidebar = ({ openForm }) => {
     if (session) getChats();
 
   }, [session]);
+
+  useEffect(() => {
+    if (!session?.user && !socket) return;
+
+    if (socket) {
+      socket.on('chatUpdated', (updatedChat) => {
+        setChats((prevChats) => [...prevChats, updatedChat]);
+      });
+
+      return () => {
+        socket.off('chatUpdated');
+      };
+    }
+  }, [session, socket]);
+
 
   const filteredChats = chats.filter((chat) =>
     chat.chatName.toLowerCase().includes(search.toLowerCase())
@@ -43,19 +66,25 @@ const Sidebar = ({ openForm }) => {
           type="submit"
           onClick={openForm}
         >
-          <RxHamburgerMenu className='text-primary-300 w-[40px] h-[40px]' />
+          <GoSidebarCollapse className='text-primary-300 w-[40px] h-[40px]' />
         </button>
       </div>
       <div className='chat-list'>
         {filteredChats.map((chat, index) => (
-          <Link href={`/chat/${chat.id}`}
-            key={chat.id}
+          <Link href={`/chat/${chat._id}`}
+            key={chat._id}
             className={'flex flex-row justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-300'}>
             <div
               className='flex gap-2 justify-start items-center'
             >
               <Image
-                src={chat.creatorId.userImage}
+                src={
+                  chat?.chatImage
+                  ? chat.chatImage
+                  : (session?.user?.id === chat?.membersList[0]._id
+                    ? (chat?.membersList[1].userImage || chat?.membersList[1].image)
+                    : (chat?.membersList[0].userImage || chat?.membersList[0].image))
+                }
                 alt='user_image'
                 width={50}
                 height={50}
@@ -66,7 +95,7 @@ const Sidebar = ({ openForm }) => {
                   {chat.chatName}
                 </p>
                 <p className=''>
-                  {chat.lastMessage}
+                  {chat?.lastMessage?.message}
                 </p>
               </div>
             </div>

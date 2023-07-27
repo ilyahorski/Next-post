@@ -12,7 +12,7 @@ const RootLayout = ({children}) => {
   return (
     <html lang='en'>
     <body>
-      <div className='main main_gradient'>
+      <div className='main main_gradient_light main_gradient_dark'>
       </div>
       <Provider>
         <main className='app'>

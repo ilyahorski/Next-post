@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 import ReactTimeAgo from "react-time-ago";
-import {useEffect, useState, useRef} from "react";
-import {io} from "socket.io-client";
+import {useEffect, useState, useRef, useContext} from "react";
 import {localeToFullLocale, supportedLocales} from "~/utils/constants/supportedLocales";
 import JavascriptTimeAgo from "javascript-time-ago";
 import {LoadingBar} from "~/components/Loading";
+import {SocketContext} from "~/utils/context/SocketContext";
 
 JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
 
@@ -15,51 +15,47 @@ const Comments = ({postId, isMain}) => {
   const locale = navigator.language;
   const endOfComments = useRef(null);
 
-  const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
-    socket.connect();
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (postId) {
+    if (postId && socket) {
       socket.emit('getComments', {postId});
-    }
 
-    socket.on('commentsReceived', (comments) => {
-      if (comments.status && comments.status === 'error') {
-        console.log('Error getting comments: ', comments.message);
-      } else {
-        if (comments && comments.length > 0) {
-          setCommentsList(isMain ? [comments[comments.length - 1]] : comments);
-        }
-      }
-    });
-
-    socket.on('newComment', (comment) => {
-      if (comment.postId === postId) {
-        setCommentsList((prevComments) => {
-          const commentIds = new Set(prevComments.map((c) => c._id));
-          if (commentIds.has(comment._id)) {
-            return prevComments;
-          } else {
-            return isMain ? [comment] : [...prevComments, comment];
+      socket.on('commentsReceived', (comments) => {
+        if (comments.status && comments.status === 'error') {
+          console.log('Error getting comments: ', comments.message);
+        } else {
+          if (comments && comments.length > 0) {
+            setCommentsList((prevComments) => {
+              if (comments[0].postId === postId) {
+                return isMain ? [comments[comments.length - 1]] : comments;
+              } else {
+                return prevComments;
+              }
+            });
           }
-        });
-      }
-    });
+        }
+      });
 
-    // Отключение сокета и удаление слушателей при размонтировании
-    return () => {
-      socket.off('commentsReceived');
-      socket.off('newComment');
-      socket.disconnect();
-    };
-  }, []);
+      socket.on('newComment', (comment) => {
+        if (comment.postId === postId) {
+          setCommentsList((prevComments) => {
+            const commentIds = new Set(prevComments.map((c) => c._id));
+            if (commentIds.has(comment._id)) {
+              return prevComments;
+            } else {
+              return isMain ? [comment] : [...prevComments, comment];
+            }
+          });
+        }
+      });
+
+      return () => {
+        socket.off('commentsReceived');
+        socket.off('newComment');
+      };
+    }
+  }, [socket, postId]);
 
   useEffect(() => {
     if (endOfComments.current) {

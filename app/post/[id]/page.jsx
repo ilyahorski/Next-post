@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {useContext, useEffect, useState} from 'react';
 import { useSearchParams } from 'next/navigation';
 import ReactTimeAgo from 'react-time-ago';
 import Image from 'next/image';
@@ -12,10 +12,10 @@ import { useSession } from 'next-auth/react';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { ToastContainer } from "react-toastify";
 import { toggleLike } from "~/utils/toggleLike";
-import {io} from "socket.io-client";
 import Comments from "~/components/Comments";
 import CommentForm from "~/components/CommentForm";
 import VideoPlayer from "~/components/VideoPlayer";
+import {SocketContext} from "~/utils/context/SocketContext";
 
 const Post = () => {
   const { data: session, status } = useSession();
@@ -30,37 +30,35 @@ const Post = () => {
   const [type, setType] = useState('');
   const locale = navigator.language;
 
-  const socket = io('https://next-post-bc80bba88d82.herokuapp.com/');
-
-  useEffect(() => {
-    socket.connect();
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     if (status === 'loading' || !session) return;
 
-    socket.on('likesUpdated', ({ postId, likesCount }) => {
-      if (postId === postIds) {
-        setLikes(likesCount);
-      }
-    });
+    if (socket) {
+      socket.on('likesUpdated', ({ postId, likesCount }) => {
+        if (postId === postIds) {
+          setLikes(likesCount);
+        }
+      });
 
-    socket.on('likeStatus', ({ postId, liked }) => {
-      if (postId === postIds) {
-        setLiked(liked);
-      }
-    });
+      socket.on('likeStatus', ({ postId, liked }) => {
+        if (postId === postIds) {
+          setLiked(liked);
+        }
+      });
 
-    socket.on('connect', () => {
-      socket.emit('checkLikeStatus', { userId: session.user.id, postId: postIds });
-    });
+      socket.on('connect', () => {
+        socket.emit('checkLikeStatus', { userId: session.user.id, postId: postIds });
+      });
 
-    return () => socket.disconnect();
-  }, [postIds, session, status, likes]);
+      return () => {
+        socket.off('likesUpdated');
+        socket.off('likeStatus');
+        socket.off('connect');
+      };
+    }
+  }, [postIds, session, status, likes, socket]);
 
   useEffect(() => {
     if (status === 'loading') return;
