@@ -4,7 +4,7 @@ import {useContext, useEffect, useState} from 'react';
 import MessageForm from "~/components/MessageForm";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 import {useSession} from "next-auth/react";
-import {useParams} from "next/navigation";
+import {useParams, usePathname} from "next/navigation";
 import {SocketContext} from "~/utils/context/SocketContext";
 import MessageList from "~/components/MessageList";
 import {LoadingBar} from "~/components/Loading";
@@ -19,7 +19,9 @@ const Messages = ({ closeForm }) => {
   const [page, setPage] = useState(1);
   const [messagesCount, setMessagesCount] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMessages, setIsFetchingMessages] = useState(false);
   const isMobile = useMobileCheck();
+  const pathname = usePathname()
   const {id: chatId} = useParams()
 
   const socket = useContext(SocketContext);
@@ -29,6 +31,7 @@ const Messages = ({ closeForm }) => {
       setHasMore(false);
       return;
     }
+    setIsFetchingMessages(true);
     const response = await fetch(`/api/message?page=${page}&limit=20`, {
       headers: {
         'chatId': chatId
@@ -39,18 +42,19 @@ const Messages = ({ closeForm }) => {
     setMessagesCount(data.totalMessages)
     setPage(page + 1);
     setMessagesList(prevMessages => [...prevMessages, ...data.usersMessages]);
+    setIsFetchingMessages(false);
   };
 
   useEffect(() => {
     if (!chatId) return;
 
-    if (session) getMessages();
+    if ( chatId && chat) getMessages();
 
-  }, [session]);
+  }, [chatId, pathname, chat]);
 
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === 'loading' && !chatId) return;
 
     const getChat = async () => {
       const response = await fetch(`/api/chats/${chatId}`);
@@ -59,9 +63,9 @@ const Messages = ({ closeForm }) => {
       setChat(data);
     };
 
-    if (session) getChat();
+    if (chatId) getChat();
 
-  }, [session, messagesList]);
+  }, [chatId]);
 
   useEffect(() => {
     if (chatId && socket) {
@@ -84,7 +88,7 @@ const Messages = ({ closeForm }) => {
         socket.off('newMessage');
       };
     }
-  }, [session, socket]);
+  }, [session, socket, chatId]);
 
   return (
     <div className="flex flex-col custom-height flex-grow px-2 pb-3 w-full">
@@ -117,7 +121,7 @@ const Messages = ({ closeForm }) => {
               </p>
               {messagesList[0] && (
                 <p className='truncate'>
-                  {messagesList[0].message}
+                  {messagesList[0]?.message}
                 </p>
               )}
             </div>
@@ -139,7 +143,7 @@ const Messages = ({ closeForm }) => {
       >
         <InfiniteScroll
           style={{ display: 'flex', flexDirection: 'column-reverse' }}
-          dataLength={messagesList.length}
+          dataLength={messagesList?.length}
           next={getMessages}
           hasMore={hasMore}
           loader={<LoadingBar isMessage={true}/>}

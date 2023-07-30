@@ -25,7 +25,7 @@ const SocketProvider = ({ children }) => {
         newSocket.close();
       };
     }
-  }, [session]);
+  }, [session?.user]);
 
   return (
     <SocketContext.Provider value={socket}>

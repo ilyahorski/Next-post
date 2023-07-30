@@ -58,7 +58,9 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   useEffect(() => {
     if (status === 'loading' || !session) return;
 
-    if (socket) {
+    if (socket && session?.user && post._id) {
+      socket.emit('checkLikeStatus', { userId: session.user.id, postId: post._id });
+
       socket.on('likesUpdated', ({ postId, likesCount }) => {
         if (postId === post._id) {
           setLikes(likesCount);
@@ -69,10 +71,6 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
         if (postId === post._id) {
           setLiked(liked);
         }
-      });
-
-      socket.on('connect', () => {
-        socket.emit('checkLikeStatus', { userId: session.user.id, postId: post._id });
       });
 
       return () => {

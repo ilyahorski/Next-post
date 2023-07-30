@@ -35,7 +35,9 @@ const Post = () => {
   useEffect(() => {
     if (status === 'loading' || !session) return;
 
-    if (socket) {
+    if (socket && session?.user && postIds) {
+      socket.emit('checkLikeStatus', { userId: session.user.id, postId: postIds });
+
       socket.on('likesUpdated', ({ postId, likesCount }) => {
         if (postId === postIds) {
           setLikes(likesCount);
@@ -46,10 +48,6 @@ const Post = () => {
         if (postId === postIds) {
           setLiked(liked);
         }
-      });
-
-      socket.on('connect', () => {
-        socket.emit('checkLikeStatus', { userId: session.user.id, postId: postIds });
       });
 
       return () => {
