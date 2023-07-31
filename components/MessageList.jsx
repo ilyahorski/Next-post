@@ -1,10 +1,13 @@
 'use client'
 
 import Image from "next/image";
-import {useEffect, useRef} from "react";
+import {useContext, useEffect, useRef} from "react";
+import {SessionContext} from "~/utils/context/SocketContext";
 
 const MessageList = ({ messagesList, isMobile, session }) => {
   const endOfMessages = useRef(null);
+
+  const sessionUserId = useContext(SessionContext);
 
   useEffect(() => {
     if (endOfMessages.current) {
@@ -15,7 +18,7 @@ const MessageList = ({ messagesList, isMobile, session }) => {
 
   return (
     <>
-      {messagesList.length !== 0 ? (
+      {messagesList.length !== 0 && sessionUserId ? (
         <div className='message-list'>
           {messagesList.map((message, index) => (
             <div

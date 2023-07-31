@@ -93,7 +93,7 @@ const Messages = ({ closeForm }) => {
   return (
     <div className="flex flex-col custom-height flex-grow px-2 pb-3 w-full">
       {chat && chat.length !== 0 && (
-        <div className='flex items-center w-full gap-2 mt-auto rounded mb-auto bg-gray-300/20 bg-clip-padding backdrop-blur-lg backdrop-filter'>
+        <div className='flex items-center flex-grow gap-2 mt-auto rounded mb-auto bg-gray-300/20 bg-clip-padding backdrop-blur-lg backdrop-filter'>
           <button
             className='mob:hidden flex justify-center items-center w-[40px] h-[40px]'
             type="submit"
@@ -101,7 +101,7 @@ const Messages = ({ closeForm }) => {
           >
             <GoSidebarExpand className='text-primary-300 w-[40px] h-[40px]' />
           </button>
-          <div className='flex items-center w-[85%] max-h-[50px] p-1 gap-2'>
+          <div className='flex items-center w-full max-h-[50px] p-1 gap-2'>
             <Image
               src={
                 chat?.chatImage
@@ -115,7 +115,7 @@ const Messages = ({ closeForm }) => {
               height={50}
               className='rounded-full object-fill h-[50px] w-[50px]'
             />
-            <div className='flex w-[50%] flex-col gap-1'>
+            <div className='flex max-w-[250px] us:max-w-[400px] xl:max-w-[750px] flex-col gap-1'>
               <p className=''>
                 {chat?.chatName}
               </p>
@@ -129,7 +129,7 @@ const Messages = ({ closeForm }) => {
         </div>
       )}
       <section
-        className="scrollableDiv flex-grow"
+        className="scrollableDiv w-full max-w-full min-w-0 flex-grow"
         id="scrollableDiv"
         style={{
           maxHeight: '93%',

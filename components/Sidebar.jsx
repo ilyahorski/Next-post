@@ -3,25 +3,24 @@
 import {useContext, useEffect, useState} from 'react';
 import Link from "next/link";
 import Image from "next/image";
-import {useSession} from "next-auth/react";
+import {signOut, useSession} from "next-auth/react";
 import {GoSidebarCollapse} from "react-icons/go";
-import {SocketContext} from "~/utils/context/SocketContext";
-import {usePathname} from "next/navigation";
+import {SessionContext, SocketContext} from "~/utils/context/SocketContext";
+import {usePathname, useRouter} from "next/navigation";
 
 const Sidebar = ({ openForm }) => {
   const { data: session, status } = useSession();
   const [chats, setChats] = useState([]);
   const [search, setSearch] = useState('');
-  const [isFetchingChats, setIsFetchingChats] = useState(false);
-  const pathname = usePathname()
+  const pathname = usePathname().split('/')[2];
+  const router = useRouter()
 
   const socket = useContext(SocketContext);
 
-  useEffect(() => {
-    if (status === 'loading' || isFetchingChats) return;
+  const sessionUserId = useContext(SessionContext);
 
+  useEffect(() => {
     const getChats = async () => {
-      setIsFetchingChats(true);
       const response = await fetch(`/api/chats`, {
         headers: {
           'userId': session?.user?.id
@@ -31,26 +30,60 @@ const Sidebar = ({ openForm }) => {
       const data = await response.json();
 
       setChats(data);
-      setIsFetchingChats(false);
     };
 
-    if (session?.user?.id && !isFetchingChats) getChats();
+    const timer = setTimeout(() => {
+      if (!session?.user?.id) return;
+      getChats();
+    }, 100); // 100ms delay
 
-  }, [session, isFetchingChats, pathname]);
+    return () => clearTimeout(timer);
+
+  }, [session?.user?.id]);
 
   useEffect(() => {
     if (!session?.user && !socket) return;
 
     if (socket) {
       socket.on('chatUpdated', (updatedChat) => {
-        setChats((prevChats) => [...prevChats, updatedChat]);
+        setChats((prevChats) => {
+          const chatIds = new Set(prevChats.map((c) => c._id));
+          if (chatIds.has(updatedChat._id)) {
+            return prevChats;
+          } else {
+            return [...prevChats, updatedChat];
+          }
+        });
+
       });
 
       return () => {
         socket.off('chatUpdated');
       };
     }
-  }, [session?.user, socket]);
+  }, []);
+
+  const handleDelete = async () => {
+    const hasConfirmed = confirm(
+        'Are you sure you want to delete this chat and all messages?',
+    );
+
+    if (hasConfirmed) {
+      try {
+        const response = await fetch(`/api/chats/${pathname}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to delete chat: ${response.status}`);
+        }
+
+        await router.push('/chat');
+
+      } catch (error) {
+        console.error('Error deleting chat:', error);
+      }
+    }
+  };
 
 
   const filteredChats = chats.filter((chat) =>
@@ -74,7 +107,7 @@ const Sidebar = ({ openForm }) => {
           <GoSidebarCollapse className='text-primary-300 w-[40px] h-[40px]' />
         </button>
       </div>
-      {filteredChats.length !== 0 && (
+      {filteredChats.length !== 0 && sessionUserId && (
           <div className='chat-list'>
             {filteredChats.map((chat, index) => (
                 <Link href={`/chat/${chat._id}`}
@@ -105,6 +138,18 @@ const Sidebar = ({ openForm }) => {
                       </p>
                     </div>
                   </div>
+                  {pathname === chat._id && (
+                      <button
+                          className={'flex text-xl font-light leading-[1.15] text-red-600'}
+                          onClick={() => handleDelete()}
+                      >
+                        <p>
+                          Delete
+                          <br/>
+                          Chat
+                        </p>
+                      </button>
+                  )}
                 </Link>
             ))}
           </div>

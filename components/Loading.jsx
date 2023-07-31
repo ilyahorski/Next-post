@@ -1,4 +1,4 @@
-const loaderStyle = "my-2 bg-gradient-to-r from-primary-100/30 via-primary-300 to-secondary-400/50 animate-gradient-x bg-rounded-md rounded-md"
+const loaderStyle = "flex w-full flex-grow my-2 bg-gradient-to-r from-primary-100/30 via-primary-300 to-secondary-400/50 animate-gradient-x bg-rounded-md rounded-md"
 
 export const LoadingBar = ({ isMessage }) => {
   return (

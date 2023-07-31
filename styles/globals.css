@@ -185,7 +185,7 @@
 }
 
 .message-list {
-  @apply flex flex-col-reverse gap-2 px-1 mb-2 max-h-[93%] flex-1 rounded-lg overflow-auto overscroll-contain
+  @apply flex flex-grow w-full flex-col-reverse gap-2 px-1 mb-2 max-h-[93%] flex-1 rounded-lg overflow-auto overscroll-contain
 }
 
 .chat-list {

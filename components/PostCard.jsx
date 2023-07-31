@@ -56,19 +56,19 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   }, [post.image]);
 
   useEffect(() => {
-    if (status === 'loading' || !session) return;
+    if (status === 'loading' || !session || !socket) return;
 
-    if (socket && session?.user && post._id) {
-      socket.emit('checkLikeStatus', { userId: session.user.id, postId: post._id });
+    if (socket && session?.user && post?._id) {
+      socket.emit('checkLikeStatus', { userId: session?.user?.id, postId: post?._id });
 
       socket.on('likesUpdated', ({ postId, likesCount }) => {
-        if (postId === post._id) {
+        if (postId === post?._id) {
           setLikes(likesCount);
         }
       });
 
       socket.on('likeStatus', ({ postId, liked }) => {
-        if (postId === post._id) {
+        if (postId === post?._id) {
           setLiked(liked);
         }
       });
@@ -76,10 +76,9 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
       return () => {
         socket.off('likesUpdated');
         socket.off('likeStatus');
-        socket.off('connect');
       };
     }
-  }, [post._id, session, status, likes, socket]);
+  }, [post._id, session, socket]);
 
   useEffect(() => {
     const userLocale = navigator.language.split('-')[0];
@@ -94,7 +93,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
       const res = await getProviders();
       setProviders(res);
     })();
-  }, [session]);
+  }, []);
 
   const handleProfileClick = () => {
     if (post.creator._id === session?.user?.id) return router.push('/profile');
@@ -132,7 +131,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
 
   return (
     <>
-      {post && providers && localeLoaded ? (
+      {post && providers && localeLoaded && socket ? (
         <div className={`${postCardStyle} ${columnView ? ' sm:w-[510px] w-[370px]' : 'sm:w-[510px] w-[370px]'}`}>
         <div className='flex justify-between items-end gap-5 -mt-3'>
             <div

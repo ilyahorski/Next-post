@@ -56,7 +56,7 @@ const Post = () => {
         socket.off('connect');
       };
     }
-  }, [postIds, session, status, likes, socket]);
+  }, [postIds, session, socket]);
 
   useEffect(() => {
     if (status === 'loading') return;
