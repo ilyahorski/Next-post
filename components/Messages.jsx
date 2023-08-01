@@ -5,14 +5,14 @@ import MessageForm from "~/components/MessageForm";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 import {useSession} from "next-auth/react";
 import {useParams, usePathname} from "next/navigation";
-import {SocketContext} from "~/utils/context/SocketContext";
+import {SessionContext, SocketContext} from "~/utils/context/SocketContext";
 import MessageList from "~/components/MessageList";
 import {LoadingBar} from "~/components/Loading";
 import InfiniteScroll from "react-infinite-scroll-component";
 import {GoSidebarExpand} from "react-icons/go";
 import Image from "next/image";
 
-const Messages = ({ closeForm }) => {
+const Messages = ({ sessionUserId, closeForm }) => {
   const {data: session, status} = useSession();
   const [chat, setChat] = useState(null);
   const [messagesList, setMessagesList] = useState([]);
@@ -92,7 +92,7 @@ const Messages = ({ closeForm }) => {
 
   return (
     <div className="flex flex-col custom-height flex-grow px-2 pb-3 w-full">
-      {chat && chat.length !== 0 && (
+      {chat && chat?.length !== 0 && sessionUserId && (
         <div className='flex items-center flex-grow gap-2 mt-auto rounded mb-auto bg-gray-300/20 bg-clip-padding backdrop-blur-lg backdrop-filter'>
           <button
             className='mob:hidden flex justify-center items-center w-[40px] h-[40px]'
@@ -106,7 +106,7 @@ const Messages = ({ closeForm }) => {
               src={
                 chat?.chatImage
                   ? chat?.chatImage
-                  : (session?.user?.id === chat?.membersList[0]._id
+                  : (sessionUserId === chat?.membersList[0]._id
                     ? (chat?.membersList[1].userImage || chat?.membersList[1].image)
                     : (chat?.membersList[0].userImage || chat?.membersList[0].image))
               }
@@ -157,7 +157,7 @@ const Messages = ({ closeForm }) => {
             </p>
           }
         >
-          <MessageList messagesList={messagesList} isMobile={isMobile} session={session} />
+          <MessageList messagesList={messagesList} isMobile={isMobile} sessionUserId={sessionUserId} />
         </InfiniteScroll>
       </section>
 
@@ -165,7 +165,7 @@ const Messages = ({ closeForm }) => {
         <MessageForm
           id={chatId}
           chat={chat}
-          session={session}
+          sessionUserId={sessionUserId}
         />
       </div>
     </div>

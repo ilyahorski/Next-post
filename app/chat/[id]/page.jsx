@@ -5,15 +5,21 @@ import Messages from "~/components/Messages";
 import SplitPane, { SplitPaneLeft, SplitPaneRight, Divider } from '~/components/Splitter';
 import {useContext, useEffect, useState} from "react";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
-import {useSession} from "next-auth/react";
 import {SessionContext} from "~/utils/context/SocketContext";
+import {useSession} from "next-auth/react";
 
 const MessageMain = () => {
   const [showCreateChatForm, setShowCreateChatForm] = useState(true);
-  const {data: session, status} = useSession();
+  const {data: session, status, update} = useSession();
   const isMobile = useMobileCheck();
 
-  const sessionUserId = useContext(SessionContext);
+  const sessionId = useContext(SessionContext);
+
+  useEffect(() => {
+    if (!session?.user) {
+      update()
+    }
+  }, [session])
 
   useEffect(() => {
     if (isMobile) {
@@ -24,15 +30,17 @@ const MessageMain = () => {
 
   return (
     <>
-      {sessionUserId && (
+      {sessionId ? (
         <SplitPane className='w-[100dvw] flex -mt-[40px]' >
           <SplitPaneLeft>
             {showCreateChatForm && isMobile ? (
               <Messages
+                sessionUserId={sessionId}
                 closeForm={() => setShowCreateChatForm(false)}
               />
             ) : (!showCreateChatForm || !isMobile) && (
               <Sidebar
+                sessionUserId={sessionId}
                 openForm={() => setShowCreateChatForm(true)}
               />
             )}
@@ -40,10 +48,16 @@ const MessageMain = () => {
           <Divider className="hidden mob:flex border border-gray-400 rounded-md cursor-col-resize" />
           {(!isMobile || !showCreateChatForm) && (
             <SplitPaneRight>
-              <Messages />
+              <Messages
+                sessionUserId={sessionId}
+              />
             </SplitPaneRight>
           )}
         </SplitPane>
+      ) : (
+        <div>
+          Loading ...
+        </div>
       )}
     </>
   );

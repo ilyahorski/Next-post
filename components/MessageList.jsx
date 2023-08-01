@@ -4,10 +4,8 @@ import Image from "next/image";
 import {useContext, useEffect, useRef} from "react";
 import {SessionContext} from "~/utils/context/SocketContext";
 
-const MessageList = ({ messagesList, isMobile, session }) => {
+const MessageList = ({ messagesList, isMobile, sessionUserId }) => {
   const endOfMessages = useRef(null);
-
-  const sessionUserId = useContext(SessionContext);
 
   useEffect(() => {
     if (endOfMessages.current) {
@@ -24,9 +22,9 @@ const MessageList = ({ messagesList, isMobile, session }) => {
             <div
               key={message._id + index}
               ref={index === messagesList.length - 1 ? endOfMessages : null}
-              className={`flex ${message?.writerId?._id !== session?.user?.id ? 'justify-start' : 'justify-end'}`}>
+              className={`flex ${message?.writerId?._id !== sessionUserId ? 'justify-start' : 'justify-end'}`}>
               <div
-                className={`flex items-end gap-2 ${message.writerId._id !== session?.user?.id ? 'flex-row' : 'flex-row-reverse'}`}
+                className={`flex items-end gap-2 ${message.writerId._id !== sessionUserId ? 'flex-row' : 'flex-row-reverse'}`}
               >
                 {!isMobile && (
                   <Image
@@ -38,7 +36,7 @@ const MessageList = ({ messagesList, isMobile, session }) => {
                   />
                 )}
                 <p
-                  className={`flex font-inter font-extralight text-3xs px-2 p-1 max-w-[350px] rounded-lg ${message.writerId._id !== session?.user?.id ? 'bg-primary-600 dark:bg-primary-800 text-black dark:text-gray-200' : 'bg-primary-700 dark:bg-primary-900 dark:text-gray-200 text-gray-200'}`}
+                  className={`flex font-inter font-extralight text-3xs px-2 p-1 max-w-[350px] rounded-lg ${message.writerId._id !== sessionUserId ? 'bg-primary-600 dark:bg-primary-800 text-black dark:text-gray-200' : 'bg-primary-700 dark:bg-primary-900 dark:text-gray-200 text-gray-200'}`}
                 >
                   {message.message}
                 </p>

@@ -1,9 +1,9 @@
 'use client';
 
-import {SessionProvider} from "next-auth/react";
+import Provider from "~/app/provider";
 
 const ChatLayout = ({ children }) => {
-  return <SessionProvider>{children}</SessionProvider>
+  return <Provider>{children}</Provider>
 };
 
 export default ChatLayout;

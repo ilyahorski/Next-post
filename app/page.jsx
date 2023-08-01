@@ -1,7 +1,8 @@
 'use client';
 
 import Feed from '~/components/Feed';
-import {SessionProvider, useSession} from "next-auth/react";
+import Provider from "~/app/provider";
+import { useSession } from "next-auth/react";
 import { ScrollToTop } from "~/components/ScrollToTop";
 import {ToastContainer} from "react-toastify";
 import Link from "next/link";
@@ -19,7 +20,7 @@ const Home = () => {
       <p className='desc text-center dark:text-gray-400'>
         Next-Post is an open-source platform to discover, create and share creative post!
       </p>
-      <SessionProvider>
+      <Provider>
         <div className='flex md:hidden w-full justify-center gap-3 mt-3 -mb-6'>
           <Link href='/create-post' className={(status === 'authenticated') ? 'black_btn' : 'hidden'}>
             Create Post
@@ -31,7 +32,7 @@ const Home = () => {
         <Feed/>
         <ScrollToTop/>
         <ToastContainer/>
-      </SessionProvider>
+      </Provider>
     </section>
   );
 };

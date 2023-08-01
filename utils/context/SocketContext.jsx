@@ -10,12 +10,15 @@ export const SessionContext = createContext();
 const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [sessionUserId, setSessionUserId] = useState(null);
-  const { data: session } = useSession();
+  const { data: session, status, update } = useSession();
 
   const LOCAL = 'http://localhost:4000';
   const HEROKU = 'https://next-post-bc80bba88d82.herokuapp.com';
 
   useEffect(() => {
+    if (!session?.user) {
+      update()
+    }
     if (session?.user?.id) {
       setSessionUserId(session.user.id);
       const newSocket = io(`${HEROKU}`, {
@@ -30,7 +33,7 @@ const SocketProvider = ({ children }) => {
         newSocket.close();
       };
     }
-  }, [session?.user?.id]);
+  }, [session?.user]);
 
   return (
     <SocketContext.Provider value={socket}>

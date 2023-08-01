@@ -4,15 +4,15 @@ import CommentMessageForm from "./CommentMessageForm";
 import {useContext} from "react";
 import {SocketContext} from "~/utils/context/SocketContext";
 
-const MessageForm = ({ id, chat, session }) => {
+const MessageForm = ({ id, chat, sessionUserId }) => {
   const socket = useContext(SocketContext);
 
   const onFormSubmit = async (data) => {
     let newMessage
 
-    if (session.user) {
+    if (sessionUserId) {
       newMessage = {
-        writerId: session?.user?.id,
+        writerId: sessionUserId,
         chatId: id,
         message: data.message,
         messageStatus: 'sent',
