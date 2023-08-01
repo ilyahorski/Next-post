@@ -1,6 +1,6 @@
 "use client";
 
-import {useContext, useEffect, useState} from "react";
+import {useCallback, useContext, useEffect, useRef, useState} from "react";
 import {useSession} from "next-auth/react";
 import {CiCircleRemove} from "react-icons/ci";
 import {PostCardList} from "~/components/PostCardList";
@@ -22,6 +22,7 @@ const Feed = () => {
   const {data: session, status} = useSession();
   const {columnView, setColumnView} = useContext(DisplayContext);
   const isMobile = useMobileCheck();
+  const loaderRef = useRef();
 
   useEffect(() => {
     if (status !== 'loading') {
@@ -29,7 +30,7 @@ const Feed = () => {
     }
   }, [status]);
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     if (allPosts.length >= postsCount) {
       setHasMore(false);
       return;
@@ -38,10 +39,29 @@ const Feed = () => {
     const response = await fetch(`/api/post?page=${page}&limit=4`);
     const data = await response.json();
 
-    setPostsCount(data.totalPosts)
-    setAllPosts(allPosts.concat(data.posts));
-    setPage(page + 1);
-  };
+    setPostsCount(data.totalPosts);
+    setAllPosts((prevPosts) => [...prevPosts, ...data.posts]);
+    setPage((prevPage) => prevPage + 1);
+  }, [allPosts, postsCount, page]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting) {
+          fetchPosts();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [fetchPosts, loaderRef]);
+
 
   const filterPosts = (searchtext) => {
     const regex = new RegExp(searchtext, "i"); // 'i' flag for case-insensitive search
@@ -115,7 +135,7 @@ const Feed = () => {
         dataLength={allPosts.length}
         next={fetchPosts}
         hasMore={hasMore}
-        loader={<LoadingBar isMessage={false}/>}
+        loader={<LoadingBar ref={loaderRef} isMessage={false}/>}
         refreshFunction={fetchPosts}
         endMessage={
           <p style={{textAlign: "center"}}>
