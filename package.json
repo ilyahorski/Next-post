@@ -12,6 +12,7 @@
     "@ashxjs/split-view": "^1.0.5",
     "@google-cloud/storage": "^6.12.0",
     "@heroicons/react": "^2.0.18",
+    "@vercel/analytics": "^1.0.2",
     "autoprefixer": "10.4.14",
     "axios": "^1.4.0",
     "bcrypt": "^5.1.0",

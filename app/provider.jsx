@@ -3,17 +3,14 @@
 import { SessionProvider } from 'next-auth/react';
 import { createContext, useEffect, useState } from 'react';
 import SocketProvider from "~/utils/context/SocketContext";
+import { getLocalTheme, getLocalView } from '~/utils/localSrorageService'
 
 export const ThemeContext = createContext();
 export const DisplayContext = createContext();
 
 const Provider = ({children}) => {
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem('theme') === 'true'
-  );
-  const [columnView, setColumnView] = useState(
-    localStorage.getItem('columnView') === 'true'
-  );
+  const [darkMode, setDarkMode] = useState(getLocalTheme());
+  const [columnView, setColumnView] = useState(getLocalView());
   const colorTheme = darkMode ? 'dark' : '';
 
   useEffect(() => {

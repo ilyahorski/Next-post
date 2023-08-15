@@ -1,6 +1,7 @@
 import '~/styles/globals.css';
 import Nav from '~/components/Nav';
 import Provider from "~/app/provider";
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
   title: 'Next-post',
@@ -18,6 +19,7 @@ const RootLayout = ({children}) => {
         <main className='app'>
           <Nav/>
           {children}
+          <Analytics />
         </main>
       </Provider>
     </body>
