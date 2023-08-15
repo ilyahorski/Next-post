@@ -1,23 +1,12 @@
-import {useContext, useEffect} from 'react';
-import {ThemeContext} from "~/app/provider";
+import { useContext } from 'react';
+import { ThemeContext } from "~/app/provider";
 
 function DarkModeToggle() {
   const {darkMode, setDarkMode} = useContext(ThemeContext);
-  const colorTheme = darkMode ? 'dark' : '';
 
   const handleChange = () => {
     setDarkMode(!darkMode);
   }
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove('dark');
-
-    if (darkMode) {
-      root.classList.add(colorTheme);
-    }
-  }, [darkMode]);
-
 
   return (
     <div>

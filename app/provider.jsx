@@ -8,19 +8,28 @@ export const ThemeContext = createContext();
 export const DisplayContext = createContext();
 
 const Provider = ({children}) => {
-  const [darkMode, setDarkMode] = useState(false);
-  const [columnView, setColumnView] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem('theme') === 'true'
+  );
+  const [columnView, setColumnView] = useState(
+    localStorage.getItem('columnView') === 'true'
+  );
+  const colorTheme = darkMode ? 'dark' : '';
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const localTheme = window.localStorage.getItem('theme');
-      setDarkMode(localTheme === 'true');
+    const root = window.document.documentElement;
+    root.classList.remove('dark');
+
+    if (darkMode) {
+      root.classList.add(colorTheme);
     }
-  }, []);
+
+    localStorage.setItem('theme', JSON.stringify(darkMode));
+  }, [darkMode]);
 
   useEffect(() => {
-    typeof window !== "undefined" && window.localStorage.setItem('theme', String(darkMode));
-  }, [darkMode]);
+    localStorage.setItem('columnView', JSON.stringify(columnView));
+  }, [columnView]);
 
   return (
     <ThemeContext.Provider value={{darkMode, setDarkMode}}>
