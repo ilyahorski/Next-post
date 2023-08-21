@@ -131,7 +131,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
 
   return (
     <>
-      {post && providers && localeLoaded && socket ? (
+      {post && providers && localeLoaded ? (
         <div className={`${postCardStyle} ${columnView ? ' sm:w-[510px] w-[370px]' : 'sm:w-[510px] w-[370px]'}`}>
         <div className='flex justify-between items-end gap-5 -mt-3'>
             <div
