@@ -203,8 +203,9 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
                     width={dimensions.width}
                     height={dimensions.height}
                     // fill={true}
-                    quality={50}
-                    sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
+                    quality={100}
+                    // loading="eager"
+                    sizes="(min-width: 66em) 100vw, (min-width: 44em) 70vw, 60vw"
                   />
                 </div>
               ) : (
