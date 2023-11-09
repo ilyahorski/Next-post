@@ -129,7 +129,7 @@ const Post = () => {
                     alt='image'
                     fill={true}
                     quality={100}
-                    sizes="(min-width: 66em) 33vw, (min-width: 44em) 50vw, 100vw"
+                    sizes="(min-width: 66em) 100vw, (min-width: 44em) 70vw, 60vw"
                   />
                 ) : (
                   <VideoPlayer full={true} preview={''} post={post}/>
