@@ -68,6 +68,10 @@ const Nav = () => {
           <div className='flex items-center gap-3 md:gap-5'>
             <DarkModeToggle />
 
+            <Link href='/video-call' className='black_btn'>
+              Video Call
+            </Link>
+
             <Link href='/chat' className='chat_btn'>
               Open Chats
             </Link>

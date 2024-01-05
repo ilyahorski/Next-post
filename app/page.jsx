@@ -22,6 +22,9 @@ const Home = () => {
       </p>
       <Provider>
         <div className='flex md:hidden w-full justify-center gap-3 mt-3 -mb-6'>
+          <Link href='/video-call' className={(status === 'authenticated') ? 'black_btn' : 'hidden'}>
+            Video Call
+          </Link>
           <Link href='/create-post' className={(status === 'authenticated') ? 'black_btn' : 'hidden'}>
             Create Post
           </Link>

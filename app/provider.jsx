@@ -3,6 +3,7 @@
 import { SessionProvider } from 'next-auth/react';
 import { createContext, useEffect, useState } from 'react';
 import SocketProvider from "~/utils/context/SocketContext";
+import VideoContextProvider from '~/utils/context/VideoContext';
 import { getLocalTheme, getLocalView } from '~/utils/localSrorageService'
 
 export const ThemeContext = createContext();
@@ -33,7 +34,9 @@ const Provider = ({children}) => {
       <DisplayContext.Provider value={{columnView, setColumnView}}>
         <SessionProvider>
           <SocketProvider>
-            {children}
+            <VideoContextProvider>
+              {children}
+            </VideoContextProvider>
           </SocketProvider>
         </SessionProvider>
       </DisplayContext.Provider>
