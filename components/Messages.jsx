@@ -4,12 +4,14 @@ import {useContext, useEffect, useState} from 'react';
 import MessageForm from "~/components/MessageForm";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 import {useSession} from "next-auth/react";
-import {useParams, usePathname} from "next/navigation";
-import {SessionContext, SocketContext} from "~/utils/context/SocketContext";
+import {useParams} from "next/navigation";
+import { SocketContext } from "~/utils/context/SocketContext";
+import { VideoSocketContext } from '~/utils/context/VideoContext';
 import MessageList from "~/components/MessageList";
 import {LoadingBar} from "~/components/Loading";
 import InfiniteScroll from "react-infinite-scroll-component";
-import {GoSidebarExpand} from "react-icons/go";
+import { GoSidebarExpand } from "react-icons/go";
+import { BsPersonVideo } from "react-icons/bs";
 import Image from "next/image";
 
 const Messages = ({ sessionUserId, closeForm }) => {
@@ -19,19 +21,18 @@ const Messages = ({ sessionUserId, closeForm }) => {
   const [page, setPage] = useState(1);
   const [messagesCount, setMessagesCount] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [isFetchingMessages, setIsFetchingMessages] = useState(false);
+  
   const isMobile = useMobileCheck();
-  const pathname = usePathname()
   const {id: chatId} = useParams()
 
   const socket = useContext(SocketContext);
+  const {isVideoChatVisible, setIsVideoChatVisible} = useContext(VideoSocketContext);
 
   const getMessages = async () => {
     if (messagesList.length >= messagesCount) {
       setHasMore(false);
       return;
     }
-    setIsFetchingMessages(true);
     const response = await fetch(`/api/message?page=${page}&limit=20`, {
       headers: {
         'chatId': chatId
@@ -42,16 +43,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
     setMessagesCount(data.totalMessages)
     setPage(page + 1);
     setMessagesList(prevMessages => [...prevMessages, ...data.usersMessages]);
-    setIsFetchingMessages(false);
   };
-
-  useEffect(() => {
-    if (!chatId) return;
-
-    if ( chatId && chat) getMessages();
-
-  }, [chatId, pathname, chat]);
-
 
   useEffect(() => {
     if (status === 'loading' && !chatId) return;
@@ -63,9 +55,18 @@ const Messages = ({ sessionUserId, closeForm }) => {
       setChat(data);
     };
 
-    if (chatId) getChat();
+    if (chatId) {
+      getChat();
+    }
 
   }, [chatId]);
+
+  useEffect(() => {
+    if (!chatId) return;
+
+    if ( chatId && chat) getMessages();
+
+  }, [chatId, chat]);
 
   useEffect(() => {
     if (chatId && socket) {
@@ -93,39 +94,52 @@ const Messages = ({ sessionUserId, closeForm }) => {
   return (
     <div className="flex flex-col custom-height flex-grow px-2 pb-3 w-full">
       {chat && chat?.length !== 0 && sessionUserId && (
-        <div className='flex items-center flex-grow gap-2 mt-auto rounded mb-auto bg-gray-300/20 bg-clip-padding backdrop-blur-lg backdrop-filter'>
-          <button
-            className='mob:hidden flex justify-center items-center w-[40px] h-[40px]'
-            type="submit"
-            onClick={closeForm}
-          >
-            <GoSidebarExpand className='text-primary-300 w-[40px] h-[40px]' />
-          </button>
-          <div className='flex items-center w-full max-h-[50px] p-1 gap-2'>
-            <Image
-              src={
-                chat?.chatImage
-                  ? chat?.chatImage
-                  : (sessionUserId === chat?.membersList[0]._id
-                    ? (chat?.membersList[1].userImage || chat?.membersList[1].image)
-                    : (chat?.membersList[0].userImage || chat?.membersList[0].image))
-              }
-              alt='chat_image'
-              width={50}
-              height={50}
-              className='rounded-full object-fill h-[50px] w-[50px]'
-            />
-            <div className='flex max-w-[250px] us:max-w-[400px] xl:max-w-[750px] flex-col gap-1'>
-              <p className=''>
-                {chat?.chatName}
-              </p>
-              {messagesList[0] && (
-                <p className='truncate'>
-                  {messagesList[0]?.message}
+        <div className='flex justify-between items-center flex-grow w-full gap-2 px-1 mt-auto rounded-t mb-auto bg-gray-600/20 bg-clip-padding backdrop-filter backdrop-blur-lg'>
+          <div className='flex items-center'>
+            <button
+              title='Expand chat sidebar'
+              className='mob:hidden flex justify-center items-center w-[40px] h-[40px]'
+              type="submit"
+              onClick={closeForm}
+            >
+              <GoSidebarExpand className='text-primary-300 w-[40px] h-[40px]' />
+            </button>
+            <div className='flex items-center  w-full max-h-[90px] p-1 gap-2 '>
+              <Image
+                src={
+                  chat?.chatImage
+                    ? chat?.chatImage
+                    : (sessionUserId === chat?.membersList[0]._id
+                      ? (chat?.membersList[1].userImage || chat?.membersList[1].image)
+                      : (chat?.membersList[0].userImage || chat?.membersList[0].image))
+                }
+                alt='chat_image'
+                width={40}
+                height={40}
+                className='rounded-full object-fill h-[40px] w-[40px]'
+              />
+              <div className='flex h-[50px] max-w-[250px] us:max-w-[400px] xl:max-w-[750px] flex-col gap-0.5 py-0.5'>
+                <p className='h-[20px]'>
+                  {chat?.chatName}
                 </p>
-              )}
+                {messagesList[0] && (
+                  <p className='truncate h-[20px]'>
+                    {messagesList[0]?.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
+          <button
+            title='Open video chat'
+            className='flex justify-center items-center w-[40px] h-[40px] mr-0.5'
+            type="submit"
+            onClick={() => setIsVideoChatVisible(!isVideoChatVisible)}
+          >
+            <BsPersonVideo 
+              className='text-indigo-500/80 hover:text-indigo-700/80 w-[40px] h-[40px] focus:outline-none focus:shadow-outline transform active:scale-95 transition duration-150 ease-in-out' 
+            />
+          </button>
         </div>
       )}
       <section

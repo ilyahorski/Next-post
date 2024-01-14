@@ -5,54 +5,57 @@ import Messages from "~/components/Messages";
 import SplitPane, { SplitPaneLeft, SplitPaneRight, Divider } from '~/components/Splitter';
 import {useContext, useEffect, useState} from "react";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
-import {SessionContext} from "~/utils/context/SocketContext";
+import { VideoSocketContext } from '~/utils/context/VideoContext';
 import {useSession} from "next-auth/react";
+import VideoCallPlayer from "~/components/videoCallComponents/VideoCallPlayer";
 
 const MessageMain = () => {
   const [showCreateChatForm, setShowCreateChatForm] = useState(true);
   const {data: session, status, update} = useSession();
   const isMobile = useMobileCheck();
 
-  const sessionId = useContext(SessionContext);
+  const {isVideoChatVisible} = useContext(VideoSocketContext);
 
   useEffect(() => {
-    if (!session?.user) {
+    if (!session?.user?.id) {
       update()
     }
-  }, [session])
+    return () => false;
+  }, [session?.user?.id])
 
   useEffect(() => {
     if (isMobile) {
       setShowCreateChatForm(true)
     }
     return () => false;
-  }, []);
+  }, [isMobile]);
 
   return (
     <>
-      {sessionId ? (
+      {session?.user?.id ? (
         <SplitPane className='w-[100dvw] flex -mt-[40px]' >
           <SplitPaneLeft>
             {showCreateChatForm && isMobile ? (
               <Messages
-                sessionUserId={sessionId}
+                sessionUserId={session?.user?.id}
                 closeForm={() => setShowCreateChatForm(false)}
               />
             ) : (!showCreateChatForm || !isMobile) && (
               <Sidebar
-                sessionUserId={sessionId}
+                sessionUserId={session?.user?.id}
                 openForm={() => setShowCreateChatForm(true)}
               />
             )}
           </SplitPaneLeft>
-          <Divider className="hidden mob:flex border border-gray-400 rounded-md cursor-col-resize" />
-          {(!isMobile || !showCreateChatForm) && (
+          <Divider className="hidden mob:flex border border-gray-400 rounded-md mx-1 hover:cursor-col-resize" />
+          {(!isMobile || !showCreateChatForm) && status === 'authenticated' && (
             <SplitPaneRight>
               <Messages
-                sessionUserId={sessionId}
+                sessionUserId={session?.user?.id}
               />
             </SplitPaneRight>
           )}
+          {isVideoChatVisible && <VideoCallPlayer/>}
         </SplitPane>
       ) : (
         <div>

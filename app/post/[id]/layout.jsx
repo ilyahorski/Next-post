@@ -6,7 +6,7 @@ import {supportedLocales} from "~/utils/constants/supportedLocales";
 import JavascriptTimeAgo from "javascript-time-ago";
 import Loading from "~/utils/loading";
 
-JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
+JavascriptTimeAgo.addLocale(supportedLocales.en);
 
 const ProfileLayout = ({ children }) => {
   const [localeLoaded, setLocaleLoaded] = useState(false);

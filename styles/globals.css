@@ -78,6 +78,7 @@
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
+  background: #087c70bf;
 }
 
 /* track */

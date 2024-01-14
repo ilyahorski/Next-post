@@ -17,17 +17,17 @@ const ChatMain = () => {
   const sessionId = useContext(SessionContext);
 
   useEffect(() => {
-    if (!session?.user) {
+    if (!session?.user || !sessionId) {
       update()
     }
-  }, [session])
+  }, [session, sessionId])
 
   useEffect(() => {
     if (isMobile) {
       setShowCreateChatForm(true)
     }
     return () => false;
-  }, []);
+  }, [isMobile]);
 
   return (
     <>
@@ -36,12 +36,12 @@ const ChatMain = () => {
           <SplitPaneLeft>
             {showCreateChatForm && isMobile ? (
               <CreateChatForm
-                closeForm={() => setShowCreateChatForm(false)} // функция для закрытия формы
+                closeForm={() => setShowCreateChatForm(false)} 
               />
             ) : (!showCreateChatForm || !isMobile) && (
               <Sidebar
                 sessionUserId={sessionId}
-                openForm={() => setShowCreateChatForm(true)} // функция для открытия формы
+                openForm={() => setShowCreateChatForm(true)} 
               />
             )}
           </SplitPaneLeft>

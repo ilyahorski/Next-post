@@ -17,7 +17,6 @@ const Sidebar = ({sessionUserId, openForm}) => {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    console.log(sessionUserId, 'sessionUSERIDJFPAJDIFJAISJF')
     const getChats = async () => {
       const response = await fetch(`/api/chats`, {
         headers: {
@@ -94,6 +93,7 @@ const Sidebar = ({sessionUserId, openForm}) => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <button
+          title='Expand chat sidebar'
           className='mob:hidden flex justify-center items-center w-[40px] h-[40px]'
           type="submit"
           onClick={openForm}
@@ -134,6 +134,7 @@ const Sidebar = ({sessionUserId, openForm}) => {
               </div>
               {pathname === chat._id && (
                 <button
+                  title='Delete chat'
                   className={'flex text-xl font-light leading-[1.15] text-red-600'}
                   onClick={() => handleDelete()}
                 >

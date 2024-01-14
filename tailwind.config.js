@@ -28,6 +28,9 @@ module.exports = {
           'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         }
       },
+      backdropBlur: {
+        lg: '16px z-10',
+      },
       fontFamily: {
         satoshi: ['Satoshi', 'sans-serif'],
         inter: ['Inter', 'sans-serif'],

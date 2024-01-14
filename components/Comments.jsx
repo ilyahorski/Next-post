@@ -8,7 +8,7 @@ import JavascriptTimeAgo from "javascript-time-ago";
 import {LoadingBar} from "~/components/Loading";
 import {SocketContext} from "~/utils/context/SocketContext";
 
-JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
+JavascriptTimeAgo.addLocale(supportedLocales.en);
 
 const Comments = ({postId, isMain}) => {
   const [commentsList, setCommentsList] = useState([])

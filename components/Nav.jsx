@@ -53,6 +53,7 @@ const Nav = () => {
     <nav className={`${pathname === 'chat' ? 'w-[100dvw] px-2' : 'w-full'} flex-between mb-16 pt-3`}>
       <Link href='/' className='flex gap-2 flex-center'>
         <Image
+          title='Click to go to home page'
           src='/assets/images/logo.png'
           alt='logo'
           width={190}
@@ -67,10 +68,6 @@ const Nav = () => {
         {session?.user ? (
           <div className='flex items-center gap-3 md:gap-5'>
             <DarkModeToggle />
-
-            <Link href='/video-call' className='black_btn'>
-              Video Call
-            </Link>
 
             <Link href='/chat' className='chat_btn'>
               Open Chats

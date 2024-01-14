@@ -18,7 +18,7 @@ import CommentForm from "~/components/CommentForm";
 import VideoPlayer from "~/components/VideoPlayer";
 import {SocketContext} from "~/utils/context/SocketContext";
 
-JavascriptTimeAgo.addDefaultLocale(supportedLocales.en);
+JavascriptTimeAgo.addLocale(supportedLocales.en);
 
 const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   const { data: session, status } = useSession();
