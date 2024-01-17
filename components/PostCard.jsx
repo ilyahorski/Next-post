@@ -226,7 +226,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
                   <p
                     key={i}
                     title={`Click to find all ${tag} posts`}
-                    className='font-inter text-sm text-cyan-500/60 cursor-pointer'
+                    className='font-inter text-sm text-cyan-600 cursor-pointer'
                     onClick={() => handleTagClick && handleTagClick(tag)}
                   >
                     {tag}

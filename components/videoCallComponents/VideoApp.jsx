@@ -256,7 +256,7 @@ function VideoApp() {
             muted
             ref={userVideo}
             autoPlay
-            className={`absolute rounded-lg ${isMainVideo ? 'w-full h-full border-green-600 z-10' : 'w-[100px] h-[60px] top-2 left-2 border-blue-800 z-20'} object-cover border-2`}
+            className={`absolute rounded-lg ${isMainVideo ? 'w-full h-full border-teal-600 z-10' : 'w-[100px] h-[60px] top-2 left-2 border-emerald-600 z-20'} object-cover border-2`}
           />
         )}
         {callAccepted && !callEnded && (
@@ -266,7 +266,7 @@ function VideoApp() {
             playsInline
             ref={partnerVideo}
             autoPlay
-            className={`absolute rounded-lg ${!isMainVideo ? 'w-full h-full border-green-600 z-10' : 'w-[100px] h-[60px] top-2 left-2 border-blue-800 z-20'} object-cover border-2`}
+            className={`absolute rounded-lg ${!isMainVideo ? 'w-full h-full border-teal-600 z-10' : 'w-[100px] h-[60px] top-2 left-2 border-emerald-600 z-20'} object-cover border-2`}
           />
         )}
       </div>

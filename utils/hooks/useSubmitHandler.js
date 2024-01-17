@@ -37,7 +37,7 @@ export const useSubmitHandler = (
       let cropper = cropperRef.current;
 
       try {
-        if (fileData.type === 'video') {
+        if (fileData && fileData.type === 'video') {
           try {
             const formData = new FormData();
             formData.append("file", fileData.data);
@@ -66,7 +66,7 @@ export const useSubmitHandler = (
           }
         }
 
-        if (blob && fileData.type === 'image') {
+        if (blob && fileData && fileData.type === 'image') {
           try {
             const formData = new FormData();
             formData.append('file', blob);

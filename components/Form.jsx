@@ -56,7 +56,7 @@ const Form = (
           <div className='mt-2 font-satoshi font-semibold text-base text-gray-700 dark:text-gray-300'>
             Field of Tag{' '}
             <span className='font-normal'>
-              (#post, #photo, #tag, etc.)
+              (Post, Photo, tag, etc...)
             </span>
           </div>
             <input
@@ -64,8 +64,8 @@ const Form = (
               value={post.tag}
               onChange={handleInputChange}
               type='text'
-              placeholder='#Tag'
-              pattern='#[\p{L}\p{N}_]+(\s*,\s*#[\p{L}\p{N}_]+)*\s*'
+              placeholder='Your tag here'
+              pattern='[\p{L}\p{N}_]+(\s*,\s*[\p{L}\p{N}_]+)*\s*'
               required
               className='form_input'
             />

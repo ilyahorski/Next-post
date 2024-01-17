@@ -64,12 +64,14 @@ const Feed = () => {
 
 
   const filterPosts = (searchtext) => {
-    const regex = new RegExp(searchtext, "i"); // 'i' flag for case-insensitive search
+    const normalizedSearchText = searchtext.replace(/^#/, '').toLowerCase();
+    const regex = new RegExp(searchtext, "i");
     return allPosts.filter(
       (item) =>
         regex.test(item.creator.username) ||
         regex.test(item.tag) ||
-        regex.test(item.post)
+        item.tag && item.tag.split(',')
+        .some(tag => tag.trim().replace(/^#/, '').toLowerCase().includes(normalizedSearchText))
     );
   };
 
