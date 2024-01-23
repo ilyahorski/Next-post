@@ -30,17 +30,17 @@ const Provider = ({children}) => {
   }, [columnView]);
 
   return (
-    <ThemeContext.Provider value={{darkMode, setDarkMode}}>
-      <DisplayContext.Provider value={{columnView, setColumnView}}>
-        <SessionProvider>
-          <SocketProvider>
+    <SessionProvider>
+      <SocketProvider>
+        <ThemeContext.Provider value={{darkMode, setDarkMode}}>
+          <DisplayContext.Provider value={{columnView, setColumnView}}>
             <VideoContextProvider>
               {children}
             </VideoContextProvider>
-          </SocketProvider>
-        </SessionProvider>
-      </DisplayContext.Provider>
-    </ThemeContext.Provider>
+          </DisplayContext.Provider>
+        </ThemeContext.Provider>
+      </SocketProvider>
+    </SessionProvider>
   )
 };
 

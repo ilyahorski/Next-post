@@ -16,7 +16,7 @@ const SocketProvider = ({ children }) => {
   const HEROKU = 'https://next-post-bc80bba88d82.herokuapp.com';
 
   useEffect(() => {
-    if (!session?.user) {
+    if (!session?.user?.id) {
       update()
     }
     if (session?.user?.id) {
@@ -33,14 +33,14 @@ const SocketProvider = ({ children }) => {
         newSocket.close();
       };
     }
-  }, [session?.user]);
+  }, [session?.user?.id]);
 
   return (
-    <SocketContext.Provider value={socket}>
-      <SessionContext.Provider value={sessionUserId}>
-      {children}
-      </SessionContext.Provider>
-    </SocketContext.Provider>
+    <SessionContext.Provider value={sessionUserId}>
+      <SocketContext.Provider value={socket}>
+        {children}
+      </SocketContext.Provider>
+    </SessionContext.Provider>
   );
 };
 
