@@ -1,11 +1,13 @@
 'use client'
 
+import { useRef } from "react";
 import CommentMessageForm from "./CommentMessageForm";
 import {useContext} from "react";
 import {SocketContext} from "~/utils/context/SocketContext";
 
 const MessageForm = ({ id, chat, sessionUserId }) => {
   const socket = useContext(SocketContext);
+  const messageRef = useRef(null);
 
   const onFormSubmit = async (data) => {
     let newMessage
@@ -60,6 +62,7 @@ const MessageForm = ({ id, chat, sessionUserId }) => {
       onFormSubmit={onFormSubmit}
       placeholder="Message"
       maxLength={4000}
+      messageRef={messageRef}
     />
   );
 };

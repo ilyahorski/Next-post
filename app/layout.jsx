@@ -4,8 +4,43 @@ import Provider from "~/app/provider";
 import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {
-  title: 'Next-post',
+  title: {
+    default: 'Next-post',
+    template: 'Next Post',
+  },
   description: 'Next platform for sharing your posts',
+  applicationName: 'Next Post',
+
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: 'Next-post',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: 'Next Post',
+    title: {
+      default: 'Next-post',
+      template: 'Next Post',
+    },
+    description: 'Next platform for sharing your posts',
+  },
+  twitter: {
+    card: "summary",
+    title: {
+      default: 'Next-post',
+      template: 'Next Post',
+    },
+    description: 'Next platform for sharing your posts',
+  },
+};
+
+export const viewport = {
+  themeColor: "#39988a",
 };
 
 const RootLayout = ({children}) => {

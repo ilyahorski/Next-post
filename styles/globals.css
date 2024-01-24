@@ -179,13 +179,10 @@
 }
 
 .main_gradient_light {
-  /*@apply bg-gradient-to-tr from-violet-700/70 via-emerald-500/40 to-blue-500/60;*/
   @apply bg-gradient-to-tr from-secondary-600/50 to-secondary-700/90;
 }
 
 .main_gradient_dark {
-  /*@apply bg-gradient-to-tr from-violet-700/70 via-emerald-500/40 to-blue-500/60;*/
-  /*@apply bg-gradient-to-tr from-violet-700/70 via-emerald-500/40 to-blue-500/60;*/
   @apply dark:before:bg-gradient-to-tr dark:from-secondary-800 dark:to-secondary-900/80;
 }
 

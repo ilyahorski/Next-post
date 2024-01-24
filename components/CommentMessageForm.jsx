@@ -1,23 +1,36 @@
 'use client'
 
+import { useEffect, useState } from "react";
 import {BiLogoTelegram} from "react-icons/bi";
 import {useForm} from "react-hook-form";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 
-const CommentMessageForm = ({type, onFormSubmit, placeholder, maxLength }) => {
+const CommentMessageForm = ({type, onFormSubmit, placeholder, maxLength, messageRef }) => {
   const isMobile = useMobileCheck();
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const {
     register,
     reset,
     handleSubmit,
+    setFocus,
     formState: { errors },
   } = useForm();
 
   const onSubmit = (data) => {
     onFormSubmit(data);
     reset();
+    setIsSubmitted(true);
   };
+
+  useEffect(() => {
+    if (isSubmitted) {
+      setTimeout(() => {
+        document.getElementById('message').focus();
+        setIsSubmitted(false);
+      }, 50);
+    }
+  }, [isSubmitted]);
 
   const handleKeyDown = (event) => {
     if (!isMobile && event.key === 'Enter' && !event.shiftKey) {
@@ -31,13 +44,15 @@ const CommentMessageForm = ({type, onFormSubmit, placeholder, maxLength }) => {
       <div className='flex w-full justify-between items-center gap-2 bg-white dark:bg-gray-600/10 rounded-lg p-1'>
         <textarea
           title={`Write your ${type} here`}
+          ref={messageRef}
+          id={type}
           className='w-full min-h-[48px] h-[48px] pl-1 max-h-32 bg-white dark:bg-gray-600/10 outline-none rounded-lg focus:border-[1px] focus:border-primary-50'
           placeholder={placeholder}
           onKeyDown={handleKeyDown}
           rows={4}
           cols={50}
           maxLength={maxLength}
-          {...register('message', {
+          {...register(type, {
             required: true,
             maxLength: maxLength,
           })}
