@@ -7,6 +7,8 @@ import {useContext, useEffect, useState} from "react";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 import {SessionContext} from "~/utils/context/SocketContext";
 import {useSession} from "next-auth/react";
+import { VideoSocketContext } from '~/utils/context/VideoContext';
+import VideoCallPlayer from "~/components/videoCallComponents/VideoCallPlayer";
 
 const MessageMain = () => {
   const [showCreateChatForm, setShowCreateChatForm] = useState(true);
@@ -14,12 +16,13 @@ const MessageMain = () => {
   const isMobile = useMobileCheck();
 
   const sessionId = useContext(SessionContext);
+  const {isVideoChatVisible} = useContext(VideoSocketContext);
 
   useEffect(() => {
-    if (!session?.user) {
+    if (!session?.user || !sessionId) {
       update()
     }
-  }, [session])
+  }, [session, sessionId])
 
   useEffect(() => {
     if (isMobile) {
@@ -53,6 +56,7 @@ const MessageMain = () => {
               />
             </SplitPaneRight>
           )}
+          {isVideoChatVisible && <VideoCallPlayer/>}
         </SplitPane>
       ) : (
         <div>

@@ -133,7 +133,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
           <button
             title='Open video chat'
             className='flex justify-center items-center w-[40px] h-[40px] mr-0.5'
-            type="submit"
+            type="button"
             onClick={() => setIsVideoChatVisible(!isVideoChatVisible)}
           >
             <BsPersonVideo 
