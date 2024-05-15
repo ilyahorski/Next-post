@@ -1,27 +1,27 @@
-'use client'
+"use client";
 
-import {useContext, useEffect, useState} from 'react';
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {useSession} from "next-auth/react";
-import {GoSidebarCollapse} from "react-icons/go";
-import {SocketContext} from "~/utils/context/SocketContext";
-import {usePathname, useRouter} from "next/navigation";
+import { useSession } from "next-auth/react";
+import { PiUsersThin } from "react-icons/pi";
+import { SocketContext } from "~/utils/context/SocketContext";
+import { usePathname, useRouter } from "next/navigation";
 
-const Sidebar = ({sessionUserId, openForm}) => {
-  const {data: session, status} = useSession();
+const Sidebar = ({ sessionUserId, openForm }) => {
+  const { data: session, status } = useSession();
   const [chats, setChats] = useState([]);
-  const [search, setSearch] = useState('');
-  const pathname = usePathname().split('/')[2];
-  const router = useRouter()
+  const [search, setSearch] = useState("");
+  const pathname = usePathname().split("/")[2];
+  const router = useRouter();
   const socket = useContext(SocketContext);
 
   useEffect(() => {
     const getChats = async () => {
       const response = await fetch(`/api/chats`, {
         headers: {
-          'userId': sessionUserId
-        }
+          userId: sessionUserId,
+        },
       });
 
       const data = await response.json();
@@ -32,14 +32,13 @@ const Sidebar = ({sessionUserId, openForm}) => {
     if (sessionUserId) {
       getChats();
     }
-
   }, [sessionUserId, status]);
 
   useEffect(() => {
     if (!session?.user && !socket) return;
 
     if (socket) {
-      socket.on('chatUpdated', (updatedChat) => {
+      socket.on("chatUpdated", (updatedChat) => {
         setChats((prevChats) => {
           const chatIds = new Set(prevChats.map((c) => c._id));
           if (chatIds.has(updatedChat._id)) {
@@ -48,33 +47,31 @@ const Sidebar = ({sessionUserId, openForm}) => {
             return [...prevChats, updatedChat];
           }
         });
-
       });
 
       return () => {
-        socket.off('chatUpdated');
+        socket.off("chatUpdated");
       };
     }
   }, []);
 
   const handleDelete = async () => {
     const hasConfirmed = confirm(
-      'Are you sure you want to delete this chat and all messages?',
+      "Are you sure you want to delete this chat and all messages?"
     );
 
     if (hasConfirmed) {
       try {
         const response = await fetch(`/api/chats/${pathname}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
         if (!response.ok) {
           throw new Error(`Failed to delete chat: ${response.status}`);
         }
 
-        await router.push('/chat');
-
+        await router.push("/chat");
       } catch (error) {
-        console.error('Error deleting chat:', error);
+        console.error("Error deleting chat:", error);
       }
     }
   };
@@ -85,7 +82,7 @@ const Sidebar = ({sessionUserId, openForm}) => {
 
   return (
     <form className="flex-1 w-full px-1 custom-height">
-      <div className='flex gap-1 items-start'>
+      <div className="flex gap-1 items-start">
         <input
           className="w-full p-2 mb-3 rounded"
           placeholder="Find chats"
@@ -93,54 +90,61 @@ const Sidebar = ({sessionUserId, openForm}) => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <button
-          title='Expand chat sidebar'
-          className='mob:hidden flex justify-center items-center w-[40px] h-[40px]'
-          type="submit"
+          className="mob:hidden flex justify-center items-center w-[40px] h-[40px]"
+          type="button"
           onClick={openForm}
         >
-          <GoSidebarCollapse className='text-primary-300 w-[40px] h-[40px]'/>
+          <div className="flex gap-0.5 items-center flex-col">
+            <PiUsersThin
+              className="text-emerald-700 w-[30px] h-[30px]"
+              placeholder="Open users list"
+            />
+            <p className="text-emerald-700 font-normal text-6xs">Users</p>
+          </div>
         </button>
       </div>
       {filteredChats.length !== 0 && sessionUserId && (
-        <div className='chat-list'>
+        <div className="chat-list">
           {filteredChats.map((chat, index) => (
-            <Link href={`/chat/${chat._id}`}
-                  key={chat._id}
-                  className={'flex flex-row justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-300'}>
-              <div
-                className='flex gap-2 justify-start items-center'
-              >
+            <Link
+              href={`/chat/${chat._id}`}
+              key={chat._id}
+              className={
+                "flex flex-row justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-300"
+              }
+            >
+              <div className="flex gap-2 justify-start items-center">
                 <Image
                   src={
                     chat?.chatImage
                       ? chat.chatImage
-                      : (sessionUserId === chat?.membersList[0]._id
-                        ? (chat?.membersList[1].userImage || chat?.membersList[1].image)
-                        : (chat?.membersList[0].userImage || chat?.membersList[0].image))
+                      : sessionUserId === chat?.membersList[0]._id
+                      ? chat?.membersList[1].userImage ||
+                        chat?.membersList[1].image
+                      : chat?.membersList[0].userImage ||
+                        chat?.membersList[0].image
                   }
-                  alt='user_image'
+                  alt="user_image"
                   width={50}
                   height={50}
-                  className='rounded-full object-fill h-[50px] w-[50px]'
+                  className="rounded-full object-fill h-[50px] w-[50px]"
                 />
-                <div className='flex flex-col gap-2'>
-                  <p className=''>
-                    {chat.chatName}
-                  </p>
-                  <p className=''>
-                    {chat?.lastMessage?.message}
-                  </p>
+                <div className="flex flex-col gap-2">
+                  <p className="">{chat.chatName}</p>
+                  <p className="">{chat?.lastMessage?.message}</p>
                 </div>
               </div>
               {pathname === chat._id && (
                 <button
-                  title='Delete chat'
-                  className={'flex text-xl font-light leading-[1.15] text-red-600'}
+                  title="Delete chat"
+                  className={
+                    "flex text-xl font-light leading-[1.15] text-red-600"
+                  }
                   onClick={() => handleDelete()}
                 >
                   <p>
                     Delete
-                    <br/>
+                    <br />
                     Chat
                   </p>
                 </button>
