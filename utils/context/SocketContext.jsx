@@ -12,8 +12,8 @@ const SocketProvider = ({ children }) => {
   const [sessionUserId, setSessionUserId] = useState(null);
   const { data: session, status, update } = useSession();
 
-  const LOCAL = 'http://localhost:4000';
-  const HEROKU = 'https://next-post-bc80bba88d82.herokuapp.com';
+  // const LOCAL = 'http://localhost:4000';
+  // const HEROKU = 'https://next-post-bc80bba88d82.herokuapp.com';
 
   useEffect(() => {
     if (!session?.user?.id) {
@@ -21,7 +21,7 @@ const SocketProvider = ({ children }) => {
     }
     if (session?.user?.id) {
       setSessionUserId(session.user.id);
-      const newSocket = io(`${HEROKU}`, {
+      const newSocket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`, {
         query: {
           userId: session?.user?.id
         }

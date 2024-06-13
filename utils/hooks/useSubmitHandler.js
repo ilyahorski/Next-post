@@ -17,8 +17,6 @@ export const useSubmitHandler = (
 ) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const LOCAL = 'http://localhost:4000';
-  const HEROKU = 'https://next-post-bc80bba88d82.herokuapp.com';
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -43,7 +41,7 @@ export const useSubmitHandler = (
             formData.append("file", fileData.data);
             formData.append("filename", fileData.name);
 
-            const response = await axios.post(`${HEROKU}/cloud-upload`, formData, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/cloud-upload`, formData, {
               headers: {
                 'Content-Type': 'multipart/form-data',
                 'Access-Control-Allow-Origin': "https://next-post-two.vercel.app",
@@ -72,7 +70,7 @@ export const useSubmitHandler = (
             formData.append('file', blob);
             formData.append("filename", fileData.name);
 
-            const response = await axios.post(`${HEROKU}/cloud-upload`, formData, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/cloud-upload`, formData, {
               headers: {
                 'Content-Type': 'multipart/form-data',
                 'Access-Control-Allow-Origin': "https://next-post-two.vercel.app",

@@ -33,7 +33,6 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   const router = useRouter();
   const locale = navigator.language;
   const tags = parseTags(post.tag);
-  const ENDPOINT = process.env.HEROKU_URL;
   const JSImage = window.Image;
   const postCardStyle = 'flex-1 h-fit break-inside-avoid rounded-lg dark:border-0 bg-white/20 dark:bg-gray-900/90 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter'
 
