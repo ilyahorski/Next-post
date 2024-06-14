@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {BiLogoTelegram} from "react-icons/bi";
 import {useForm} from "react-hook-form";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
@@ -8,6 +8,7 @@ import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 const CommentMessageForm = ({type, onFormSubmit, placeholder, maxLength, messageRef }) => {
   const isMobile = useMobileCheck();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const formEndRef = useRef(null);
 
   const {
     register,
@@ -21,16 +22,19 @@ const CommentMessageForm = ({type, onFormSubmit, placeholder, maxLength, message
     onFormSubmit(data);
     reset();
     setIsSubmitted(true);
+    if (isMobile && formEndRef.current) {
+      formEndRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   };
 
   useEffect(() => {
     if (isSubmitted) {
       setTimeout(() => {
-        document.getElementById('message').focus();
+        document.getElementById(type).focus();
         setIsSubmitted(false);
       }, 50);
     }
-  }, [isSubmitted]);
+  }, [isSubmitted, type]);
 
   const handleKeyDown = (event) => {
     if (!isMobile && event.key === 'Enter' && !event.shiftKey) {
@@ -72,6 +76,7 @@ const CommentMessageForm = ({type, onFormSubmit, placeholder, maxLength, message
           <BiLogoTelegram className='w-8 h-8 text-primary-300'/>
         </button>
       </div>
+      <div ref={formEndRef} />
     </form>
   );
 };

@@ -31,7 +31,10 @@ const SubscribeToPush = () => {
     }
 
     try {
-      if ("serviceWorker" in navigator && "Notification" in window && "PushManager" in window) {
+      if (
+        (navigator.userActivation && navigator.userActivation.isActive) ||
+        ("serviceWorker" in navigator && "Notification" in window && "PushManager" in window)
+      ) {
         const registration = await navigator.serviceWorker.ready;
 
         const existingSubscription =

@@ -9,19 +9,34 @@ self.addEventListener('push', function(event) {
     event.waitUntil(caches.open('chat-ids').then(cache => cache.put('current-chat-id', chatIdData)));
   }
 
-  const title = data.title || 'Default title';
-  const userIcon = data.userIcon;
-  const options = {
-    body: data.body || 'Default body',
-    icon: userIcon,
-    badge: '/assets/email.png',
-    sound: '/assets/notif.mp3',
-    tag: 'renotify',
-    renotify: true,
-  };
-
   event.waitUntil(
-    self.registration.showNotification(title, options)
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clients) {
+      let isChatOpen = false;
+      const chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${data.chatId}`;
+
+      for (let client of clients) {
+        if (client.url.includes(chatUrl) && 'focus' in client) {
+          isChatOpen = true;
+          client.focus();
+          break;
+        }
+      }
+
+      if (!isChatOpen) {
+        const title = data.title || 'Message from Next Post';
+        const userIcon = data.userIcon;
+        const options = {
+          body: data.body || 'Click to open chat',
+          icon: userIcon,
+          badge: '/assets/email.png',
+          sound: '/assets/notif.mp3',
+          tag: 'renotify',
+          renotify: true,
+        };
+
+        return self.registration.showNotification(title, options);
+      }
+    })
   );
 });
 
@@ -41,4 +56,3 @@ self.addEventListener('notificationclick', function(event) {
     })
   );
 });
-
