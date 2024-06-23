@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState, useRef, useId } from "react";
+import React, { useContext, useEffect, useState, useRef, useId, useCallback } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import { useSession } from "next-auth/react";
@@ -173,6 +173,81 @@ function VideoApp() {
     getVideoDevices();
   }, []);
 
+  function callPeer(id) {
+    if (!yourID) {
+      console.error("Socket not ready or yourID not set");
+      return;
+    }
+
+    const peer = new Peer({
+      initiator: true,
+      trickle: false,
+      config: iceServersConfig,
+      stream: stream,
+    });
+
+    peer.on("signal", (data) => {
+      socket.current.emit("callUser", {
+        userToCall: id,
+        signalData: data,
+        from: yourID,
+        chatId: chatId
+      });
+    });
+
+    peer.on("stream", (stream) => {
+      setReceivedStream(stream);
+    });
+
+    socket.current.on("callAccepted", (signal) => {
+      setCallAccepted(true);
+      setReceivingCall(true);
+      peer.signal(signal);
+    });
+  }
+
+  const acceptCall = useCallback(() => {
+    if (callAccepted) return;
+    setCallAccepted(true);
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+      config: iceServersConfig,
+      stream: stream,
+    });
+    peer.on("signal", (data) => {
+      socket.current.emit("acceptCall", { signal: data, to: caller });
+    });
+
+    peer.on("stream", (stream) => {
+      if (partnerVideo.current) {
+        partnerVideo.current.srcObject = stream;
+      }
+    });
+
+    peer.signal(callerSignal);
+
+    connectionRef.current = peer;
+  }, [callAccepted, caller, callerSignal, stream]);
+
+  const leaveCall = useCallback(() => {
+    if (callEnded) return;
+    if (
+      connectionRef.current &&
+      typeof connectionRef.current.destroy === "function"
+    ) {
+      connectionRef.current.destroy();
+      connectionRef.current = null;
+    }
+    socket.current.emit("endCall", { chatId, to: caller });
+    setIsVideoOn(false);
+    setIsAudioOn(false);
+    setCallEnded(true);
+    setCallAccepted(false);
+    setReceivingCall(false);
+    setIsVideoChatVisible(!isVideoChatVisible);
+  }, [callEnded, caller]);
+
   useEffect(() => {
     if (!stream) {
       getUserMedia();
@@ -204,7 +279,7 @@ function VideoApp() {
   }, [callAccepted, receivedStream, partnerVideo]);
 
   useEffect(() => {
-    socket.current = io("https://next-post-bc80bba88d82.herokuapp.com", {
+    socket.current = io(process.env.NEXT_PUBLIC_SERVER_URL, {
       query: { userId: session?.user?.id, chatId: chatId },
     });
 
@@ -213,10 +288,7 @@ function VideoApp() {
     });
 
     socket.current.on("allUsers", (users) => {
-      const updatedUsers = Object.values(users).filter(
-        (id) => id !== socket.current.id
-      );
-      setUsers(updatedUsers);
+      setUsers(users.filter(id => id !== session?.user?.id));
     });
 
     socket.current.on("hey", (data) => {
@@ -243,74 +315,35 @@ function VideoApp() {
         socket.current.disconnect();
       }
     };
-  }, [callEnded]);
+  }, [callEnded, session?.user?.id, chatId]);
 
-  function callPeer(id) {
-    const peer = new Peer({
-      initiator: true,
-      trickle: false,
-      config: iceServersConfig,
-      stream: stream,
-    });
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const openedFromPush = urlParams.get('source') === 'push';
+    const actionType = urlParams.get('type') === 'reject';
 
-    peer.on("signal", (data) => {
-      socket.current.emit("callUser", {
-        userToCall: id,
-        signalData: data,
-        from: yourID,
-      });
-    });
-
-    peer.on("stream", (stream) => {
-      setReceivedStream(stream);
-    });
-
-    socket.current.on("callAccepted", (signal) => {
-      setCallAccepted(true);
-      setReceivingCall(true);
-      peer.signal(signal);
-    });
-  }
-
-  function acceptCall() {
-    setCallAccepted(true);
-    const peer = new Peer({
-      initiator: false,
-      trickle: false,
-      config: iceServersConfig,
-      stream: stream,
-    });
-    peer.on("signal", (data) => {
-      socket.current.emit("acceptCall", { signal: data, to: caller });
-    });
-
-    peer.on("stream", (stream) => {
-      if (partnerVideo.current) {
-        partnerVideo.current.srcObject = stream;
+    caches.open('action-data').then(cache => cache.match('current-action-data')).then(response => {
+      if (openedFromPush && response) {
+        response.json().then(data => {
+          const { action } = data;
+          if (action === 'acceptCall') {
+            acceptCall();
+          } else if (action === 'rejectCall' && actionType) {
+            if (socket.current) {
+              socket.current.emit("endCall", { chatId, to: caller });
+            }
+            leaveCall();
+          }
+          caches.open('action-data').then(cache => cache.delete('current-action-data'));
+        });
       }
     });
-
-    peer.signal(callerSignal);
-
-    connectionRef.current = peer;
-  }
-
-  const leaveCall = () => {
-    if (
-      connectionRef.current &&
-      typeof connectionRef.current.destroy === "function"
-    ) {
-      connectionRef.current.destroy();
-      connectionRef.current = null;
-    }
-    socket.current.emit("endCall", { chatId, to: caller });
-    setIsVideoOn(false);
-    setIsAudioOn(false);
-    setCallEnded(true);
-    setCallAccepted(false);
-    setReceivingCall(false);
-    setIsVideoChatVisible(!isVideoChatVisible);
-  };
+  
+    return () => {
+      caches.open('action-data').then(cache => cache.delete('current-action-data'));
+    };
+  }, [acceptCall, leaveCall, isVideoChatVisible, socket.current, caller, chatId]);
+  
 
   return (
     <div className="absolute w-full h-full object-cover flex flex-col rounded-lg">
@@ -370,7 +403,7 @@ function VideoApp() {
         {users &&
           !callAccepted &&
           !receivingCall &&
-          users.slice(-1).map((item, index) => {
+          users.map((item, index) => {
             if (item === yourID) {
               return null;
             }

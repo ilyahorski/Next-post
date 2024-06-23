@@ -90,6 +90,17 @@ const Messages = ({ sessionUserId, closeForm }) => {
     }
   }, [session, socket, chatId]);
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const openedFromPush = urlParams.get('source') === 'push';
+    const actionType = urlParams.get('type') === 'reject';
+  
+    if (openedFromPush && !actionType) {
+      setIsVideoChatVisible(!isVideoChatVisible);
+    }
+  
+  }, []);
+
   return (
     <div className="flex flex-col custom-height flex-grow px-2 pb-3 w-full">
       {chat && chat?.length !== 0 && sessionUserId && (
