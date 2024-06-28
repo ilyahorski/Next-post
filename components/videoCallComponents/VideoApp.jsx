@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useState, useRef, useId, useCallback } fr
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { PiPhoneSlashThin, PiPhoneCallThin } from "react-icons/pi";
 import {
   FaVideo,
@@ -33,6 +33,7 @@ function VideoApp() {
   const [expanded, setExpanded] = useState(true);
   const [devices, setDevices] = useState([]);
   const [currentDeviceIndex, setCurrentDeviceIndex] = useState(0);
+  const [reciever, setReciever] = useState("");
   const { data: session } = useSession();
   const { id: chatId } = useParams();
   const uid = useId();
@@ -41,6 +42,12 @@ function VideoApp() {
   const partnerVideo = useRef();
   const socket = useRef();
   const connectionRef = useRef();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const openedFromPush = urlParams.get('source') === 'push';
+  const actionType = urlParams.get('type') === 'reject';
+
+  const router = useRouter(); 
 
   const { isVideoChatVisible, setIsVideoChatVisible, setWidth, setHeight } =
     useContext(VideoSocketContext);
@@ -100,33 +107,33 @@ function VideoApp() {
     ],
   };
 
-  const toggleVideoImage = () => {
-    setIsMainVideo(!isMainVideo);
-  };
+  const toggleVideoImage = useCallback(() => {
+    setIsMainVideo(prev => !prev);
+  }, []);
 
-  const toggleContracted = () => {
+  const toggleContracted = useCallback(() => {
     setExpanded(true);
     setWidth(350);
     setHeight(500);
-  };
+  }, [setWidth, setHeight]);
 
-  const toggleExpanded = () => {
+  const toggleExpanded = useCallback(() => {
     setExpanded(false);
     setWidth(175);
     setHeight(200);
-  };
+  }, [setWidth, setHeight]);
 
-  const toggleVideo = () => {
-    setIsVideoOn(!isVideoOn);
+  const toggleVideo = useCallback(() => {
+    setIsVideoOn(prev => !prev);
     stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled;
-  };
+  }, [stream]);
 
-  const toggleAudio = () => {
-    setIsAudioOn(!isAudioOn);
+  const toggleAudio = useCallback(() => {
+    setIsAudioOn(prev => !prev);
     stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
-  };
+  }, [stream]);
 
-  const getVideoDevices = async () => {
+  const getVideoDevices = useCallback(async () => {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices.filter(
@@ -134,16 +141,16 @@ function VideoApp() {
       );
       setDevices(videoDevices);
     } catch (error) {
-      console.error("Error enumerating video devices:", error);
+      console.log("Error enumerating video devices:", error);
     }
-  };
+  }, []);
 
-  const getUserMedia = async () => {
+  const getUserMedia = useCallback(async () => {
     try {
       const videoDeviceId = devices[currentDeviceIndex]?.deviceId;
       const constraints = {
         video: { deviceId: videoDeviceId },
-        audio: true, // Enable audio if needed
+        audio: true,
       };
       const newStream = await navigator.mediaDevices.getUserMedia(constraints);
       setStream(newStream);
@@ -151,7 +158,6 @@ function VideoApp() {
         userVideo.current.srcObject = newStream;
       }
 
-      // Обновить Peer-соединение с новым потоком
       if (connectionRef.current) {
         const videoTrack = newStream.getVideoTracks()[0];
         const sender = connectionRef.current
@@ -160,22 +166,20 @@ function VideoApp() {
         sender.replaceTrack(videoTrack);
       }
     } catch (error) {
-      console.error("Error accessing media devices:", error);
+      console.log("Error accessing media devices:", error);
     }
-  };
+  }, [devices, currentDeviceIndex]);
 
-  const toggleVideoCamera = () => {
-    setCurrentDeviceIndex((currentDeviceIndex + 1) % devices.length);
+  const toggleVideoCamera = useCallback(() => {
+    setCurrentDeviceIndex(prev => (prev + 1) % devices.length);
     getUserMedia();
-  };
+  }, [devices.length, getUserMedia]);
 
-  useEffect(() => {
-    getVideoDevices();
-  }, []);
-
-  function callPeer(id) {
+  const callPeer = useCallback((id) => {
+    setReciever(id)
+    const callerId = users.filter((getId) => getId !== id)[0];
     if (!yourID) {
-      console.error("Socket not ready or yourID not set");
+      console.log("Socket not ready or yourID not set");
       return;
     }
 
@@ -190,7 +194,7 @@ function VideoApp() {
       socket.current.emit("callUser", {
         userToCall: id,
         signalData: data,
-        from: yourID,
+        from: callerId,
         chatId: chatId
       });
     });
@@ -199,15 +203,14 @@ function VideoApp() {
       setReceivedStream(stream);
     });
 
-    socket.current.on("callAccepted", (signal) => {
+    socket.current.on("callAccepted", (data) => {
       setCallAccepted(true);
       setReceivingCall(true);
-      peer.signal(signal);
+      peer.signal(data.signal);
     });
-  }
+  }, [users, yourID, stream, chatId]);
 
   const acceptCall = useCallback(() => {
-    if (callAccepted) return;
     setCallAccepted(true);
     const peer = new Peer({
       initiator: false,
@@ -215,8 +218,9 @@ function VideoApp() {
       config: iceServersConfig,
       stream: stream,
     });
+
     peer.on("signal", (data) => {
-      socket.current.emit("acceptCall", { signal: data, to: caller });
+      socket.current.emit("acceptCall", { signal: data, from: caller, to: reciever, chatId: chatId });
     });
 
     peer.on("stream", (stream) => {
@@ -225,13 +229,20 @@ function VideoApp() {
       }
     });
 
-    peer.signal(callerSignal);
+    if (callerSignal) {
+      if (peer.destroyed) {
+        console.log("Peer is destroyed, cannot signal.");
+        return;
+      }
+      peer.signal(callerSignal);
+    } else {
+      console.log("Caller signal is missing");
+    }
 
     connectionRef.current = peer;
   }, [callAccepted, caller, callerSignal, stream]);
 
-  const leaveCall = useCallback(() => {
-    if (callEnded) return;
+  const leaveCall = useCallback((id) => {
     if (
       connectionRef.current &&
       typeof connectionRef.current.destroy === "function"
@@ -239,21 +250,25 @@ function VideoApp() {
       connectionRef.current.destroy();
       connectionRef.current = null;
     }
-    socket.current.emit("endCall", { chatId, to: caller });
+    socket.current.emit("endCall", { chatId, to: id });
     setIsVideoOn(false);
     setIsAudioOn(false);
     setCallEnded(true);
     setCallAccepted(false);
     setReceivingCall(false);
     setIsVideoChatVisible(!isVideoChatVisible);
-  }, [callEnded, caller]);
+    router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}`);
+  }, [chatId, isVideoChatVisible, router]);
+
+  useEffect(() => {
+    getVideoDevices();
+  }, []);
 
   useEffect(() => {
     if (!stream) {
       getUserMedia();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [devices, currentDeviceIndex]);
+  }, [getUserMedia, stream]);
 
   useEffect(() => {
     let isMounted = true;
@@ -270,13 +285,13 @@ function VideoApp() {
     return () => {
       isMounted = false;
     };
-  }, [userVideo.current]);
+  }, []);
 
   useEffect(() => {
-    if (callAccepted && partnerVideo.current && receivedStream) {
+    if (callAccepted && receivedStream) {
       partnerVideo.current.srcObject = receivedStream;
     }
-  }, [callAccepted, receivedStream, partnerVideo]);
+  }, [callAccepted, receivedStream]);
 
   useEffect(() => {
     socket.current = io(process.env.NEXT_PUBLIC_SERVER_URL, {
@@ -288,26 +303,26 @@ function VideoApp() {
     });
 
     socket.current.on("allUsers", (users) => {
-      setUsers(users.filter(id => id !== session?.user?.id));
+      setUsers(users);
     });
 
     socket.current.on("hey", (data) => {
       setReceivingCall(true);
       setCaller(data.from);
       setCallerSignal(data.signal);
-    });
+    });    
 
-    socket.current.on("callEndedByPeer", () => {
-      if (connectionRef.current) {
+    socket.current.on("callEndedByPeer", (data) => {
+      if (connectionRef.current && data.to) {
         connectionRef.current.destroy();
         connectionRef.current = null;
       }
-      setIsVideoOn(false);
-      setIsAudioOn(false);
-      setCallEnded(true);
-      setCallAccepted(false);
-      setReceivingCall(false);
-      setIsVideoChatVisible(!isVideoChatVisible);
+        setIsVideoOn(false);
+        setIsAudioOn(false);
+        setCallEnded(true);
+        setCallAccepted(false);
+        setReceivingCall(false);
+        setIsVideoChatVisible(!isVideoChatVisible);
     });
 
     return () => {
@@ -315,35 +330,53 @@ function VideoApp() {
         socket.current.disconnect();
       }
     };
-  }, [callEnded, session?.user?.id, chatId]);
+  }, [session?.user?.id, chatId]);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const openedFromPush = urlParams.get('source') === 'push';
-    const actionType = urlParams.get('type') === 'reject';
-
-    caches.open('action-data').then(cache => cache.match('current-action-data')).then(response => {
-      if (openedFromPush && response) {
-        response.json().then(data => {
-          const { action } = data;
-          if (action === 'acceptCall') {
-            acceptCall();
-          } else if (action === 'rejectCall' && actionType) {
-            if (socket.current) {
-              socket.current.emit("endCall", { chatId, to: caller });
-            }
-            leaveCall();
-          }
-          caches.open('action-data').then(cache => cache.delete('current-action-data'));
+    if (!openedFromPush && users && reciever) {
+      const id = users.filter(getId => getId !== yourID)[0];
+      const peer = new Peer({
+        initiator: true,
+        trickle: false,
+        config: iceServersConfig,
+        stream: stream,
+      });
+  
+      peer.on("signal", (data) => {
+        socket.current.emit("callUser", {
+          userToCall: id,
+          signalData: data,
+          from: yourID,
+          chatId: chatId
         });
-      }
-    });
+      });
+
+      peer.on("stream", (stream) => {
+        setReceivedStream(stream);
+      });
   
-    return () => {
-      caches.open('action-data').then(cache => cache.delete('current-action-data'));
-    };
-  }, [acceptCall, leaveCall, isVideoChatVisible, socket.current, caller, chatId]);
-  
+      socket.current.on("callAccepted", (data) => {
+        setCallAccepted(true);
+        setReceivingCall(true);
+        peer.signal(data.signal);
+      });
+    }
+  }, [openedFromPush, users, reciever, yourID, stream, chatId]);
+
+  // useEffect(() => {
+  //   console.log(receivedStream)
+  //   if (!receivedStream) {
+  //     timerIdRef.current = setTimeout(() => {
+  //       setIsVideoChatVisible(false);
+  //       notifyInfo({ message: "Video a new call." })
+  //     }, 60000);
+  //   } else {
+  //     console.log(receivedStream);
+  //     clearTimeout(timerIdRef);
+  //   }
+
+  //   return () => clearTimeout(timerIdRef);
+  // }, [receivedStream]);
 
   return (
     <div className="absolute w-full h-full object-cover flex flex-col rounded-lg">
@@ -456,7 +489,10 @@ function VideoApp() {
                 <button
                   title="End call"
                   className={`bg-red-500/80 hover:bg-red-700/80 mb-3 ${button_style}`}
-                  onClick={leaveCall}
+                  onClick={() => {
+                    setReceivingCall(false);
+                    leaveCall(users.filter(id => id !== yourID)[0]);
+                  }}
                 >
                   <PiPhoneSlashThin className={icon_style} />
                 </button>
@@ -469,4 +505,4 @@ function VideoApp() {
   );
 }
 
-export default VideoApp;
+export default React.memo(VideoApp);

@@ -22,26 +22,26 @@ self.addEventListener('push', function(event) {
         }
       }
 
-      if (!isChatOpen) {
-        const title = data.title || 'Message from Next Post';
-        const userIcon = data.userIcon;
-        const type = data.type || 'message';
-        const options = {
-          body: data.body || 'Click to open chat',
-          icon: userIcon,
-          badge: '/assets/email.png',
-          sound: '/assets/notif.mp3',
-          tag: 'renotify',
-          renotify: true,
-        };
+      const title = data.title || 'Message from Next Post';
+      const userIcon = data.userIcon;
+      const type = data.type || 'message';
+      const options = {
+        body: data.body || 'Click to open chat',
+        icon: userIcon,
+        badge: '/assets/email.png',
+        sound: '/assets/notif.mp3',
+        tag: 'renotify',
+        renotify: true,
+      };
 
-        if (type === 'call') {
-          options.actions = [
-            { action: 'accept', type: 'button', title: 'Accept Call', icon: '/assets/icons/incoming-call.png' },
-            { action: 'reject', type: 'button', title: 'Reject Call', icon: '/assets/icons/rejected.png' },
-          ];
-        }
+      if (type === 'call') {
+        options.actions = [
+          { action: 'accept', type: 'button', title: 'Accept Call', icon: '/assets/icons/incoming-call.png' },
+          { action: 'reject', type: 'button', title: 'Reject Call', icon: '/assets/icons/rejected.png' },
+        ];
 
+        return self.registration.showNotification(title, options);
+      } else if (!isChatOpen) {
         return self.registration.showNotification(title, options);
       }
     })
@@ -59,26 +59,22 @@ self.addEventListener('notificationclick', function(event) {
           
           if (type === 'call') {
             let chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}?source=push`;
-            const action = event.action === 'accept' ? 'acceptCall' : 'rejectCall';
             
             if (event.action === 'reject') {
               chatUrl += '&type=reject';
             }
 
-            const actionData = { action: action, chatId: chatId };
-            const actionDataResponse = new Response(new Blob([JSON.stringify(actionData)], { type: 'application/json' }));
-            caches.open('action-data').then(cache => cache.put('current-action-data', actionDataResponse));
-
             return clients.openWindow(chatUrl);
           } else {
-            const chatUrl = chatId ? `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}?source=push` : `${process.env.NEXT_PUBLIC_BASE_URL}/chat`;
+            const chatUrl = chatId ? `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}` : `${process.env.NEXT_PUBLIC_BASE_URL}/chat`;
             return clients.openWindow(chatUrl);
           }
         });
       } else {
+        caches.delete('action-data');
+        caches.delete('chat-data');
         return clients.openWindow(`${process.env.NEXT_PUBLIC_BASE_URL}/chat`);
       }
     })
   );
 });
-
