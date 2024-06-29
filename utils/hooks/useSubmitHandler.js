@@ -5,7 +5,7 @@ import {dataURLtoBlob} from "~/utils/dataUrlToBlob";
 
 export const useSubmitHandler = (
   fileData,
-  session,
+  sessionId,
   post,
   cropperRef,
   setPost,
@@ -23,7 +23,7 @@ export const useSubmitHandler = (
       e.preventDefault();
       setIsSubmitting(true);
 
-      if (!session || !session.user.id) {
+      if (!sessionId) {
         console.error("Session or user ID is missing");
         alert('Session is not available, please log in again');
         setIsSubmitting(false);
@@ -85,7 +85,7 @@ export const useSubmitHandler = (
           }
         }
 
-        const requestBody = buildRequestBody({post, session, imageUrl});
+        const requestBody = buildRequestBody({post, sessionId, imageUrl});
         const response = await fetch(apiEndpoint, {
           method: httpMethod,
           body: JSON.stringify(requestBody),
@@ -103,7 +103,7 @@ export const useSubmitHandler = (
         setIsSubmitting(false);
       }
     },
-    [session, post, cropperRef, setPost, alertMessage, apiEndpoint, httpMethod, routerDestination, buildRequestBody],
+    [sessionId, post, cropperRef, setPost, alertMessage, apiEndpoint, httpMethod, routerDestination, buildRequestBody],
   );
 
   return { handleSubmit, isSubmitting };

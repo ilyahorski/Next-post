@@ -1,12 +1,12 @@
 'use client';
 
 import Link from "next/link";
-import { useSession } from 'next-auth/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useInputChangeHandler } from "~/utils/hooks/useInputChangeHandler";
 import { useSubmitHandler } from "~/utils/hooks/useSubmitHandler";
 import ImageEditor from "~/components/ImageEditor";
+import {SessionContext} from "~/utils/context/SocketContext";
 
 const MyProfile = () => {
   const [post, setPost] = useState({ username: '', userImage: '', image: ''});
@@ -15,10 +15,10 @@ const MyProfile = () => {
   const searchParams = useSearchParams();
   const userId = searchParams.get('id');
   const cropperRef = useRef(null);
-  const { data: session } = useSession();
   const [fileData, setFileData] = useState(null);
   const [userDataType, setUserDataType] = useState('');
   const [googleDataType, setGoogleDataType] = useState('');
+  const sessionId = useContext(SessionContext);
 
   const buildRequestBody = ({post, imageUrl}) => ({
     username: post.username,
@@ -28,7 +28,7 @@ const MyProfile = () => {
 
   const { handleSubmit, isSubmitting } = useSubmitHandler(
     fileData,
-    session,
+    sessionId,
     post,
     cropperRef,
     setPost,
@@ -49,8 +49,8 @@ const MyProfile = () => {
         userImage: data.userImage,
         image: data.image,
       });
-      setUserDataType(data.userImage.split('/')[4].split('-')[0])
-      setGoogleDataType(data.image.split('/')[2].split('.')[0])
+      setUserDataType(data.userImage.split('/')[4]?.split('-')[0])
+      setGoogleDataType(data.image.split('/')[2]?.split('.')[0])
     };
 
     if (userId) getUserData();
