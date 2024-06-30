@@ -12,9 +12,6 @@ const SocketProvider = ({ children }) => {
   const [sessionUserId, setSessionUserId] = useState(null);
   const { data: session, status, update } = useSession();
 
-  // const LOCAL = 'http://localhost:4000';
-  // const HEROKU = 'https://next-post-bc80bba88d82.herokuapp.com';
-
   useEffect(() => {
     if (!session?.user?.id) {
       update()

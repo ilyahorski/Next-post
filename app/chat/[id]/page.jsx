@@ -19,10 +19,10 @@ const MessageMain = () => {
   const {isVideoChatVisible} = useContext(VideoSocketContext);
 
   useEffect(() => {
-    if (!session?.user || !sessionId) {
+    if (!sessionId) {
       update()
     }
-  }, [session, sessionId])
+  }, [sessionId])
 
   useEffect(() => {
     if (isMobile) {

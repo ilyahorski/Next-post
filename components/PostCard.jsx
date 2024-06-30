@@ -16,7 +16,7 @@ import {handleCopy} from "~/utils/handleCopy";
 import Comments from "~/components/Comments";
 import CommentForm from "~/components/CommentForm";
 import VideoPlayer from "~/components/VideoPlayer";
-import {SocketContext} from "~/utils/context/SocketContext";
+import {SocketContext, SessionContext} from "~/utils/context/SocketContext";
 
 JavascriptTimeAgo.addLocale(supportedLocales.en);
 
@@ -42,6 +42,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   const type = fileWithExtension.split("-")[0];
 
   const socket = useContext(SocketContext);
+  const sessionId = useContext(SessionContext);
 
 
   useEffect(() => {
@@ -55,10 +56,10 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   }, [post.image]);
 
   useEffect(() => {
-    if (status === 'loading' || !session || !socket) return;
+    if (!sessionId || !socket) return;
 
-    if (socket && session?.user && post?._id) {
-      socket.emit('checkLikeStatus', { userId: session?.user?.id, postId: post?._id });
+    if (socket && sessionId && post?._id) {
+      socket.emit('checkLikeStatus', { userId: sessionId, postId: post?._id });
 
       socket.on('likesUpdated', ({ postId, likesCount }) => {
         if (postId === post?._id) {
@@ -77,7 +78,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
         socket.off('likeStatus');
       };
     }
-  }, [post._id, session, socket]);
+  }, [post._id, sessionId, socket]);
 
   useEffect(() => {
     const userLocale = navigator.language.split('-')[0];
@@ -95,7 +96,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   }, []);
 
   const handleProfileClick = () => {
-    if (post.creator._id === session?.user?.id) return router.push('/profile');
+    if (post.creator._id === sessionId) return router.push('/profile');
 
     router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
   };
@@ -236,7 +237,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
                 <p className='font-satoshi text-[16px] text-gray-700 dark:text-gray-400'>
                   {likes}
                 </p>
-                <button onClick={() => toggleLike({id: post._id, session: session?.user?.id, setLikes: setLikes, setLiked: setLiked})}>
+                <button onClick={() => toggleLike({id: post._id, session: sessionId, setLikes: setLikes, setLiked: setLiked})}>
                   {liked ? <Heart className='h-6 w-6 text-red-500 ' /> :
                     <HeartIcon className='h-6 w-6 ' />}
                 </button>
@@ -249,10 +250,10 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
             >
               <Comments postId={post?._id} isMain={true}/>
             </div>
-            <CommentForm postId={post?._id} userId={session?.user?.id}/>
+            <CommentForm postId={post?._id} userId={sessionId}/>
           </div>
 
-          {session?.user?.id === post.creator._id && /^\/profile/.test(pathName) && (
+          {sessionId === post.creator._id && /^\/profile/.test(pathName) && (
             <div className='mt-5 flex-center gap-4 border-t border-gray-100 pt-3'>
               <button
                 className='font-inter text-sm green_gradient cursor-pointer'

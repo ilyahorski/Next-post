@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useSession } from "next-auth/react";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import { MdOutlineNotificationsOff } from "react-icons/md";
+import {SessionContext} from "~/utils/context/SocketContext";
 
 const SubscribeToPush = () => {
   const { data: session, status, update } = useSession();
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const sessionId = useContext(SessionContext);
 
   useEffect(() => {
     const checkSubscription = async () => {
@@ -33,7 +35,7 @@ const SubscribeToPush = () => {
     try {
       if (
         (navigator.userActivation && navigator.userActivation.isActive) ||
-        ("serviceWorker" in navigator && "Notification" in window && "PushManager" in window)
+        ("serviceWorker" in navigator && "PushManager" in window)
       ) {
         const registration = await navigator.serviceWorker.ready;
 
@@ -52,7 +54,7 @@ const SubscribeToPush = () => {
           method: "POST",
           body: JSON.stringify({
             subscription,
-            userId: session?.user?.id,
+            userId: sessionId,
           }),
           headers: {
             "Content-Type": "application/json",
@@ -78,7 +80,7 @@ const SubscribeToPush = () => {
           await fetch("/api/subscribe", {
             method: "DELETE",
             body: JSON.stringify({
-              userId: session?.user?.id,
+              userId: sessionId,
               endpoint: subscription.endpoint,
             }),
             headers: {
@@ -116,7 +118,7 @@ const SubscribeToPush = () => {
     <div>
       {isSubscribed ? (
         <button
-          className="flex gap-0.5 items-center flex-col cursor-pointer text-amber-600 hover:text-amber-700 active:text-amber-800"
+          className="flex gap-0.5 items-center flex-col cursor-pointer text-amber-600/60 hover:text-amber-700/60 active:text-amber-800/60"
           onClick={unsubscribeUser}
         >
           <MdOutlineNotificationsActive
@@ -127,7 +129,7 @@ const SubscribeToPush = () => {
         </button>
       ) : (
         <button
-          className="flex gap-0.5 items-center flex-col cursor-pointer text-amber-600 hover:text-amber-700 active:text-amber-800"
+          className="flex gap-0.5 items-center flex-col cursor-pointer text-amber-600/60 hover:text-amber-700/60 active:text-amber-800/60"
           onClick={subscribeUser}
         >
           <MdOutlineNotificationsOff

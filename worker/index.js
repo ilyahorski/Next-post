@@ -1,4 +1,5 @@
 self.addEventListener('push', function(event) {
+  event.preventDefault();
   let data = {};
   if (event.data) {
     data = event.data.json();
@@ -49,6 +50,7 @@ self.addEventListener('push', function(event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
+  event.preventDefault();
   event.notification.close();
 
   event.waitUntil(

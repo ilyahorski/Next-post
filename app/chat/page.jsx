@@ -7,7 +7,6 @@ import {useContext, useEffect, useState} from "react";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 import {useSession} from "next-auth/react";
 import {SessionContext} from "~/utils/context/SocketContext";
-import Messages from "~/components/Messages";
 
 const ChatMain = () => {
   const [showCreateChatForm, setShowCreateChatForm] = useState(true);
@@ -17,10 +16,10 @@ const ChatMain = () => {
   const sessionId = useContext(SessionContext);
 
   useEffect(() => {
-    if (!session?.user || !sessionId) {
+    if (!sessionId) {
       update()
     }
-  }, [session, sessionId])
+  }, [sessionId])
 
   useEffect(() => {
     if (isMobile) {

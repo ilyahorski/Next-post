@@ -7,8 +7,7 @@ import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
 import DarkModeToggle from "~/components/ThemeModeToggle";
 import useClickOutside from "~/utils/hooks/useClickOutside";
 import {usePathname} from "next/navigation";
-import {SocketContext} from "~/utils/context/SocketContext";
-
+import {SocketContext, SessionContext} from "~/utils/context/SocketContext";
 const Nav = () => {
   const { data: session, status } = useSession();
   const [toggleDropdown, setToggleDropdown] = useState(false);
@@ -17,6 +16,7 @@ const Nav = () => {
   const ref = useRef(null);
   const pathname = usePathname().split('/')[1]
   const socket = useContext(SocketContext);
+  const sessionId = useContext(SessionContext);
 
   useClickOutside(ref, () => setToggleDropdown(false));
 
@@ -36,7 +36,7 @@ const Nav = () => {
 
   useEffect(() => {
     const getUserData = async () => {
-      const response = await fetch(`/api/users/edit/${session?.user.id}`);
+      const response = await fetch(`/api/users/edit/${sessionId}`);
       const data = await response.json();
 
       setData({
@@ -46,8 +46,8 @@ const Nav = () => {
       });
     };
 
-    if (session) getUserData();
-  }, [session]);
+    if (sessionId) getUserData();
+  }, [sessionId]);
 
   return (
     <nav className={`${pathname === 'chat' ? 'w-[100dvw] px-2' : 'w-full'} flex-between mb-16 pt-3`}>
@@ -65,7 +65,7 @@ const Nav = () => {
 
       {/* Desktop Navigation */}
       <div className='md:flex hidden'>
-        {session?.user ? (
+        {sessionId ? (
           <div className='flex items-center gap-3 md:gap-5'>
             <DarkModeToggle />
 
@@ -90,7 +90,7 @@ const Nav = () => {
               href='/profile'
             >
               <Image
-                src={data?.userImage ? data?.userImage : session?.user.image}
+                src={data?.userImage ? data?.userImage : data?.image}
                 width={40}
                 height={40}
                 className='rounded-full'
@@ -121,12 +121,12 @@ const Nav = () => {
 
       {/* Mobile Navigation */}
       <div ref={ref} className='md:hidden flex relative'>
-        {session?.user ? (
+        {sessionId ? (
           <div className='flex items-center gap-5'>
             <DarkModeToggle />
 
             <Image
-              src={data?.userImage ? data?.userImage : session?.user.image}
+              src={data?.userImage ? data?.userImage : data?.image}
               width={37}
               height={37}
               className='rounded-full'

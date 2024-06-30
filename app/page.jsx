@@ -15,12 +15,10 @@ const Home = () => {
   return (
     <section className='w-full flex-center flex-col'>
       <div className='head_text text-center dark:text-gray-300'>
-        Open world of the
-        <br className='md:hidden'/>
         <span className='blue_gradient text-center'> Next Post</span>
       </div>
       <p className='desc text-center dark:text-gray-400'>
-        Next-Post is an open-source platform to discover, create and share creative post!
+        A modern messanger for communication, creation and sharing posts.
       </p>
       <Provider>
         <div className='flex md:hidden w-full justify-center gap-3 mt-3 -mb-6'>

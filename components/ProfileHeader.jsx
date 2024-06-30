@@ -31,7 +31,7 @@ const ProfileHeader = ({ name, session, data }) => {
   return (
     <div className="w-full us:w-[80%] flex justify-between items-center">
       <div className="head_text text-start xs:-mt-4">
-        <span className="orange_gradient">
+        <span className="text-teal-600 -ml-[4px]">
           {name === "/profile" ? "My" : name} profile
         </span>
         <p className="font-inter font-normal text-sm text-gray-500 pt-2">
@@ -42,7 +42,7 @@ const ProfileHeader = ({ name, session, data }) => {
         <div className="flex flex-grow justify-center gap-[8px] md:gap-[20px] w-full">
           <Link
             href={"/create-post"}
-            className="flex gap-0.5 items-center flex-col cursor-pointer text-green-700 hover:text-green-800 active:text-green-900"
+            className="flex gap-0.5 items-center flex-col cursor-pointer text-green-700/60 hover:text-green-800/60 active:text-green-900/60"
           >
             <MdOutlineLibraryAdd
               className="w-[30px] h-[30px] md:w-[40px] md:h-[40px]"
@@ -60,7 +60,7 @@ const ProfileHeader = ({ name, session, data }) => {
           </Link>
           <Link
             href={`/profile/edit/?id=${session}`}
-            className="flex gap-0.5 items-center flex-col cursor-pointer text-teal-700 hover:text-teal-800 active:text-teal-900"
+            className="flex gap-0.5 items-center flex-col cursor-pointer text-teal-700/60 hover:text-teal-800/60 active:text-teal-900/60"
           >
             <CiEdit
               className="w-[30px] h-[30px] md:w-[40px] md:h-[40px]"
@@ -82,7 +82,7 @@ const ProfileHeader = ({ name, session, data }) => {
           <button
             className={
               name === "/profile"
-                ? "flex gap-0.5 items-center flex-col cursor-pointer text-red-600 hover:text-red-700 active:text-red-800"
+                ? "flex gap-0.5 items-center flex-col cursor-pointer text-red-600/60 hover:text-red-700/60 active:text-red-800/60"
                 : "hidden"
             }
             onClick={() => handleDelete()}

@@ -3,24 +3,24 @@
 import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 import { PiUsersThin } from "react-icons/pi";
-import { SocketContext } from "~/utils/context/SocketContext";
+import { SocketContext, SessionContext } from "~/utils/context/SocketContext";
 import { usePathname, useRouter } from "next/navigation";
 
 const Sidebar = ({ sessionUserId, openForm }) => {
-  const { data: session, status } = useSession();
   const [chats, setChats] = useState([]);
   const [search, setSearch] = useState("");
   const pathname = usePathname().split("/")[2];
   const router = useRouter();
-  const socket = useContext(SocketContext);
+  const socket = useContext(SocketContext)
+  const sessionId = useContext(SessionContext);
+  
 
   useEffect(() => {
     const getChats = async () => {
       const response = await fetch(`/api/chats`, {
         headers: {
-          userId: sessionUserId,
+          userId: sessionId,
         },
       });
 
@@ -29,13 +29,13 @@ const Sidebar = ({ sessionUserId, openForm }) => {
       setChats(data);
     };
 
-    if (sessionUserId) {
+    if (sessionId) {
       getChats();
     }
-  }, [sessionUserId, status]);
+  }, [sessionId]);
 
   useEffect(() => {
-    if (!session?.user && !socket) return;
+    if (!sessionId && !socket) return;
 
     if (socket) {
       socket.on("chatUpdated", (updatedChat) => {
@@ -69,7 +69,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
           throw new Error(`Failed to delete chat: ${response.status}`);
         }
 
-        await router.push("/chat");
+        router.push("/chat");
       } catch (error) {
         console.error("Error deleting chat:", error);
       }

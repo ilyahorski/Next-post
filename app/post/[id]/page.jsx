@@ -8,19 +8,18 @@ import { supportedLocales, localeToFullLocale } from '~/utils/constants/supporte
 import Loading from "~/utils/loading";
 import { parseTags } from '~/utils/tagStringToArray';
 import { HeartIcon as Heart } from '@heroicons/react/24/solid';
-import { useSession } from 'next-auth/react';
 import { HeartIcon } from '@heroicons/react/24/outline';
 import { ToastContainer } from "react-toastify";
 import { toggleLike } from "~/utils/toggleLike";
 import Comments from "~/components/Comments";
 import CommentForm from "~/components/CommentForm";
 import VideoPlayer from "~/components/VideoPlayer";
-import {SocketContext} from "~/utils/context/SocketContext";
+import {SocketContext, SessionContext} from "~/utils/context/SocketContext";
 
 const Post = () => {
-  const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const postIds = searchParams.get('id');
+  const sessionId = useContext(SessionContext);
   const [post, setPost] = useState(
     { post: '', tags: '', image: '', creator: '', createdAt: '' },
   );
@@ -33,10 +32,10 @@ const Post = () => {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    if (status === 'loading' || !session) return;
+    if (!sessionId) return;
 
-    if (socket && session?.user && postIds) {
-      socket.emit('checkLikeStatus', { userId: session.user.id, postId: postIds });
+    if (socket && sessionId && postIds) {
+      socket.emit('checkLikeStatus', { userId: sessionId, postId: postIds });
 
       socket.on('likesUpdated', ({ postId, likesCount }) => {
         if (postId === postIds) {
@@ -56,10 +55,10 @@ const Post = () => {
         socket.off('connect');
       };
     }
-  }, [postIds, session, socket]);
+  }, [postIds, sessionId, socket]);
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (!sessionId) return;
     const getPostDetails = async () => {
       const response = await fetch(`/api/post/${postIds}`);
       const data = await response.json();
@@ -82,7 +81,7 @@ const Post = () => {
 
     if (postIds) getPostDetails();
 
-  }, [session]);
+  }, [sessionId]);
 
   return (
     <>
@@ -152,7 +151,7 @@ const Post = () => {
                     <p className='font-satoshi text-[16px] text-gray-700'>
                       {likes}
                     </p>
-                    <button onClick={() => toggleLike({id: postIds, session: session?.user?.id, setLikes: setLikes, setLiked: setLiked})}>
+                    <button onClick={() => toggleLike({id: postIds, session: sessionId, setLikes: setLikes, setLiked: setLiked})}>
                       {liked ? <Heart className='h-6 w-6 text-red-500 ' /> :
                         <HeartIcon className='h-6 w-6 ' />}
                     </button>
@@ -160,7 +159,7 @@ const Post = () => {
                 </div>
               </div>
               <Comments postId={postIds} isMain={false}/>
-              <CommentForm postId={postIds} userId={session?.user?.id}/>
+              <CommentForm postId={postIds} userId={sessionId}/>
             </div>
           </div>
         </>

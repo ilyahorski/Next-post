@@ -1,35 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import { RiCloseCircleLine } from "react-icons/ri";
 import { BiMessageSquareAdd } from "react-icons/bi";
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
-import { useSession } from "next-auth/react";
 import { v4 as uuidv4 } from "uuid";
+import {SessionContext} from "~/utils/context/SocketContext";
 
 const CreateChatForm = ({ closeForm }) => {
-  const { data: session, status } = useSession();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [groupName, setGroupName] = useState("");
+  const sessionId = useContext(SessionContext);
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (!sessionId === "loading") return;
 
     const getUsers = async () => {
       const response = await fetch(`/api/users`);
       const data = await response.json();
 
       setUsers(data);
-      setSelectedUsers(data.filter((user) => user._id === session?.user?.id));
+      setSelectedUsers(data.filter((user) => user._id === sessionId));
     };
 
-    if (session) getUsers();
-  }, [session]);
+    if (sessionId) getUsers();
+  }, [sessionId]);
 
-  const usersExceptMe = users.filter((user) => user._id !== session?.user?.id);
+  const usersExceptMe = users.filter((user) => user._id !== sessionId);
 
   const filteredUsers = usersExceptMe.filter((user) =>
     user.username.toLowerCase().includes(search.toLowerCase())
@@ -49,16 +49,16 @@ const CreateChatForm = ({ closeForm }) => {
     e.preventDefault();
 
     let chatName;
-    if (session?.user) {
+    if (sessionId) {
       chatName = groupName
         ? groupName
-        : session.user.id === selectedUsers[0]._id
+        : sessionId === selectedUsers[0]._id
         ? selectedUsers[1].username
         : selectedUsers[0].username;
     }
 
     const chat = {
-      creatorId: session?.user?.id,
+      creatorId: sessionId,
       membersList: selectedUsers,
       chatName: chatName,
       chatImage: null,
@@ -78,7 +78,7 @@ const CreateChatForm = ({ closeForm }) => {
       if (response.status === 201) {
         setGroupName("");
         setSelectedUsers(
-          users.filter((user) => user._id === session?.user?.id)
+          users.filter((user) => user._id === sessionId)
         );
       } else {
         const errorMessage = await response.text();
@@ -94,7 +94,7 @@ const CreateChatForm = ({ closeForm }) => {
       onSubmit={submitForm}
       className="flex px-1 pb-3 flex-grow-1 w-full custom-height"
     >
-      {session?.user?.id && (
+      {true && (
         <div className="flex flex-1 w-full flex-col">
           <div className="flex gap-1 items-start">
             <input
@@ -124,7 +124,7 @@ const CreateChatForm = ({ closeForm }) => {
               {selectedUsers.map((user, index) => (
                 <li
                   className="flex w-auto border border-gray-500 rounded p-1"
-                  key={index + 0.3}
+                  key={user._id}
                 >
                   <div className="flex gap-2 h-[30px] justify-center items-center">
                     <Image
@@ -138,7 +138,7 @@ const CreateChatForm = ({ closeForm }) => {
                       {user.username}
                     </p>
                   </div>
-                  {user?._id !== session?.user?.id && (
+                  {user?._id !== sessionId && (
                     <button
                       className="flex justify-center items-center w-[30px] h-[30px]"
                       type="button"
@@ -161,7 +161,7 @@ const CreateChatForm = ({ closeForm }) => {
           <div className="chat-list">
             {filteredUsers.map((user, index) => (
               <div
-                key={index}
+                key={user._id}
                 className={
                   "flex flex-row justify-between flex-wrap p-2 m-1 items-center gap-2 border-b border-primary-300"
                 }
