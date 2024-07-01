@@ -26,13 +26,15 @@ self.addEventListener('push', function(event) {
       const title = data.title || 'Message from Next Post';
       const userIcon = data.userIcon;
       const type = data.type || 'message';
+      const notificationTag = `chat-${data.chatId}-${data.body}`;
+
       const options = {
         body: data.body || 'Click to open chat',
         icon: userIcon,
         badge: '/assets/email.png',
         sound: '/assets/notif.mp3',
-        tag: 'renotify',
-        renotify: true,
+        tag: notificationTag,
+        renotify: false, 
       };
 
       if (type === 'call') {
@@ -43,7 +45,11 @@ self.addEventListener('push', function(event) {
 
         return self.registration.showNotification(title, options);
       } else if (!isChatOpen) {
-        return self.registration.showNotification(title, options);
+        return self.registration.getNotifications({ tag: notificationTag }).then(existingNotifications => {
+          if (existingNotifications.length === 0) {
+            return self.registration.showNotification(title, options);
+          }
+        });
       }
     })
   );

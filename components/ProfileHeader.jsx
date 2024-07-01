@@ -8,7 +8,7 @@ import { AiOutlineUserDelete } from "react-icons/ai";
 const ProfileHeader = ({ name, session, data }) => {
   const handleDelete = async () => {
     const hasConfirmed = confirm(
-      "Are you sure you want to delete our account and all data?"
+      "Are you sure you want to delete your account and all data?"
     );
 
     if (hasConfirmed) {

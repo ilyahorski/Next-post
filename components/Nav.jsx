@@ -65,7 +65,7 @@ const Nav = () => {
 
       {/* Desktop Navigation */}
       <div className='md:flex hidden'>
-        {sessionId ? (
+        {sessionId && data ? (
           <div className='flex items-center gap-3 md:gap-5'>
             <DarkModeToggle />
 
@@ -121,7 +121,7 @@ const Nav = () => {
 
       {/* Mobile Navigation */}
       <div ref={ref} className='md:hidden flex relative'>
-        {sessionId ? (
+        {sessionId && data.image ? (
           <div className='flex items-center gap-5'>
             <DarkModeToggle />
 

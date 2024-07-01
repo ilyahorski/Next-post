@@ -6,15 +6,15 @@ import Image from "next/image";
 import { PiUsersThin } from "react-icons/pi";
 import { SocketContext, SessionContext } from "~/utils/context/SocketContext";
 import { usePathname, useRouter } from "next/navigation";
+import { PiTrashLight } from "react-icons/pi";
 
 const Sidebar = ({ sessionUserId, openForm }) => {
   const [chats, setChats] = useState([]);
   const [search, setSearch] = useState("");
   const pathname = usePathname().split("/")[2];
   const router = useRouter();
-  const socket = useContext(SocketContext)
+  const socket = useContext(SocketContext);
   const sessionId = useContext(SessionContext);
-  
 
   useEffect(() => {
     const getChats = async () => {
@@ -137,16 +137,16 @@ const Sidebar = ({ sessionUserId, openForm }) => {
               {pathname === chat._id && (
                 <button
                   title="Delete chat"
-                  className={
-                    "flex text-xl font-light leading-[1.15] text-red-600"
-                  }
+                  className="flex gap-0.5 items-center flex-col cursor-pointer dark:text-red-400 dark:hover:text-red-400/60 dark:active:text-red-600/60 text-red-600/60 hover:text-red-700/60 active:text-red-800/60"
                   onClick={() => handleDelete()}
                 >
-                  <p>
-                    Delete
-                    <br />
-                    Chat
-                  </p>
+                  <PiTrashLight
+                    className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
+                    placeholder="Open chats list"
+                  />
+                  <span className="font-normal text-6xs text-center">
+                    Delete chat
+                  </span>
                 </button>
               )}
             </Link>

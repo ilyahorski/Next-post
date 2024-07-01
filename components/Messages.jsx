@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import MessageForm from "~/components/MessageForm";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
 import { useSession } from "next-auth/react";
@@ -21,6 +21,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
   const [page, setPage] = useState(1);
   const [messagesCount, setMessagesCount] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const formEndRef = useRef(null);
 
   const isMobile = useMobileCheck();
   const { id: chatId } = useParams();
@@ -92,17 +93,16 @@ const Messages = ({ sessionUserId, closeForm }) => {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const openedFromPush = urlParams.get('source') === 'push';
-    const actionType = urlParams.get('type') === 'reject';
-  
+    const openedFromPush = urlParams.get("source") === "push";
+    const actionType = urlParams.get("type") === "reject";
+
     if (openedFromPush && !actionType) {
       setIsVideoChatVisible(!isVideoChatVisible);
     }
-  
   }, []);
 
   return (
-    <div className="flex flex-col custom-height flex-grow px-2 pb-3 w-full">
+    <div className="flex flex-col custom-height flex-grow px-2 pb-3 w-full relative" ref={formEndRef}>
       {chat && chat?.length !== 0 && sessionUserId && (
         <div className="flex gap-1 flex-grow w-full items-center">
           <button
@@ -146,19 +146,26 @@ const Messages = ({ sessionUserId, closeForm }) => {
                 </div>
               </div>
             </div>
+
             <button
               title="Open video chat"
-              className="flex justify-center items-center w-[40px] h-[40px] mr-0.5"
+              className="flex gap-0.5 items-center flex-col cursor-pointer text-zinc-800 dark:text-zinc-400"
               type="button"
               onClick={() => setIsVideoChatVisible(!isVideoChatVisible)}
             >
-              <BsPersonVideo className="text-indigo-500/80 hover:text-indigo-700/80 w-[40px] h-[40px] focus:outline-none focus:shadow-outline transform active:scale-95 transition duration-150 ease-in-out" />
+              <BsPersonVideo
+                className="w-[30px] h-[30px] md:w-[40px] md:h-[40px]"
+                placeholder="Open video chat"
+              />
+              <span className="font-normal text-6xs text-center">
+                Video call
+              </span>
             </button>
           </div>
         </div>
       )}
       <section
-        className="scrollableDiv w-full max-w-full min-w-0 flex-grow"
+        className="scrollableDiv w-full max-w-full min-w-0 flex-grow relative"
         id="scrollableDiv"
         style={{
           maxHeight: "93%",
@@ -194,8 +201,8 @@ const Messages = ({ sessionUserId, closeForm }) => {
         </InfiniteScroll>
       </section>
 
-      <div className="flex items-center w-full gap-2 mt-auto">
-        <MessageForm id={chatId} chat={chat} sessionUserId={sessionUserId} />
+      <div className="flex items-center w-full gap-2 mt-auto relative">
+        <MessageForm id={chatId} chat={chat} sessionUserId={sessionUserId} formEndRef={formEndRef} />
       </div>
     </div>
   );

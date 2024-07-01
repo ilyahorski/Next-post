@@ -5,7 +5,7 @@ import CommentMessageForm from "./CommentMessageForm";
 import {useContext} from "react";
 import {SocketContext} from "~/utils/context/SocketContext";
 
-const MessageForm = ({ id, chat, sessionUserId }) => {
+const MessageForm = ({ id, chat, sessionUserId, formEndRef }) => {
   const socket = useContext(SocketContext);
   const messageRef = useRef(null);
 
@@ -63,6 +63,7 @@ const MessageForm = ({ id, chat, sessionUserId }) => {
       placeholder="Message"
       maxLength={4000}
       messageRef={messageRef}
+      formEndRef={formEndRef}
     />
   );
 };
