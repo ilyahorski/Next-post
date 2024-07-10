@@ -10,7 +10,7 @@ export const ThemeContext = createContext();
 export const DisplayContext = createContext();
 
 const Provider = ({children}) => {
-  const [darkMode, setDarkMode] = useState(getLocalTheme());
+  const [darkMode, setDarkMode] = useState(true);
   const [columnView, setColumnView] = useState(getLocalView());
   const colorTheme = darkMode ? 'dark' : '';
 

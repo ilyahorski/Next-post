@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { BiLogoTelegram } from "react-icons/bi";
 import { useForm } from "react-hook-form";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
@@ -13,12 +13,12 @@ const CommentMessageForm = ({
   placeholder,
   maxLength,
   messageRef,
-  formEndRef,
+  scrollToBottom
 }) => {
   const isMobile = useMobileCheck();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState(0);
+  const cursorPositionRef = useRef(0);
 
   const {
     register,
@@ -37,21 +37,16 @@ const CommentMessageForm = ({
     onFormSubmit(data);
     reset();
     setIsSubmitted(true);
-    if (isMobile && formEndRef.current) {
-      formEndRef.current.scrollIntoView({
-        behavior: "instant",
-        block: "end",
-        inline: "end",
-      });
-    }
+    scrollToBottom();
   };
 
   useEffect(() => {
     if (isSubmitted) {
-      setTimeout(() => {
+      const timerId = setTimeout(() => {
         document.getElementById(type).focus();
         setIsSubmitted(false);
       }, 50);
+      return () => clearTimeout(timerId);
     }
   }, [isSubmitted, type]);
 
@@ -62,24 +57,28 @@ const CommentMessageForm = ({
     }
   };
 
-  const handleChange = (event) => {
-    setCursorPosition(event.target.selectionEnd);
-  };
+  const handleChange = useCallback((event) => {
+    cursorPositionRef.current = event.target.selectionEnd;
+  }, []);
 
-  const addEmoji = (emoji) => {
-    const text =
-      message.slice(0, cursorPosition) +
+  const addEmoji = useCallback((emoji) => {
+    const currentMessage = message || '';
+    const cursorPosition = cursorPositionRef.current;
+    const newMessage = 
+      currentMessage.slice(0, cursorPosition) +
       emoji.native +
-      message.slice(cursorPosition);
-    setValue(type, text);
+      currentMessage.slice(cursorPosition);
+    
+    setValue(type, newMessage);
     setFocus(type);
-    setTimeout(() => {
-      if (messageRef.current) {
-        messageRef.current.selectionStart = cursorPosition + emoji.native.length;
-        messageRef.current.selectionEnd = cursorPosition + emoji.native.length;
-      }
-    }, 0);
-  };
+
+    if (messageRef.current) {
+      const newCursorPosition = cursorPosition + emoji.native.length;
+      messageRef.current.selectionStart = newCursorPosition;
+      messageRef.current.selectionEnd = newCursorPosition;
+      cursorPositionRef.current = newCursorPosition;
+    }
+  }, [message, setValue, setFocus, type, messageRef]);
 
   return (
     <div className="flex-grow relative">
@@ -105,6 +104,7 @@ const CommentMessageForm = ({
             onKeyDown={handleKeyDown}
             onChange={handleChange}
             onClick={handleChange}
+            onSelect={handleChange}
             rows={4}
             cols={50}
             maxLength={maxLength}

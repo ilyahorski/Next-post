@@ -34,7 +34,7 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
   const locale = navigator.language;
   const tags = parseTags(post.tag);
   const JSImage = window.Image;
-  const postCardStyle = 'flex-1 h-fit break-inside-avoid rounded-lg dark:border-0 bg-white/20 dark:bg-gray-900/90 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter'
+  const postCardStyle = 'flex-1 h-fit break-inside-avoid rounded-lg dark:border-0 bg-white/20 dark:bg-zinc-800/80 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter'
 
   const url = new URL(post.image);
   const pathname = url.pathname;

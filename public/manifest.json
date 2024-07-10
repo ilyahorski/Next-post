@@ -14,10 +14,10 @@
     }
   ],
   "start_url": "/",
-  "background_color": "#77A8A3",
+  "background_color": "#09090b",
   "display": "standalone",
   "scope": "/",
-  "theme_color": "#A1C7C7",
+  "theme_color": "#09090b",
   "description": "Next Post - your go-to app for social media interaction",
-  "orientation": "portrait"
+  "orientation": "any"
 }

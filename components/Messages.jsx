@@ -101,8 +101,24 @@ const Messages = ({ sessionUserId, closeForm }) => {
     }
   }, []);
 
+  const scrollToBottom = () => {
+    if (formEndRef.current) {
+      formEndRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+        inline: "end",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (messagesList.length > 0) {
+      scrollToBottom();
+    }
+  }, [messagesList]);
+
   return (
-    <div className="flex flex-col custom-height flex-grow px-2 pb-3 w-full relative" ref={formEndRef}>
+    <div className="flex flex-col custom-height flex-grow  pb-3 w-full relative" ref={formEndRef}>
       {chat && chat?.length !== 0 && sessionUserId && (
         <div className="flex gap-1 flex-grow w-full items-center">
           <button
@@ -197,13 +213,15 @@ const Messages = ({ sessionUserId, closeForm }) => {
             messagesList={messagesList}
             isMobile={isMobile}
             sessionUserId={sessionUserId}
+            scrollToBottom={scrollToBottom}
           />
         </InfiniteScroll>
       </section>
 
       <div className="flex items-center w-full gap-2 mt-auto relative">
-        <MessageForm id={chatId} chat={chat} sessionUserId={sessionUserId} formEndRef={formEndRef} />
+        <MessageForm id={chatId} chat={chat} sessionUserId={sessionUserId} formEndRef={formEndRef} scrollToBottom={scrollToBottom}/>
       </div>
+      <div ref={formEndRef} />
     </div>
   );
 };

@@ -15,7 +15,7 @@
 }
 
 .scrollableDiv::-webkit-scrollbar {
-  width: 2px;
+  width: 0;
 }
 
 .message-list::-webkit-scrollbar {
@@ -179,15 +179,15 @@
 }
 
 .main_gradient_light {
-  @apply bg-gradient-to-tl from-slate-100/50 via-slate-300/50 to-slate-500/50 backdrop-filter backdrop-blur-md;
+  @apply before:bg-gradient-to-t from-zinc-800 to-zinc-950 backdrop-filter backdrop-blur-md;
 }
 
 .main_gradient_dark {
-  @apply dark:before:bg-gradient-to-tr from-slate-700 via-slate-800 to-slate-900 backdrop-filter backdrop-blur-md;
+  @apply dark:before:bg-gradient-to-t from-zinc-800 to-zinc-950 backdrop-filter backdrop-blur-md;
 }
 
 .message-list {
-  @apply flex flex-grow w-full flex-col-reverse gap-1 px-1 mb-2 max-h-[93%] flex-1 rounded-lg text-clip break-words break-all leading-4	
+  @apply flex flex-grow w-full flex-col-reverse gap-1 px-2 mb-2 max-h-[93%] flex-1 rounded-lg text-clip break-words break-all leading-4	
 }
 
 .chat-list {

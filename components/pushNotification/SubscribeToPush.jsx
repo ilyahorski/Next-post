@@ -4,7 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import { useSession } from "next-auth/react";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import { MdOutlineNotificationsOff } from "react-icons/md";
-import {SessionContext} from "~/utils/context/SocketContext";
+import { SessionContext } from "~/utils/context/SocketContext";
 
 const SubscribeToPush = () => {
   const { data: session, status, update } = useSession();
@@ -118,25 +118,21 @@ const SubscribeToPush = () => {
     <div>
       {isSubscribed ? (
         <button
-          className="flex gap-0.5 items-center flex-col cursor-pointer text-amber-600/60 hover:text-amber-700/60 active:text-amber-800/60"
+          className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60"
           onClick={unsubscribeUser}
+          placeholder="Push alert on"
         >
-          <MdOutlineNotificationsActive
-            className="w-[30px] h-[30px] md:w-[40px] md:h-[40px]"
-            placeholder="Open chats list"
-          />
-          <span className="font-normal text-6xs">Push alert</span>
+          <MdOutlineNotificationsActive className="w-10 h-10" />
+          <span>Push alert on</span>
         </button>
       ) : (
         <button
-          className="flex gap-0.5 items-center flex-col cursor-pointer text-amber-600/60 hover:text-amber-700/60 active:text-amber-800/60"
+          className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60"
           onClick={subscribeUser}
+          placeholder="Push alert off"
         >
-          <MdOutlineNotificationsOff
-            className="w-[30px] h-[30px] md:w-[40px] md:h-[40px]"
-            placeholder="Open chats list"
-          />
-          <span className="font-normal text-6xs">Push alert</span>
+          <MdOutlineNotificationsOff className="w-10 h-10" />
+          <span>Push alert off</span>
         </button>
       )}
     </div>

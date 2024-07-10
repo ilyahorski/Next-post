@@ -14,10 +14,7 @@ const Home = () => {
 
   return (
     <section className='w-full flex-center flex-col'>
-      <div className='head_text text-center dark:text-gray-300'>
-        <span className='blue_gradient text-center'> Next Post</span>
-      </div>
-      <p className='desc text-center dark:text-gray-400'>
+      <p className='desc text-center dark:text-gray-400 -mt-6'>
         A modern messanger for communication, creation and sharing posts.
       </p>
       <Provider>

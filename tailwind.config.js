@@ -19,6 +19,9 @@ module.exports = {
       'custom': '1750px',
     },
     extend: {
+      zIndex: {
+        '5000': '5000',
+      },
       extend: {
         gridAutoFlow: ['dense'],
         borderWidth: ['focus'],
@@ -66,6 +69,46 @@ module.exports = {
         'secondary-800': '#03353e',
         'secondary-900': '#04060f',
         'primary-orange': '#FF5722',
+        customIndigo: {
+          DEFAULT: '#5c6ac4',
+          hover: '#4a56a0',
+          active: '#3b4479',
+        },
+        customBlue: {
+          DEFAULT: '#4299e1',
+          hover: '#3182ce',
+          active: '#2b6cb0',
+        },
+        customAmber: {
+          DEFAULT: '#d69e2e',
+          hover: '#b7791f',
+          active: '#975a16',
+        },
+        customRed: {
+          DEFAULT: '#f56565',
+          hover: '#e53e3e',
+          active: '#c53030',
+        },
+        titaniumGreen: {
+          DEFAULT: '#6C7D47',  // Основной цвет зеленого титана
+          hover: '#5A6938',    // Цвет при наведении
+          active: '#4A5730',   // Цвет при активации
+        },
+        titaniumBlue: {
+          DEFAULT: '#4A5E75',  // Основной цвет синего титана
+          hover: '#3B4D60',    // Цвет при наведении
+          active: '#2E3D4A',   // Цвет при активации
+        },
+        titaniumAmber: {
+          DEFAULT: '#7C6E43',  // Основной цвет янтарного титана
+          hover: '#6B5D38',    // Цвет при наведении
+          active: '#5A4D30',   // Цвет при активации
+        },
+        titaniumRed: {
+          DEFAULT: '#7A4443',  // Основной цвет красного титана
+          hover: '#693938',    // Цвет при наведении
+          active: '#583030',   // Цвет при активации
+        },
       },
     },
   },

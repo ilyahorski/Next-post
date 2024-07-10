@@ -67,7 +67,7 @@ const Nav = () => {
       <div className='md:flex hidden'>
         {sessionId && data ? (
           <div className='flex items-center gap-3 md:gap-5'>
-            <DarkModeToggle />
+            {/* <DarkModeToggle /> */}
 
             <Link href='/chat' className='chat_btn'>
               Open Chats
@@ -100,7 +100,7 @@ const Nav = () => {
           </div>
         ) : (
           <div className='flex items-center gap-3 md:gap-5'>
-            <DarkModeToggle />
+            {/* <DarkModeToggle /> */}
             {providers &&
               Object.values(providers).map((provider) => (
                 <button
@@ -123,7 +123,7 @@ const Nav = () => {
       <div ref={ref} className='md:hidden flex relative'>
         {sessionId && data.image ? (
           <div className='flex items-center gap-5'>
-            <DarkModeToggle />
+            {/* <DarkModeToggle /> */}
 
             <Image
               src={data?.userImage ? data?.userImage : data?.image}
