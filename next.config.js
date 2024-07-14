@@ -19,6 +19,9 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     serverComponentsExternalPackages: ['mongoose'],
+    serverActions: {
+      bodySizeLimit: '50mb',
+    },
   },
   images: {
     remotePatterns: [

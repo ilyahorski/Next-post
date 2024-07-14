@@ -6,7 +6,7 @@ import Image from "next/image";
 import { PiUsersThin } from "react-icons/pi";
 import { SocketContext, SessionContext } from "~/utils/context/SocketContext";
 import { usePathname, useRouter } from "next/navigation";
-import { PiTrashLight } from "react-icons/pi";
+import { format, isSameDay, parseISO } from "date-fns";
 
 const Sidebar = ({ sessionUserId, openForm }) => {
   const [chats, setChats] = useState([]);
@@ -55,27 +55,6 @@ const Sidebar = ({ sessionUserId, openForm }) => {
     }
   }, []);
 
-  const handleDelete = async () => {
-    const hasConfirmed = confirm(
-      "Are you sure you want to delete this chat and all messages?"
-    );
-
-    if (hasConfirmed) {
-      try {
-        const response = await fetch(`/api/chats/${pathname}`, {
-          method: "DELETE",
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to delete chat: ${response.status}`);
-        }
-
-        router.push("/chat");
-      } catch (error) {
-        console.error("Error deleting chat:", error);
-      }
-    }
-  };
-
   const filteredChats = chats.filter((chat) =>
     chat?.chatName?.toLowerCase().includes(search.toLowerCase())
   );
@@ -84,7 +63,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
     <form className="flex-1 w-full px-1 custom-height">
       <div className="flex gap-1 items-start">
         <input
-          className="w-full p-2 mb-3 rounded"
+          className="w-full dark:bg-gray-600/10 p-2 mb-3 rounded"
           placeholder="Find chats"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -110,7 +89,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
               href={`/chat/${chat._id}`}
               key={chat._id}
               className={
-                "flex flex-row justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-300"
+                "flex flex-row relative justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-300"
               }
             >
               <div className="flex gap-2 justify-start items-center">
@@ -131,24 +110,18 @@ const Sidebar = ({ sessionUserId, openForm }) => {
                 />
                 <div className="flex flex-col gap-2">
                   <p className="">{chat.chatName}</p>
-                  <p className="">{chat?.lastMessage?.message}</p>
+                  {chat?.lastMessage?.createdAt && (
+                    <span
+                      className={`absolute top-1 right-0 font-normal text-[10px] mt-1 text-white min-w-[30px]`}
+                    >
+                      {format(parseISO(chat.lastMessage.createdAt), "HH:mm, PPP")}
+                    </span>
+                  )}
+                  <div className="flex max-w-[300px]">
+                    <p className="truncate">{chat?.lastMessage?.message}</p>
+                  </div>
                 </div>
               </div>
-              {pathname === chat._id && (
-                <button
-                  title="Delete chat"
-                  className="flex gap-0.5 items-center flex-col cursor-pointer dark:text-red-400 dark:hover:text-red-400/60 dark:active:text-red-600/60 text-red-600/60 hover:text-red-700/60 active:text-red-800/60"
-                  onClick={() => handleDelete()}
-                >
-                  <PiTrashLight
-                    className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
-                    placeholder="Open chats list"
-                  />
-                  <span className="font-normal text-6xs text-center">
-                    Delete chat
-                  </span>
-                </button>
-              )}
             </Link>
           ))}
         </div>

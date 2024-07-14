@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "name": "Sunset Marble",
+    "path": "/assets/bg/1.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Crimson Wave",
+    "path": "/assets/bg/2.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Emerald Forest",
+    "path": "/assets/bg/3.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Amethyst Dream",
+    "path": "/assets/bg/4.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Lavender Mist",
+    "path": "/assets/bg/5.jpg"
+  },
+  {
+    "id": 6,
+    "name": "Solar Eclipse",
+    "path": "/assets/bg/6.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Ocean Depths",
+    "path": "/assets/bg/7.jpg"
+  },
+  {
+    "id": 8,
+    "name": "Blue Ice",
+    "path": "/assets/bg/8.jpg"
+  },
+  {
+    "id": 9,
+    "name": "Galactic Blue",
+    "path": "/assets/bg/9.jpg"
+  },
+  {
+    "id": 10,
+    "name": "Cotton Candy",
+    "path": "/assets/bg/10.jpg"
+  },
+  {
+    "id": 11,
+    "name": "Fiery Lava",
+    "path": "/assets/bg/11.jpg"
+  }
+]

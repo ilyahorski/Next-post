@@ -61,7 +61,7 @@ const CreateChatForm = ({ closeForm }) => {
       creatorId: sessionId,
       membersList: selectedUsers,
       chatName: chatName,
-      chatImage: null,
+      chatImage: '',
       lastMessage: null,
       secretToken: uuidv4(),
     };
@@ -101,7 +101,7 @@ const CreateChatForm = ({ closeForm }) => {
               type="text"
               placeholder="Create chat name"
               value={groupName}
-              className="flex w-full p-2 mb-3 rounded"
+              className="flex w-full dark:bg-gray-600/10 p-2 mb-3 rounded"
               onChange={(e) => setGroupName(e.target.value)}
             />
             <button
@@ -152,7 +152,7 @@ const CreateChatForm = ({ closeForm }) => {
             </ul>
           </div>
           <input
-            className="flex w-full p-2 mb-6 rounded"
+            className="flex w-full dark:bg-gray-600/10 p-2 mb-6 rounded"
             placeholder="Find users"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

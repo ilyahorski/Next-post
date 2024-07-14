@@ -14,6 +14,7 @@ export const GET = async (request, { params }) => {
     const chat = await Chat.findById(params.id)
       .populate('creatorId')
       .populate('membersList')
+      .populate('lastMessage')
 
     if (!chat) return new Response('Chat Not Found', { status: 404 });
 
@@ -33,6 +34,7 @@ export const PATCH = async (request, { params }) => {
     const chatData = await Chat.findById(params.id)
       .populate('creatorId')
       .populate('membersList')
+      .populate('lastMessage')
 
     if (!chatData) {
       return new Response('Data not found', { status: 404 });

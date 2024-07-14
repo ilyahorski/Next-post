@@ -8,10 +8,12 @@ import { useParams } from "next/navigation";
 import { SocketContext } from "~/utils/context/SocketContext";
 import { VideoSocketContext } from "~/utils/context/VideoContext";
 import MessageList from "~/components/MessageList";
+import SettingsPopover from "~/components/SettingsPopover";
 import { LoadingBar } from "~/components/Loading";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
-import { BsPersonVideo } from "react-icons/bs";
+import { FaArrowLeft } from "react-icons/fa6";
+import { SlCallOut } from "react-icons/sl";
+import { BsThreeDotsVertical } from "react-icons/bs";
 import Image from "next/image";
 
 const Messages = ({ sessionUserId, closeForm }) => {
@@ -20,8 +22,11 @@ const Messages = ({ sessionUserId, closeForm }) => {
   const [messagesList, setMessagesList] = useState([]);
   const [page, setPage] = useState(1);
   const [messagesCount, setMessagesCount] = useState(1);
+  const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [background, setBackground] = useState('/assets/bg/1.jpg');
   const formEndRef = useRef(null);
+  const popoverRef = useRef(null);
 
   const isMobile = useMobileCheck();
   const { id: chatId } = useParams();
@@ -117,25 +122,41 @@ const Messages = ({ sessionUserId, closeForm }) => {
     }
   }, [messagesList]);
 
+  useEffect(() => {
+    const storageKey = `chat-background-${chatId}`;
+    const storedBackground = localStorage.getItem(storageKey);
+    if (storedBackground) {
+      setBackground(storedBackground);
+    }
+  }, [chatId]);
+
+  const handlePopoverClick = (event) => {
+    event.stopPropagation();
+    setIsSettingOpen(true);
+  };
+
   return (
-    <div className="flex flex-col custom-height flex-grow  pb-3 w-full relative" ref={formEndRef}>
+    <div
+      className="scrollableBg flex flex-col custom-height flex-grow w-full"
+      ref={formEndRef}
+      style={{ '--scrollableDiv-background': `url(${background})` }}
+    >
       {chat && chat?.length !== 0 && sessionUserId && (
-        <div className="flex gap-1 flex-grow w-full items-center">
-          <button
-            className="mob:hidden flex justify-center items-center w-[40px] h-[40px]"
-            type="button"
-            onClick={closeForm}
-          >
-            <div className="flex gap-0.5 items-center flex-col">
-              <HiOutlineChatBubbleLeftRight
-                className="text-emerald-700 w-[30px] h-[30px]"
-                placeholder="Open chats list"
-              />
-              <p className="text-emerald-700 font-normal text-6xs">Chats</p>
-            </div>
-          </button>
-          <div className="flex justify-between items-center flex-grow w-full gap-2 px-1 mt-auto rounded-md mb-auto bg-gray-600/20 bg-clip-padding backdrop-filter backdrop-blur-lg">
-            <div className="flex items-center">
+        <div className="flex gap-1 flex-grow w-full items-center bg-black rounded-t-md">
+          <div className="flex items-center relative flex-grow w-full gap-2 px-1 mt-auto rounded-t-md mb-auto bg-gray-600/20 bg-clip-padding backdrop-filter backdrop-blur-lg">
+            <button
+              className="mob:hidden flex justify-center items-center w-[40px] h-[40px]"
+              type="button"
+              onClick={closeForm}
+            >
+              <div className="flex gap-0.5 items-center flex-col">
+                <FaArrowLeft
+                  className="text-zinc-400 w-[20px] h-[20px]"
+                  placeholder="Open chats list"
+                />
+              </div>
+            </button>
+            <div className="flex w-full justify-between items-center">
               <div className="flex items-center  w-full max-h-[90px] p-1 gap-2 ">
                 <Image
                   src={
@@ -161,27 +182,55 @@ const Messages = ({ sessionUserId, closeForm }) => {
                   )}
                 </div>
               </div>
-            </div>
+              <div className="flex gap-2">
+                <button
+                  title="Open video chat"
+                  className="flex p-2 cursor-pointer text-zinc-800 dark:text-zinc-400"
+                  type="button"
+                  onClick={() => setIsVideoChatVisible(!isVideoChatVisible)}
+                >
+                  <SlCallOut
+                    className="w-[20px] h-[20px]"
+                    placeholder="Open video chat"
+                  />
+                </button>
 
-            <button
-              title="Open video chat"
-              className="flex gap-0.5 items-center flex-col cursor-pointer text-zinc-800 dark:text-zinc-400"
-              type="button"
-              onClick={() => setIsVideoChatVisible(!isVideoChatVisible)}
-            >
-              <BsPersonVideo
-                className="w-[30px] h-[30px] md:w-[40px] md:h-[40px]"
-                placeholder="Open video chat"
-              />
-              <span className="font-normal text-6xs text-center">
-                Video call
-              </span>
-            </button>
+                <div className="w-full us:w-[100%] flex gap-2 justify-end items-end">
+                  <button
+                    title="Open chat settings"
+                    className="flex p-2 cursor-pointer text-zinc-800 dark:text-zinc-400"
+                    type="button"
+                    onClick={handlePopoverClick}
+                    ref={popoverRef}
+                  >
+                    <BsThreeDotsVertical
+                      className="w-[20px] h-[20px]"
+                      placeholder="Open video chat"
+                    />
+                  </button>
+                  {isSettingOpen && (
+                    <div className="absolute inset-0 top-0 flex items-start justify-end z-[1000]">
+                      <SettingsPopover
+                        popoverRef={popoverRef}
+                        chat={chat}
+                        setIsSettingOpen={isSettingOpen}
+                        onClose={() => setIsSettingOpen(false)}
+                        background={background}
+                        setBackground={setBackground}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
+      <div>
+        
+      </div>
       <section
-        className="scrollableDiv w-full max-w-full min-w-0 flex-grow relative"
+        className={`scrollableDiv w-full max-w-full min-w-0 flex-grow`}
         id="scrollableDiv"
         style={{
           maxHeight: "93%",
@@ -189,8 +238,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
           overflow: "auto",
           display: "flex",
           flexDirection: "column-reverse",
-          marginBottom: "5px",
-          marginTop: "5px",
+          marginBottom: "5px"
         }}
       >
         <InfiniteScroll
@@ -218,8 +266,14 @@ const Messages = ({ sessionUserId, closeForm }) => {
         </InfiniteScroll>
       </section>
 
-      <div className="flex items-center w-full gap-2 mt-auto relative">
-        <MessageForm id={chatId} chat={chat} sessionUserId={sessionUserId} formEndRef={formEndRef} scrollToBottom={scrollToBottom}/>
+      <div className="flex items-center w-full gap-2 mt-auto relative bg-black rounded-b-md">
+        <MessageForm
+          id={chatId}
+          chat={chat}
+          sessionUserId={sessionUserId}
+          formEndRef={formEndRef}
+          scrollToBottom={scrollToBottom}
+        />
       </div>
       <div ref={formEndRef} />
     </div>
