@@ -43,8 +43,13 @@ const CommentMessageForm = ({
   useEffect(() => {
     if (isSubmitted) {
       const timerId = setTimeout(() => {
-        document.getElementById(type).focus();
-        setIsSubmitted(false);
+        requestAnimationFrame(() => {
+          const input = document.getElementById(type);
+          setFocus(type);
+          input.focus();
+          input.click();
+          setIsSubmitted(false);
+        });
       }, 50);
       return () => clearTimeout(timerId);
     }

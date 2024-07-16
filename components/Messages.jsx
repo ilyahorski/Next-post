@@ -25,6 +25,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [background, setBackground] = useState('/assets/bg/1.jpg');
+  const [userStatuses, setUserStatuses] = useState({});
   const formEndRef = useRef(null);
   const popoverRef = useRef(null);
 
@@ -77,6 +78,29 @@ const Messages = ({ sessionUserId, closeForm }) => {
     if (chatId && socket) {
       socket.emit("getMessages", { chatId });
 
+      const updateStatus = (status) => {
+        socket.emit('setUserStatus', { userId: sessionUserId, status });
+      };
+  
+      // Функция для обновления статуса
+      const handleVisibilityChange = () => {
+        if (document.hidden) {
+          updateStatus('offline');
+        } else {
+          updateStatus('online');
+        }
+      };
+  
+      // Обработчик для события изменения видимости страницы
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+  
+      // Обработчики для событий фокуса и потери фокуса окна
+      window.addEventListener('focus', () => updateStatus('online'));
+      window.addEventListener('blur', () => updateStatus('offline'));
+  
+      // Устанавливаем начальный статус
+      updateStatus('online');
+
       socket.on("newMessage", (message) => {
         if (message.chatId === chatId) {
           setMessagesList((prevMessages) => {
@@ -92,6 +116,9 @@ const Messages = ({ sessionUserId, closeForm }) => {
 
       return () => {
         socket.off("newMessage");
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('focus', () => updateStatus('online'));
+        window.removeEventListener('blur', () => updateStatus('offline'));
       };
     }
   }, [session, socket, chatId]);
@@ -121,6 +148,21 @@ const Messages = ({ sessionUserId, closeForm }) => {
       scrollToBottom();
     }
   }, [messagesList]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('userStatusUpdated', ({ userId, status, username }) => {
+        setUserStatuses(prevStatuses => ({
+          ...prevStatuses,
+          [userId]: { status, username }
+        }));
+      });
+  
+      return () => {
+        socket.off('userStatusUpdated');
+      };
+    }
+  }, [socket]);
 
   useEffect(() => {
     const storageKey = `chat-background-${chatId}`;
@@ -175,11 +217,15 @@ const Messages = ({ sessionUserId, closeForm }) => {
                 />
                 <div className="flex h-[50px] max-w-[250px] us:max-w-[400px] xl:max-w-[750px] flex-col gap-0.5 py-0.5">
                   <p className="h-[20px]">{chat?.chatName}</p>
-                  {messagesList[0] && (
-                    <p className="truncate h-[20px]">
-                      {messagesList[0]?.message}
-                    </p>
-                  )}
+                  <div className="h-[20px] flex flex-wrap gap-2">
+                    {chat?.membersList.map(member => (
+                      member._id !== sessionUserId && (
+                        <span key={member._id} className="text-sm">
+                          {member.username}: {userStatuses[member._id]?.status || 'offline'}
+                        </span>
+                      )
+                    ))}
+                  </div>
                 </div>
               </div>
               <div className="flex gap-2">

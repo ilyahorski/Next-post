@@ -441,6 +441,7 @@ const VideoApp = ({ chatMembers }) => {
           chatMembers &&
           !callAccepted &&
           !receivingCall &&
+          !openedFromPush &&
           chatMembers
             .filter((item) => item._id !== sessionId)
             .map((item, index) => (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { PiUsersThin } from "react-icons/pi";
@@ -11,28 +11,35 @@ import { format, isSameDay, parseISO } from "date-fns";
 const Sidebar = ({ sessionUserId, openForm }) => {
   const [chats, setChats] = useState([]);
   const [search, setSearch] = useState("");
-  const pathname = usePathname().split("/")[2];
-  const router = useRouter();
   const socket = useContext(SocketContext);
   const sessionId = useContext(SessionContext);
+  const [time, setTime] = useState(0);
+
+  const getChats = async () => {
+    if (!sessionId) return;
+
+    const response = await fetch(`/api/chats`, {
+      headers: {
+        userId: sessionId,
+      },
+    });
+
+    const data = await response.json();
+
+    setChats(data);
+  };
 
   useEffect(() => {
-    const getChats = async () => {
-      const response = await fetch(`/api/chats`, {
-        headers: {
-          userId: sessionId,
-        },
-      });
+    getChats();
 
-      const data = await response.json();
-
-      setChats(data);
-    };
-
-    if (sessionId) {
+    const intervalId = setInterval(() => {
       getChats();
-    }
-  }, [sessionId]);
+      setTime(time + 1);
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+
+  }, [getChats, time]);
 
   useEffect(() => {
     if (!sessionId && !socket) return;
