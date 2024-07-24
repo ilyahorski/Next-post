@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useState, useContext } from "react";
-import { useSession } from "next-auth/react";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import { MdOutlineNotificationsOff } from "react-icons/md";
 import { SessionContext } from "~/utils/context/SocketContext";
 
 const SubscribeToPush = () => {
-  const { data: session, status, update } = useSession();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const sessionId = useContext(SessionContext);
 

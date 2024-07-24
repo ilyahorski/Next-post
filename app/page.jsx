@@ -10,7 +10,7 @@ import useServiceWorker from '~/utils/hooks/useServiceWorker';
 
 const Home = () => {
   useServiceWorker();
-  const {data: session, status} = useSession();
+  const {status} = useSession();
 
   return (
     <section className='w-full flex-center flex-col'>

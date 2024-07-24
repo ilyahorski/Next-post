@@ -3,13 +3,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {useContext, useEffect, useRef, useState} from 'react';
-import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
+import { signIn, signOut, getProviders } from 'next-auth/react';
 import DarkModeToggle from "~/components/ThemeModeToggle";
 import useClickOutside from "~/utils/hooks/useClickOutside";
 import {usePathname} from "next/navigation";
 import {SocketContext, SessionContext} from "~/utils/context/SocketContext";
+
 const Nav = () => {
-  const { data: session, status } = useSession();
   const [toggleDropdown, setToggleDropdown] = useState(false);
   const [providers, setProviders] = useState(null);
   const [data, setData] = useState({ username: '', userImage: '', image: ''});
@@ -32,7 +32,7 @@ const Nav = () => {
       const res = await getProviders();
       setProviders(res);
     })();
-  }, [session]);
+  }, [sessionId]);
 
   useEffect(() => {
     const getUserData = async () => {
@@ -65,7 +65,7 @@ const Nav = () => {
 
       {/* Desktop Navigation */}
       <div className='md:flex hidden'>
-        {sessionId && data ? (
+        {sessionId && data.image ? (
           <div className='flex items-center gap-3 md:gap-5'>
             {/* <DarkModeToggle /> */}
 

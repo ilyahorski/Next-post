@@ -5,21 +5,13 @@ import CreateChatForm from "~/components/CreateChatForm";
 import SplitPane, { SplitPaneLeft, SplitPaneRight, Divider } from '~/components/Splitter';
 import {useContext, useEffect, useState} from "react";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
-import {useSession} from "next-auth/react";
 import {SessionContext} from "~/utils/context/SocketContext";
 
 const ChatMain = () => {
   const [showCreateChatForm, setShowCreateChatForm] = useState(true);
-  const {data: session, status, update} = useSession();
   const isMobile = useMobileCheck();
 
   const sessionId = useContext(SessionContext);
-
-  useEffect(() => {
-    if (!sessionId) {
-      update()
-    }
-  }, [sessionId])
 
   useEffect(() => {
     if (isMobile) {

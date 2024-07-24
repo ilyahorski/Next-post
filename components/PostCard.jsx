@@ -2,7 +2,7 @@
 
 import {useContext, useEffect, useState} from 'react';
 import Image from 'next/image';
-import {getProviders, useSession} from 'next-auth/react';
+import {getProviders} from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { parseTags } from '~/utils/tagStringToArray';
 import { HeartIcon } from '@heroicons/react/24/outline';
@@ -21,7 +21,6 @@ import {SocketContext, SessionContext} from "~/utils/context/SocketContext";
 JavascriptTimeAgo.addLocale(supportedLocales.en);
 
 const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
-  const { data: session, status } = useSession();
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState('');

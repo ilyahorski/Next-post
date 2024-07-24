@@ -1,7 +1,6 @@
 'use client'
 
 import {useCallback, useContext, useEffect, useRef, useState} from "react";
-import {useSession} from "next-auth/react";
 import {CiCircleRemove} from "react-icons/ci";
 import {PostCardList} from "~/components/PostCardList";
 import {LoadingBar} from "~/components/Loading";
@@ -10,6 +9,7 @@ import {BsColumns} from "react-icons/bs";
 import {TbColumns1} from "react-icons/tb";
 import {DisplayContext} from "~/app/provider";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
+import {SessionContext} from "~/utils/context/SocketContext";
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -19,16 +19,16 @@ const Feed = () => {
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
-  const {data: session, status} = useSession();
   const {columnView, setColumnView} = useContext(DisplayContext);
   const isMobile = useMobileCheck();
   const loaderRef = useRef();
+  const sessionId = useContext(SessionContext);
 
   useEffect(() => {
-    if (status !== 'loading') {
+    if (sessionId) {
       fetchPosts();
     }
-  }, [status]);
+  }, [sessionId]);
 
   const fetchPosts = useCallback(async () => {
     if (allPosts.length >= postsCount) {

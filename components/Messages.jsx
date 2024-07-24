@@ -3,7 +3,6 @@
 import { useContext, useEffect, useState, useRef } from "react";
 import MessageForm from "~/components/MessageForm";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
-import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { SocketContext } from "~/utils/context/SocketContext";
 import { VideoSocketContext } from "~/utils/context/VideoContext";
@@ -17,7 +16,6 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import Image from "next/image";
 
 const Messages = ({ sessionUserId, closeForm }) => {
-  const { data: session, status } = useSession();
   const [chat, setChat] = useState(null);
   const [messagesList, setMessagesList] = useState([]);
   const [page, setPage] = useState(1);
@@ -54,7 +52,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
   };
 
   useEffect(() => {
-    if (status === "loading" && !chatId) return;
+    if (!chatId) return;
 
     const getChat = async () => {
       const response = await fetch(`/api/chats/${chatId}`);
@@ -121,7 +119,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
         window.removeEventListener('blur', () => updateStatus('offline'));
       };
     }
-  }, [session, socket, chatId]);
+  }, [socket, chatId]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);

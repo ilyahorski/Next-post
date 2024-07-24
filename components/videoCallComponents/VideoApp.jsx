@@ -10,7 +10,6 @@ import React, {
 } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
-import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { PiPhoneSlashThin, PiPhoneCallThin } from "react-icons/pi";
 import {

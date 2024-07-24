@@ -6,14 +6,12 @@ import SplitPane, { SplitPaneLeft, SplitPaneRight, Divider } from '~/components/
 import {useContext, useEffect, useState} from "react";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 import {SessionContext} from "~/utils/context/SocketContext";
-import {useSession} from "next-auth/react";
 import { VideoSocketContext } from '~/utils/context/VideoContext';
 import VideoCallPlayer from "~/components/videoCallComponents/VideoCallPlayer";
 import { useParams } from "next/navigation";
 
 const MessageMain = () => {
   const [showCreateChatForm, setShowCreateChatForm] = useState(true);
-  const {data: session, status, update} = useSession();
   const isMobile = useMobileCheck();
   
   const [chatMembers, setChatMembers] = useState([]);
@@ -21,12 +19,6 @@ const MessageMain = () => {
 
   const sessionId = useContext(SessionContext);
   const {isVideoChatVisible} = useContext(VideoSocketContext);
-
-  useEffect(() => {
-    if (!sessionId) {
-      update()
-    }
-  }, [sessionId])
 
   useEffect(() => {
     if (isMobile) {
