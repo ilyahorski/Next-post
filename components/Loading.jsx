@@ -1,6 +1,7 @@
-'use client'
+"use client";
 
-const loaderStyle = "flex w-full flex-grow my-2 bg-gradient-to-r from-primary-100/30 via-primary-300 to-secondary-400/50 animate-gradient-x bg-rounded-md rounded-md"
+const loaderStyle =
+  "flex w-full flex-grow my-2 bg-gradient-to-r from-primary-100/30 via-primary-300 to-secondary-400/50 animate-gradient-x bg-rounded-md rounded-md";
 
 export const LoadingBar = ({ isMessage }) => {
   return (
@@ -11,8 +12,8 @@ export const LoadingBar = ({ isMessage }) => {
 
 export const EndMessage = () => {
   return (
-    <div className='flex w-full h-4 items-center justify-center'>
+    <div className="flex w-full h-4 items-center justify-center">
       <p>Yay! You have seen it all</p>
     </div>
-  )
-}
+  );
+};

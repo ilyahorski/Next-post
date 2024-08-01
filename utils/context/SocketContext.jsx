@@ -7,20 +7,21 @@ import { useSession } from 'next-auth/react';
 export const SocketContext = createContext();
 export const SessionContext = createContext();
 
-const SocketProvider = ({ children }) => {
+const SocketProvider = ({ children, serverSession }) => {
   const [socket, setSocket] = useState(null);
-  const [sessionUserId, setSessionUserId] = useState(null);
+  const [sessionUserId, setSessionUserId] = useState(serverSession?.user?.id || null);
   const { data: session, status, update } = useSession();
 
   useEffect(() => {
-    if (!session?.user?.id) {
+    if (!session && !serverSession) {
       update()
     }
-    if (session?.user?.id) {
-      setSessionUserId(session.user.id);
+    const currentSession = session || serverSession;
+    if (currentSession?.user?.id) {
+      setSessionUserId(currentSession.user.id);
       const newSocket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`, {
         query: {
-          userId: session?.user?.id
+          userId: currentSession.user.id
         }
       });
 
@@ -30,7 +31,7 @@ const SocketProvider = ({ children }) => {
         newSocket.close();
       };
     }
-  }, [session?.user?.id]);
+  }, [session, serverSession]);
 
   return (
     <SessionContext.Provider value={sessionUserId}>

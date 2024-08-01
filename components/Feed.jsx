@@ -1,85 +1,106 @@
-'use client'
+"use client";
 
-import {useCallback, useContext, useEffect, useRef, useState} from "react";
-import {CiCircleRemove} from "react-icons/ci";
-import {PostCardList} from "~/components/PostCardList";
-import {LoadingBar} from "~/components/Loading";
-import InfiniteScroll from 'react-infinite-scroll-component';
-import {BsColumns} from "react-icons/bs";
-import {TbColumns1} from "react-icons/tb";
-import {DisplayContext} from "~/app/provider";
-import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
-import {SessionContext} from "~/utils/context/SocketContext";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback, useContext, useState, useRef, useEffect } from "react";
+import { CiCircleRemove } from "react-icons/ci";
+import { PostCardList } from "~/components/PostCardList";
+import { LoadingBar } from "~/components/Loading";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { BsColumns } from "react-icons/bs";
+import { TbColumns1 } from "react-icons/tb";
+import { DisplayContext } from "~/app/provider";
+import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
+import { SessionContext } from "~/utils/context/SocketContext";
+
+const fetchPosts = async ({ pageParam = 1 }) => {
+  const response = await fetch(`/api/post?page=${pageParam}&limit=4`);
+  return response.json();
+};
 
 const Feed = () => {
   const [allPosts, setAllPosts] = useState([]);
-  const [page, setPage] = useState(1);
-  const [postsCount, setPostsCount] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
-  const {columnView, setColumnView} = useContext(DisplayContext);
+  const [allComments, setAllComments] = useState({});
+  const { columnView, setColumnView } = useContext(DisplayContext);
   const isMobile = useMobileCheck();
   const loaderRef = useRef();
   const sessionId = useContext(SessionContext);
 
-  useEffect(() => {
-    if (sessionId) {
-      fetchPosts();
-    }
-  }, [sessionId]);
-
-  const fetchPosts = useCallback(async () => {
-    if (allPosts.length >= postsCount) {
-      setHasMore(false);
-      return;
-    }
-
-    const response = await fetch(`/api/post?page=${page}&limit=4`);
-    const data = await response.json();
-
-    setPostsCount(data.totalPosts);
-    setAllPosts((prevPosts) => [...prevPosts, ...data.posts]);
-    setPage((prevPage) => prevPage + 1);
-  }, [allPosts, postsCount, page]);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["posts"],
+    queryFn: fetchPosts,
+    getNextPageParam: (lastPage, pages) => {
+      if (pages.length * 4 < lastPage.totalPosts) {
+        return pages.length + 1;
+      }
+      return undefined;
+    },
+  });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0];
-        if (first.isIntersecting) {
-          fetchPosts();
-        }
-      },
-      { threshold: 1 }
-    );
+    if (data) {
+      setAllPosts((prevPosts) => {
+        const newPosts = data.pages.flatMap((page) => page.posts);
+        const uniquePosts = [
+          ...new Map(
+            [...prevPosts, ...newPosts].map((post) => [post._id, post])
+          ).values(),
+        ];
+        return uniquePosts;
+      });
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
+      setAllComments((prevComments) => {
+        const newComments = {};
+        data.pages.forEach((page) => {
+          page.posts.forEach((post) => {
+            if (!prevComments[post._id]) {
+              newComments[post._id] = null; // null indicates comments haven't been fetched yet
+            }
+          });
+        });
+        return { ...prevComments, ...newComments };
+      });
     }
+  }, [data]);
 
-    return () => observer.disconnect();
-  }, [fetchPosts, loaderRef]);
+  // const allPosts = data ? data.pages.flatMap(page => page.posts) : []
 
-
-  const filterPosts = (searchtext) => {
-    const normalizedSearchText = searchtext.replace(/^#/, '').toLowerCase();
-    const regex = new RegExp(searchtext, "i");
-    return allPosts.filter(
-      (item) =>
-        regex.test(item.creator.username) ||
-        regex.test(item.tag) ||
-        item.tag && item.tag.split(',')
-        .some(tag => tag.trim().replace(/^#/, '').toLowerCase().includes(normalizedSearchText))
-    );
-  };
+  const filterPosts = useCallback(
+    (searchtext) => {
+      const normalizedSearchText = searchtext.replace(/^#/, "").toLowerCase();
+      const regex = new RegExp(searchtext, "i");
+      return allPosts.filter(
+        (item) =>
+          regex.test(item.creator.username) ||
+          regex.test(item.tag) ||
+          (item.tag &&
+            item.tag
+              .split(",")
+              .some((tag) =>
+                tag
+                  .trim()
+                  .replace(/^#/, "")
+                  .toLowerCase()
+                  .includes(normalizedSearchText)
+              ))
+      );
+    },
+    [allPosts]
+  );
 
   const handleSearchChange = (e) => {
     clearTimeout(searchTimeout);
     setSearchText(e.target.value);
 
-    // debounce method
     setSearchTimeout(
       setTimeout(() => {
         const searchResult = filterPosts(e.target.value);
@@ -90,67 +111,73 @@ const Feed = () => {
 
   const handleTagClick = (tagName) => {
     setSearchText(tagName);
-
     const searchResult = filterPosts(tagName);
     setSearchedResults(searchResult);
   };
 
+  if (status === "loading") return <LoadingBar isMessage={false} />;
+  if (status === "error") return <div>Error fetching posts</div>;
+
   return (
-    <section className='feed'>
-      <div className='flex w-full items-center justify-between gap-3'>
-        <div className={isMobile ? 'hidden' : 'cursor-pointer'}>
+    <section className="feed">
+      <div className="flex w-full items-center justify-between gap-3">
+        <div className={isMobile ? "hidden" : "cursor-pointer"}>
           {columnView ? (
             <BsColumns
               onClick={() => setColumnView(!columnView)}
-              className='w-8 h-8 font-light'
+              className="w-8 h-8 font-light"
             />
           ) : (
             <TbColumns1
               onClick={() => setColumnView(!columnView)}
-              className='w-8 h-8 font-light'
+              className="w-8 h-8 font-light"
             />
-          )
-          }
+          )}
         </div>
-        <form className='relative w-full flex-center items-center'>
+        <form className="relative w-full flex-center items-center">
           <input
-            type='text'
-            placeholder='Search for a tag or a username'
+            type="text"
+            placeholder="Search for a tag or a username"
             value={searchText}
             onChange={handleSearchChange}
-            className='search_input peer dark:text-gray-300 dark:bg-gray-800/30'
+            className="search_input peer dark:text-gray-300 dark:bg-gray-800/30"
           />
           <button
             onClick={(e) => {
               e.preventDefault();
               setSearchText("");
             }}
-            className='w-10 h-11 absolute right-0 top-0'
+            className="w-10 h-11 absolute right-0 top-0"
           >
-            <CiCircleRemove
-              className='w-6 h-6'/>
+            <CiCircleRemove className="w-6 h-6" />
           </button>
         </form>
       </div>
 
       <InfiniteScroll
         dataLength={allPosts.length}
-        next={fetchPosts}
-        hasMore={hasMore}
-        loader={<LoadingBar ref={loaderRef} isMessage={false}/>}
-        refreshFunction={fetchPosts}
+        next={fetchNextPage}
+        hasMore={hasNextPage}
+        loader={
+          isFetchingNextPage && <LoadingBar ref={loaderRef} isMessage={false} />
+        }
         endMessage={
-          <p style={{textAlign: "center"}}>
+          <p style={{ textAlign: "center" }}>
             <b>Yay! You have seen it all</b>
           </p>
         }
+        refreshFunction={refetch}
         pullDownToRefresh
         pullDownToRefreshThreshold={100}
         pullDownToRefreshContent={
-          <h3 style={{ textAlign: 'center', marginTop: '50px' }}>&#8595; Pull down to refresh</h3>
+          <h3 style={{ textAlign: "center", marginTop: "50px" }}>
+            &#8595; Pull down to refresh
+          </h3>
         }
         releaseToRefreshContent={
-          <h3 style={{ textAlign: 'center', marginTop: '50px' }}>&#8593; Release to refresh</h3>
+          <h3 style={{ textAlign: "center", marginTop: "50px" }}>
+            &#8593; Release to refresh
+          </h3>
         }
       >
         {searchText ? (
@@ -158,12 +185,16 @@ const Feed = () => {
             columnView={columnView}
             data={searchedResults}
             handleTagClick={handleTagClick}
+            allComments={allComments}
+            setAllComments={setAllComments}
           />
         ) : (
           <PostCardList
             columnView={columnView}
             data={allPosts}
             handleTagClick={handleTagClick}
+            allComments={allComments}
+            setAllComments={setAllComments}
           />
         )}
       </InfiniteScroll>

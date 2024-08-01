@@ -2,7 +2,7 @@ import PostCard from "~/components/PostCard";
 import 'react-toastify/dist/ReactToastify.css';
 import Masonry from 'react-masonry-css'
 
-export const PostCardList = ({ data, columnView, handleTagClick }) => {
+export const PostCardList = ({ data, columnView, handleTagClick, allComments, setAllComments }) => {
   const breakpointColumnsObj = {
     default: 2,
     1130: 1,
@@ -23,7 +23,9 @@ export const PostCardList = ({ data, columnView, handleTagClick }) => {
             columnView={columnView}
             key={post._id}
             post={post}
-            handleTagClick={handleTagClick}
+            handleTagClick={handleTagClick}  
+            comments={allComments[post._id]}
+            setComments={(newComments) => setAllComments(prev => ({ ...prev, [post._id]: newComments }))}
           />
         ))}
       </Masonry>

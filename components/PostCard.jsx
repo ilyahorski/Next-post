@@ -20,7 +20,7 @@ import {SocketContext, SessionContext} from "~/utils/context/SocketContext";
 
 JavascriptTimeAgo.addLocale(supportedLocales.en);
 
-const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
+const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick, comments, setComments }) => {
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState('');
@@ -247,7 +247,12 @@ const PostCard = ({columnView, post, myPosts, setMyPosts, handleTagClick }) => {
               className='cursor-pointer'
               onClick={() => handlePostOpen(post)}
             >
-              <Comments postId={post?._id} isMain={true}/>
+              <Comments 
+                postId={post?._id} 
+                isMain={true}
+                comments={comments}
+                setComments={setComments}
+              />
             </div>
             <CommentForm postId={post?._id} userId={sessionId}/>
           </div>

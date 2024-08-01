@@ -41,6 +41,7 @@ const VideoApp = ({ chatMembers }) => {
   const [devices, setDevices] = useState([]);
   const [currentDeviceIndex, setCurrentDeviceIndex] = useState(0);
   const [reciever, setReciever] = useState("");
+  const [currentAudio, setCurrentAudio] = useState(null);
   const { id: chatId } = useParams();
 
   const userVideo = useRef();
@@ -113,6 +114,19 @@ const VideoApp = ({ chatMembers }) => {
     ],
   };
 
+  function playAudio(url) {
+    if (currentAudio) {
+      currentAudio.pause();
+    }
+    const newAudio = new Audio(url);
+    newAudio.play();
+    setCurrentAudio(newAudio);
+    newAudio.addEventListener("ended", () => {
+      newAudio.currentTime = 0;
+      newAudio.play();
+    });
+  }
+
   const toggleVideoImage = useCallback(() => {
     setIsMainVideo((prev) => !prev);
   }, []);
@@ -183,6 +197,7 @@ const VideoApp = ({ chatMembers }) => {
 
   const callPeer = useCallback(
     (id) => {
+      playAudio("/assets/ringtone.mp3");
       setReciever(id);
       const callerId = users.filter((getId) => getId !== id)[0];
       if (!yourID) {
@@ -221,6 +236,7 @@ const VideoApp = ({ chatMembers }) => {
 
   const acceptCall = useCallback(() => {
     setCallAccepted(true);
+    currentAudio.pause();
     const peer = new Peer({
       initiator: false,
       trickle: false,
@@ -266,6 +282,7 @@ const VideoApp = ({ chatMembers }) => {
         connectionRef.current = null;
       }
       socket.current.emit("endCall", { chatId, to: id });
+      currentAudio.pause();
       setIsVideoOn(false);
       setIsAudioOn(false);
       setCallEnded(true);
@@ -276,6 +293,14 @@ const VideoApp = ({ chatMembers }) => {
     },
     [chatId, isVideoChatVisible, router]
   );
+
+  useEffect(() => {
+    return () => {
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+    };
+  }, [currentAudio]);
 
   useEffect(() => {
     getVideoDevices();
@@ -334,6 +359,7 @@ const VideoApp = ({ chatMembers }) => {
         connectionRef.current.destroy();
         connectionRef.current = null;
       }
+      currentAudio.pause();
       setIsVideoOn(false);
       setIsAudioOn(false);
       setCallEnded(true);
