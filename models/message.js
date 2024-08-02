@@ -13,6 +13,10 @@ const MessageSchema = new Schema({
   message: {
     type: String,
   },
+  media: {
+    type: [String],
+    default: []
+  },
   messageStatus: {
     type: String,
     enum: ['sent', 'delivered', 'seen'],

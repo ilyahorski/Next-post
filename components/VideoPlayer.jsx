@@ -35,7 +35,7 @@ const VideoPlayer = ({full, post, preview}) => {
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full h-90%"
+      className="relative w-full max-h-[400px]"
     >
       <ReactPlayer
         width="100%"

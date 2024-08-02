@@ -1,22 +1,22 @@
 'use client'
 
-import { useRef } from "react";
+import { useRef, useContext } from "react";
 import CommentMessageForm from "./CommentMessageForm";
-import {useContext} from "react";
 import {SocketContext} from "~/utils/context/SocketContext";
 
 const MessageForm = ({ id, chat, sessionUserId, formEndRef, scrollToBottom }) => {
   const socket = useContext(SocketContext);
   const messageRef = useRef(null);
 
-  const onFormSubmit = async (data) => {
+  const onFormSubmit = async (data, mediaUrls) => {
     let newMessage
 
     if (sessionUserId) {
       newMessage = {
         writerId: sessionUserId,
         chatId: id,
-        message: data.message,
+        message: data.message || '',
+        media: mediaUrls,
         messageStatus: 'sent',
         deletedBy: null,
       };
