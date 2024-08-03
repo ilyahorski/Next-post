@@ -26,9 +26,13 @@ export const GET = async (request, { params }) => {
 };
 
 export const PATCH = async (request, { params }) => {
-  const { chatName, chatImage, lastMessage } = await request.json();
+  const { chatId, chatName, chatImage, lastMessage } = await request.json();
 
   try {
+    if (chatId !== params.id) {
+      return new Response('Invalid ID', { status: 300 });
+    }
+
     await connectToDB();
 
     const chatData = await Chat.findById(params.id)

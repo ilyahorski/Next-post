@@ -28,12 +28,13 @@ const MessageForm = ({ id, chat, sessionUserId, formEndRef, scrollToBottom }) =>
       socket.on('messageSent', async (response) => {
         if (response.status === 'success') {
           const chatData = {
+            chatId: chat._id,
             chatName: chat.chatName,
             chatImage: chat.chatImage,
             lastMessage: response?.newMessage._id
           };
 
-          const fetchResponse = await fetch(`/api/chats/${id}`, {
+          const fetchResponse = await fetch(`/api/chats/${response.newMessage.chatId}`, {
             method: 'PATCH',
             body: JSON.stringify(chatData),
             headers: {
@@ -41,9 +42,9 @@ const MessageForm = ({ id, chat, sessionUserId, formEndRef, scrollToBottom }) =>
             }
           });
 
-          if (!fetchResponse.ok) {
-            throw new Error('Failed to update chat');
-          }
+          // if (!fetchResponse.ok) {
+          //   throw new Error('Failed to update chat');
+          // }
 
         } else {
           console.log('Error sending message: ', response.message);

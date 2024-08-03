@@ -6,7 +6,7 @@ export const VideoSocketContext = createContext();
 
 const VideoContextProvider = ({ children }) => {
   const [isVideoChatVisible, setIsVideoChatVisible] = useState(false);
-  const [width, setWidth] = useState(350);
+  const [width, setWidth] = useState(320);
   const [height, setHeight] = useState(500);
 
   return (

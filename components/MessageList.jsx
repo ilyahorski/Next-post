@@ -2,6 +2,23 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { format, isSameDay, parseISO } from "date-fns";
 import MediaGrid from "./MediaGrid";
+import Link from "next/link";
+
+// Функция для замены ссылок на компоненты Link
+const renderMessageWithLinks = (message) => {
+  const urlPattern = /(https?:\/\/[^\s]+)/g;
+
+  return message.split(urlPattern).map((part, index) => {
+    if (urlPattern.test(part)) {
+      return (
+        <Link key={index} href={part} id='link' className="text-blue-500 underline">
+          {part}
+        </Link>
+      );
+    }
+    return part;
+  });
+};
 
 const MessageList = ({
   messagesList,
@@ -61,25 +78,24 @@ const MessageList = ({
             <div
               className={`flex flex-col relative pl-1 py-2 gap-3 rounded-lg w-11/12 ${
                 message.writerId._id !== sessionUserId
-                  ? "bg-primary-600 dark:bg-primary-700 text-black dark:text-gray-200 rounded-bl-none"
-                  : "bg-primary-700 dark:bg-primary-900 dark:text-gray-200 text-gray-200 rounded-br-none"
+                  ? " bg-secondary-700 text-gray-200 rounded-bl-none"
+                  : " bg-secondary-800 text-gray-200  rounded-br-none"
               }`}
             >
               <MediaGrid media={message.media} />
               <div className="flex items-end">
-              <p
-                className={`w-full pr-12 pl-2 break-normal font-inter font-extralight text-3xs ${
-                  hasLongWord ? "break-all" : ""
-                } flex-grow`}
-              >
-                {message.message}
-              </p>
-              
-              <span
-                className={`absolute bottom-1 right-0 font-normal text-[10px] mt-1 text-black min-w-[30px]`}
-              >
-                {format(parseISO(message.createdAt), "HH:mm")}
-              </span>
+                <p
+                  className={`w-full pr-12 pl-2 break-normal font-inter font-extralight text-3xs ${
+                    hasLongWord ? "break-all" : ""
+                  } flex-grow`}
+                >
+                  {renderMessageWithLinks(message.message)}
+                </p>
+                <span
+                  className={`absolute bottom-1 right-0 font-normal text-[10px] mt-1 text-gray-100 min-w-[30px]`}
+                >
+                  {format(parseISO(message.createdAt), "HH:mm")}
+                </span>
               </div>
             </div>
           </div>

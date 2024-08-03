@@ -8,14 +8,14 @@ import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 import {SessionContext} from "~/utils/context/SocketContext";
 
 const ChatMain = () => {
-  const [showCreateChatForm, setShowCreateChatForm] = useState(true);
+  const [showCreateChatForm, setShowCreateChatForm] = useState(false);
   const isMobile = useMobileCheck();
 
   const sessionId = useContext(SessionContext);
 
   useEffect(() => {
     if (isMobile) {
-      setShowCreateChatForm(true)
+      setShowCreateChatForm(false)
     }
     return () => false;
   }, [isMobile]);

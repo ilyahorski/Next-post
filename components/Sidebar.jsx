@@ -4,21 +4,19 @@ import { useContext, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { PiUsersThin } from "react-icons/pi";
-import { SocketContext, SessionContext } from "~/utils/context/SocketContext";
-import { usePathname, useRouter } from "next/navigation";
-import { format, isSameDay, parseISO } from "date-fns";
+import { SessionContext } from "~/utils/context/SocketContext";
+import { format, parseISO } from "date-fns";
 
 const Sidebar = ({ sessionUserId, openForm }) => {
   const [chats, setChats] = useState([]);
   const [search, setSearch] = useState("");
-  const socket = useContext(SocketContext);
   const sessionId = useContext(SessionContext);
   const [time, setTime] = useState(0);
 
-  const getChats = async () => {
+  const getChats = useCallback(async () => {
     if (!sessionId) return;
 
-    const response = await fetch(`/api/chats`, {
+    const response = await fetch('/api/chats', {
       headers: {
         userId: sessionId,
       },
@@ -27,7 +25,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
     const data = await response.json();
 
     setChats(data);
-  };
+  }, [sessionId]);
 
   useEffect(() => {
     getChats();
@@ -38,29 +36,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
     }, 10000);
 
     return () => clearInterval(intervalId);
-
-  }, [getChats, time]);
-
-  useEffect(() => {
-    if (!sessionId && !socket) return;
-
-    if (socket) {
-      socket.on("chatUpdated", (updatedChat) => {
-        setChats((prevChats) => {
-          const chatIds = new Set(prevChats.map((c) => c._id));
-          if (chatIds.has(updatedChat._id)) {
-            return prevChats;
-          } else {
-            return [...prevChats, updatedChat];
-          }
-        });
-      });
-
-      return () => {
-        socket.off("chatUpdated");
-      };
-    }
-  }, []);
+  }, [getChats]);
 
   const filteredChats = chats.filter((chat) =>
     chat?.chatName?.toLowerCase().includes(search.toLowerCase())
@@ -76,7 +52,9 @@ const Sidebar = ({ sessionUserId, openForm }) => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <button
-          className="mob:hidden flex justify-center items-center w-[40px] h-[40px]"
+          className={`mob:hidden flex justify-center items-center w-[40px] h-[40px] ${
+            chats.length === 0 ? "blink" : ""
+          }`}
           type="button"
           onClick={openForm}
         >
@@ -89,7 +67,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
           </div>
         </button>
       </div>
-      {filteredChats.length !== 0 && sessionUserId && (
+      {filteredChats.length > 0 && sessionUserId ? (
         <div className="chat-list">
           {filteredChats.map((chat, index) => (
             <Link
@@ -121,16 +99,25 @@ const Sidebar = ({ sessionUserId, openForm }) => {
                     <span
                       className={`absolute top-1 right-0 font-normal text-[10px] mt-1 text-white min-w-[30px]`}
                     >
-                      {format(parseISO(chat.lastMessage.createdAt), "HH:mm, PPP")}
+                      {format(
+                        parseISO(chat.lastMessage.createdAt),
+                        "HH:mm, PPP"
+                      )}
                     </span>
                   )}
                   <div className="flex max-w-[300px]">
-                    <p className="truncate">{chat?.lastMessage?.message}</p>
+                    <p className="truncate">{chat?.lastMessage?.message ? chat?.lastMessage?.message : 'New media'}</p>
                   </div>
                 </div>
               </div>
             </Link>
           ))}
+        </div>
+      ) : (
+        <div className="text-center mt-5">
+          <p className="text-gray-700 dark:text-gray-300">
+            You don't have any chats. Create a dialogue and start communicating!
+          </p>
         </div>
       )}
     </form>

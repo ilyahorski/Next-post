@@ -56,7 +56,7 @@ const MessageMain = () => {
                 />
               ) : (
                 <div className="text-center font-normal text-[14px] my-1 text-black dark:text-zinc-100">
-                  Это приватный диалог, войдите под другим аккаунтом.
+                  This is a private conversation, please log in with another account.
                 </div>
               )
             ) : (!showCreateChatForm || !isMobile) && (
@@ -75,7 +75,7 @@ const MessageMain = () => {
                 />
               ) : (
                 <div className="text-center font-normal text-[14px] my-1 text-black dark:text-zinc-100">
-                  Это приватный диалог, войдите под другим аккаунтом.
+                  This is a private conversation, please log in with another account.
                 </div>
               )}
             </SplitPaneRight>

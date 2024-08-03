@@ -7,7 +7,8 @@ import VideoContextProvider from "~/utils/context/VideoContext";
 import { getLocalView } from "~/utils/localSrorageService";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PrimeReactProvider } from "primereact/api";
-import Tailwind from 'primereact/passthrough/tailwind';
+import Tailwind from "primereact/passthrough/tailwind";
+import { twMerge } from "tailwind-merge";
 
 export const ThemeContext = createContext();
 export const DisplayContext = createContext();
@@ -37,7 +38,17 @@ const Provider = ({ children }) => {
   return (
     <SessionProvider>
       <SocketProvider>
-        <PrimeReactProvider value={{ unstyled: true, pt: Tailwind }}>
+        <PrimeReactProvider
+          value={{
+            unstyled: true,
+            pt: Tailwind,
+            ptOptions: {
+              mergeSections: true,
+              mergeProps: true,
+              classNameMergeFunction: twMerge,
+            },
+          }}
+        >
           <QueryClientProvider client={queryClient}>
             <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
               <DisplayContext.Provider value={{ columnView, setColumnView }}>

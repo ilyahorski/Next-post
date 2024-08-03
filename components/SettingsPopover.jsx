@@ -146,7 +146,7 @@ const SettingsPopover = ({
   return (
     <div
       ref={popoverRef}
-      className="bg-zinc-800 p-4 rounded-lg shadow-lg w-[85%] mob:w-[50%] custom-height-settings relative overflow-y-auto"
+      className="bg-zinc-800 h-fit p-4 rounded-lg shadow-lg max-w-1/2 relative overflow-y-auto"
     >
       <div className="flex flex-col items-start gap-4 mt-8">
         <label className="text-[16px] font-light text-zinc-200">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useEffect, useState, useRef } from "react";
+import { useRouter } from 'next/navigation'
 import MessageForm from "~/components/MessageForm";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
 import { useParams } from "next/navigation";
@@ -11,7 +12,7 @@ import SettingsPopover from "~/components/SettingsPopover";
 import { LoadingBar } from "~/components/Loading";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { FaArrowLeft } from "react-icons/fa6";
-import { SlCallOut } from "react-icons/sl";
+import { SlCallOut, SlCallEnd } from "react-icons/sl";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import Image from "next/image";
 
@@ -29,6 +30,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
 
   const isMobile = useMobileCheck();
   const { id: chatId } = useParams();
+  const router = useRouter()
 
   const socket = useContext(SocketContext);
   const { isVideoChatVisible, setIsVideoChatVisible } =
@@ -187,7 +189,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
             <button
               className="mob:hidden flex justify-center items-center w-[40px] h-[40px]"
               type="button"
-              onClick={closeForm}
+              onClick={() => router.push('/chat')}
             >
               <div className="flex gap-0.5 items-center flex-col">
                 <FaArrowLeft
@@ -233,10 +235,15 @@ const Messages = ({ sessionUserId, closeForm }) => {
                   type="button"
                   onClick={() => setIsVideoChatVisible(!isVideoChatVisible)}
                 >
-                  <SlCallOut
+                  {!isVideoChatVisible ? (<SlCallOut
                     className="w-[20px] h-[20px]"
                     placeholder="Open video chat"
+                  />) : (
+                    <SlCallEnd
+                    className="w-[20px] h-[20px] text-red-500"
+                    placeholder="Close video chat"
                   />
+                  )}
                 </button>
 
                 <div className="w-full us:w-[100%] flex gap-2 justify-end items-end">

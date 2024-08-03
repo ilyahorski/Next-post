@@ -6,8 +6,7 @@ import { useForm } from "react-hook-form";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import { FileUpload } from "primereact/fileupload";
-import { Dialog } from "primereact/dialog";
+import CustomFileUpload from "./CustomFileUpload";
 
 const CommentMessageForm = ({
   type,
@@ -22,6 +21,7 @@ const CommentMessageForm = ({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [message, setMessage] = useState("");
   const cursorPositionRef = useRef(0);
   const fileUploadRef = useRef(null);
 
@@ -31,24 +31,29 @@ const CommentMessageForm = ({
     handleSubmit,
     setFocus,
     setValue,
-    watch,
     formState: { errors },
   } = useForm();
 
-  const message = watch(type, "");
+  const resetForm = useCallback(() => {
+    setMessage("");
+    reset(value => ({ ...value, message: "" }));
+    if (messageRef.current) {
+      messageRef.current.value = "";
+    }
+  }, [reset, messageRef]);
 
   const onSubmit = async (data) => {
     setShowEmojiPicker(false);
     if (selectedFiles.length > 0) {
       fileUploadRef.current.upload();
     } else {
-      await sendMessage(data[type], []);
+      await sendMessage(message, []);
     }
   };
 
   const sendMessage = async (text, mediaUrls) => {
     await onFormSubmit({ [type]: text }, mediaUrls);
-    reset();
+    resetForm();
     setIsSubmitted(true);
     setSelectedFiles([]);
     scrollToBottom();
@@ -57,9 +62,9 @@ const CommentMessageForm = ({
 
   const onUpload = async (event) => {
     const mediaUrls = event.xhr.response
-    ? JSON.parse(event.xhr.response).mediaUrls
-    : [];
-  
+      ? JSON.parse(event.xhr.response).mediaUrls
+      : [];
+    
     await sendMessage(message, mediaUrls);
   };
 
@@ -84,7 +89,7 @@ const CommentMessageForm = ({
       }, 50);
       return () => clearTimeout(timerId);
     }
-  }, [isSubmitted, type]);
+  }, [isSubmitted, type, setFocus]);
 
   const handleKeyDown = (event) => {
     if (!isMobile && event.key === "Enter" && !event.shiftKey) {
@@ -95,17 +100,18 @@ const CommentMessageForm = ({
 
   const handleChange = useCallback((event) => {
     cursorPositionRef.current = event.target.selectionEnd;
+    setMessage(event.target.value);
   }, []);
 
   const addEmoji = useCallback(
     (emoji) => {
-      const currentMessage = message || "";
       const cursorPosition = cursorPositionRef.current;
       const newMessage =
-        currentMessage.slice(0, cursorPosition) +
+        message.slice(0, cursorPosition) +
         emoji.native +
-        currentMessage.slice(cursorPosition);
+        message.slice(cursorPosition);
 
+      setMessage(newMessage);
       setValue(type, newMessage);
       setFocus(type);
 
@@ -182,40 +188,26 @@ const CommentMessageForm = ({
               title={`Click to send a ${type}`}
               type="submit"
               className="flex items-center justify-center w-10 h-10 cursor-pointer"
-              // disabled={!message.trim() || selectedFiles.length === 0}
+              disabled={!message.trim()}
             >
               <BiLogoTelegram className="w-8 h-8 text-primary-300" />
             </button>
           </div>
         </div>
       </form>
-      <Dialog
-        visible={showFileUpload}
-        onHide={() => setShowFileUpload(false)}
-        header="Upload Media"
-      >
-        <FileUpload
-          ref={fileUploadRef}
-          name="media"
-          url={`${process.env.NEXT_PUBLIC_SERVER_URL}/upload-media`}
-          accept="image/*,video/*"
-          maxFileSize={10000000}
-          onUpload={onUpload}
-          onSelect={onSelect}
-          onClear={onClear}
-          multiple
-          auto={false}
-        />
-        {/* <div className="mt-4 flex justify-between">
-          <button
-            onClick={handleSubmit(onSubmit)}
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-            disabled={selectedFiles.length === 0 && !message.trim()}
-          >
-            Send
-          </button>
-        </div> */}
-      </Dialog>
+      <CustomFileUpload
+        showFileUpload={showFileUpload}
+        setShowFileUpload={setShowFileUpload}
+        fileUploadRef={fileUploadRef}
+        messageRef={messageRef}
+        onUpload={onUpload}
+        onSelect={onSelect}
+        onClear={onClear}
+        handleChange={handleChange}
+        register={register}
+        errors={errors}
+        resetForm={resetForm}
+      />
     </div>
   );
 };

@@ -56,7 +56,7 @@ const VideoCallPlayer = () => {
       <div className="fixed resize z-[100] rounded-lg" style={{ top: position.y, left: position.x }}>
         <Resizable
           defaultSize={{
-            width: 350,
+            width: 320,
             height: 500,
           }}
           size={{
