@@ -4,13 +4,14 @@ import { useContext, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { PiUsersThin } from "react-icons/pi";
-import { SessionContext } from "~/utils/context/SocketContext";
+import { SessionContext, MessageContext } from "~/utils/context/SocketContext";
 import { format, parseISO } from "date-fns";
 
 const Sidebar = ({ sessionUserId, openForm }) => {
   const [chats, setChats] = useState([]);
   const [search, setSearch] = useState("");
   const sessionId = useContext(SessionContext);
+  // const { unseenMessage } = useContext(MessageContext);
   const [time, setTime] = useState(0);
 
   const getChats = useCallback(async () => {
@@ -97,7 +98,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
                   <p className="">{chat.chatName}</p>
                   {chat?.lastMessage?.createdAt && (
                     <span
-                      className={`absolute top-1 right-0 font-normal text-[10px] mt-1 text-white min-w-[30px]`}
+                      className={`absolute top-1 right-1 font-normal text-[10px] mt-1 text-white min-w-[30px]`}
                     >
                       {format(
                         parseISO(chat.lastMessage.createdAt),
@@ -107,6 +108,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
                   )}
                   <div className="flex max-w-[300px]">
                     <p className="truncate">{chat?.lastMessage?.message ? chat?.lastMessage?.message : 'New media'}</p>
+                    {/* <p className="flex items-center justify-center absolute bottom-2 right-1 w-[20px] h-[20px] text-[10px] font-normal rounded-full border border-red-400">{unseenMessage}</p> */}
                   </div>
                 </div>
               </div>

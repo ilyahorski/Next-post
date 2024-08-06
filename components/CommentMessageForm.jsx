@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { BiLogoTelegram, BiPaperclip } from "react-icons/bi";
 import { useForm } from "react-hook-form";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
+import { IoIosClose } from "react-icons/io";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import CustomFileUpload from "./CustomFileUpload";
@@ -14,7 +15,8 @@ const CommentMessageForm = ({
   placeholder,
   maxLength,
   messageRef,
-  scrollToBottom,
+  replyTo,
+  setReplyTo,
 }) => {
   const isMobile = useMobileCheck();
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -36,7 +38,7 @@ const CommentMessageForm = ({
 
   const resetForm = useCallback(() => {
     setMessage("");
-    reset(value => ({ ...value, message: "" }));
+    reset((value) => ({ ...value, message: "" }));
     if (messageRef.current) {
       messageRef.current.value = "";
     }
@@ -56,7 +58,6 @@ const CommentMessageForm = ({
     resetForm();
     setIsSubmitted(true);
     setSelectedFiles([]);
-    scrollToBottom();
     setShowFileUpload(false);
   };
 
@@ -64,7 +65,7 @@ const CommentMessageForm = ({
     const mediaUrls = event.xhr.response
       ? JSON.parse(event.xhr.response).mediaUrls
       : [];
-    
+
     await sendMessage(message, mediaUrls);
   };
 
@@ -127,6 +128,20 @@ const CommentMessageForm = ({
 
   return (
     <div className="flex-grow relative">
+      {replyTo && (
+        <div className="flex flex-1 justify-between items-center absolute top-0 -mt-10 rounded-t-md w-full text-sm bg-zinc-950 z-5000 text-gray-300 pl-3">
+          <div className="flex flex-col max-w-[300px]">
+            <p className="truncate">Replying to: {replyTo.writerId.username}</p>
+            <p className="truncate">{replyTo.message || "Media"}</p>
+          </div>
+          <button
+            className="flex p-2 text-red-600"
+            onClick={() => setReplyTo(null)}
+          >
+            <IoIosClose />
+          </button>
+        </div>
+      )}
       {showEmojiPicker && (
         <div className="absolute bottom-14 right-0 z-10">
           <Picker

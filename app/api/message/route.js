@@ -17,7 +17,12 @@ export const GET = async (request, { params }) => {
       .limit(limit)
       .populate('writerId')
       .populate('chatId')
-      .populate('deletedBy');
+      .populate('deletedBy')
+      .populate({
+        path: 'replyTo',
+        populate: { path: 'writerId', model: 'User' },
+        match: { $exists: true }
+      });
 
     if (!usersMessages) return new Response('Chats Not Found', { status: 404 });
 

@@ -6,9 +6,11 @@ import { useSession } from 'next-auth/react';
 
 export const SocketContext = createContext();
 export const SessionContext = createContext();
+export const MessageContext = createContext();
 
 const SocketProvider = ({ children, serverSession }) => {
   const [socket, setSocket] = useState(null);
+  const [unseenMessage, setUnseenMessage] = useState(0);
   const [sessionUserId, setSessionUserId] = useState(serverSession?.user?.id || null);
   const { data: session, status, update } = useSession();
 
@@ -36,7 +38,9 @@ const SocketProvider = ({ children, serverSession }) => {
   return (
     <SessionContext.Provider value={sessionUserId}>
       <SocketContext.Provider value={socket}>
-        {children}
+        <MessageContext.Provider value={{ unseenMessage, setUnseenMessage }}>
+          {children}
+        </MessageContext.Provider>
       </SocketContext.Provider>
     </SessionContext.Provider>
   );

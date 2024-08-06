@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import MessageForm from "~/components/MessageForm";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
 import { useParams } from "next/navigation";
-import { SocketContext } from "~/utils/context/SocketContext";
+import { SocketContext, MessageContext } from "~/utils/context/SocketContext";
 import { VideoSocketContext } from "~/utils/context/VideoContext";
 import MessageList from "~/components/MessageList";
 import SettingsPopover from "~/components/SettingsPopover";
@@ -25,7 +25,9 @@ const Messages = ({ sessionUserId, closeForm }) => {
   const [hasMore, setHasMore] = useState(true);
   const [background, setBackground] = useState('/assets/bg/1.jpg');
   const [userStatuses, setUserStatuses] = useState({});
+  const [replyTo, setReplyTo] = useState(null);
   const formEndRef = useRef(null);
+  const messageEndRef = useRef(null);
   const popoverRef = useRef(null);
 
   const isMobile = useMobileCheck();
@@ -36,12 +38,16 @@ const Messages = ({ sessionUserId, closeForm }) => {
   const { isVideoChatVisible, setIsVideoChatVisible } =
     useContext(VideoSocketContext);
 
+  const handleReply = (message) => {
+    setReplyTo(message);
+  };
+
   const getMessages = async () => {
     if (messagesList.length >= messagesCount) {
       setHasMore(false);
       return;
     }
-    const response = await fetch(`/api/message?page=${page}&limit=20`, {
+    const response = await fetch(`/api/message?page=${page}&limit=100`, {
       headers: {
         chatId: chatId,
       },
@@ -50,7 +56,14 @@ const Messages = ({ sessionUserId, closeForm }) => {
 
     setMessagesCount(data.totalMessages);
     setPage(page + 1);
-    setMessagesList((prevMessages) => [...prevMessages, ...data.usersMessages]);
+    setMessagesList((prevMessages) => {
+      const newMessages = [...prevMessages, ...data.usersMessages];
+      const uniqueMessages = new Map();
+      newMessages.forEach((message) => {
+        uniqueMessages.set(message._id, message);
+      });
+      return Array.from(uniqueMessages.values());
+    });
   };
 
   useEffect(() => {
@@ -78,11 +91,12 @@ const Messages = ({ sessionUserId, closeForm }) => {
     if (chatId && socket) {
       socket.emit("getMessages", { chatId });
 
+      socket.emit('markMessagesAsDelivered', { chatId, userId: sessionUserId });
+
       const updateStatus = (status) => {
         socket.emit('setUserStatus', { userId: sessionUserId, status });
       };
   
-      // Функция для обновления статуса
       const handleVisibilityChange = () => {
         if (document.hidden) {
           updateStatus('offline');
@@ -91,14 +105,9 @@ const Messages = ({ sessionUserId, closeForm }) => {
         }
       };
   
-      // Обработчик для события изменения видимости страницы
       document.addEventListener('visibilitychange', handleVisibilityChange);
-  
-      // Обработчики для событий фокуса и потери фокуса окна
       window.addEventListener('focus', () => updateStatus('online'));
       window.addEventListener('blur', () => updateStatus('offline'));
-  
-      // Устанавливаем начальный статус
       updateStatus('online');
 
       socket.on("newMessage", (message) => {
@@ -108,20 +117,30 @@ const Messages = ({ sessionUserId, closeForm }) => {
             if (commentIds.has(message._id)) {
               return prevMessages;
             } else {
+              socket.emit('markMessageAsDelivered', { messageId: message._id, chatId });
               return [message, ...prevMessages];
             }
           });
         }
       });
 
+      socket.on('messageStatusUpdated', (updatedMessage) => {
+        setMessagesList((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg._id === updatedMessage._id ? { ...msg, messageStatus: updatedMessage.messageStatus } : msg
+          )
+        );
+      });
+
       return () => {
         socket.off("newMessage");
+        socket.off('messageStatusUpdated');
         document.removeEventListener('visibilitychange', handleVisibilityChange);
         window.removeEventListener('focus', () => updateStatus('online'));
         window.removeEventListener('blur', () => updateStatus('offline'));
       };
     }
-  }, [socket, chatId]);
+  }, [socket, chatId, sessionUserId]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -132,22 +151,6 @@ const Messages = ({ sessionUserId, closeForm }) => {
       setIsVideoChatVisible(!isVideoChatVisible);
     }
   }, []);
-
-  const scrollToBottom = () => {
-    if (formEndRef.current) {
-      formEndRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-        inline: "end",
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (messagesList.length > 0) {
-      scrollToBottom();
-    }
-  }, [messagesList]);
 
   useEffect(() => {
     if (socket) {
@@ -180,7 +183,6 @@ const Messages = ({ sessionUserId, closeForm }) => {
   return (
     <div
       className="scrollableBg flex flex-col custom-height flex-grow w-full"
-      ref={formEndRef}
       style={{ '--scrollableDiv-background': `url(${background})` }}
     >
       {chat && chat?.length !== 0 && sessionUserId && (
@@ -311,8 +313,10 @@ const Messages = ({ sessionUserId, closeForm }) => {
           <MessageList
             messagesList={messagesList}
             isMobile={isMobile}
+            сhatId={chatId}
             sessionUserId={sessionUserId}
-            scrollToBottom={scrollToBottom}
+            onReply={handleReply}
+            messageEndRef={messageEndRef}
           />
         </InfiniteScroll>
       </section>
@@ -323,10 +327,11 @@ const Messages = ({ sessionUserId, closeForm }) => {
           chat={chat}
           sessionUserId={sessionUserId}
           formEndRef={formEndRef}
-          scrollToBottom={scrollToBottom}
+          replyTo={replyTo}
+          setReplyTo={setReplyTo}
+          messageEndRef={messageEndRef}
         />
       </div>
-      <div ref={formEndRef} />
     </div>
   );
 };
