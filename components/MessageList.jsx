@@ -4,22 +4,61 @@ import { format, isSameDay, parseISO } from "date-fns";
 import MediaGrid from "./MediaGrid";
 import Link from "next/link";
 import { SocketContext } from "~/utils/context/SocketContext";
+import { IoCheckmarkOutline } from "react-icons/io5";
+import { IoCheckmarkDoneOutline } from "react-icons/io5";
+import { twJoin, twMerge } from "tailwind-merge";
+
+const VideoEmbed = ({ url }) => {
+  const getEmbedUrl = (url) => {
+    const youtubeRegex =
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/;
+    const youtubeShortsRegex =
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/;
+
+    if (youtubeShortsRegex.test(url)) {
+      return null;
+    }
+    const match = url.match(youtubeRegex);
+    if (match) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+    // Add more video platform checks here if needed
+    return null;
+  };
+
+  const embedUrl = getEmbedUrl(url);
+
+  if (!embedUrl) {
+    return (
+      <Link href={url} className="text-blue-500 underline">
+        {url}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="max-w-[300px]">
+      <iframe
+        width="100%"
+        // height="315"
+        src={embedUrl}
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      ></iframe>
+      <Link href={url} className="text-blue-500 underline">
+        {url}
+      </Link>
+    </div>
+  );
+};
 
 const renderMessageWithLinks = (message) => {
   const urlPattern = /(https?:\/\/[^\s]+)/g;
 
   return message?.split(urlPattern).map((part, index) => {
     if (urlPattern.test(part)) {
-      return (
-        <Link
-          key={index}
-          href={part}
-          id="link"
-          className="text-blue-500 underline"
-        >
-          {part}
-        </Link>
-      );
+      return <VideoEmbed key={index} url={part} />;
     }
     return part;
   });
@@ -36,18 +75,33 @@ const MessageList = ({
   const [selectedMessage, setSelectedMessage] = useState(null);
   const longPressTimer = useRef(null);
   const socket = useContext(SocketContext);
+  const [isPageVisible, setIsPageVisible] = useState(true);
 
   useEffect(() => {
-    const unseenMessages = messagesList.filter(
-      (message) =>
-        message?.writerId._id !== sessionUserId &&
-        message?.messageStatus !== "seen"
-    );
+    const handleVisibilityChange = () => {
+      setIsPageVisible(!document.hidden);
+    };
 
-    unseenMessages.forEach((message) => {
-      socket.emit("markMessageAsSeen", { messageId: message?._id, chatId });
-    });
-  }, [messagesList, sessionUserId, socket, chatId]);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isPageVisible) {
+      const unseenMessages = messagesList.filter(
+        (message) =>
+          message?.writerId._id !== sessionUserId &&
+          message?.messageStatus !== "seen"
+      );
+
+      unseenMessages.forEach((message) => {
+        socket.emit("markMessageAsSeen", { messageId: message?._id, chatId });
+      });
+    }
+  }, [messagesList, sessionUserId, socket, chatId, isPageVisible]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -70,7 +124,7 @@ const MessageList = ({
   const handleTouchStart = (message) => {
     longPressTimer.current = setTimeout(() => {
       setSelectedMessage(message);
-    }, 1000); // 500ms для долгого нажатия
+    }, 1000);
   };
 
   const handleTouchEnd = () => {
@@ -98,7 +152,7 @@ const MessageList = ({
 
     return (
       <div
-        className="bg-zinc-900 p-2 rounded-t-lg cursor-pointer min-w-[300px] mr-8"
+        className="bg-zinc-900 p-2 rounded-lg cursor-pointer max-w-[300px] w-full mr-8"
         onClick={() => scrollToMessage(replyToMessage.replyTo._id)}
       >
         <p className="text-sm text-gray-100">
@@ -115,11 +169,23 @@ const MessageList = ({
     if (message?.writerId._id === sessionUserId) {
       switch (message?.messageStatus) {
         case "sent":
-          return "✓";
+          return (
+            <p className="text-white">
+              <IoCheckmarkOutline />
+            </p>
+          );
         case "delivered":
-          return "✓✓";
+          return (
+            <p className="text-white">
+              <IoCheckmarkDoneOutline />
+            </p>
+          );
         case "seen":
-          return <p className="text-teal-500">✓✓</p>;
+          return (
+            <p className="text-teal-500">
+              <IoCheckmarkDoneOutline />
+            </p>
+          );
         default:
           return "";
       }
@@ -130,7 +196,7 @@ const MessageList = ({
   const renderMessage = (message, index, isSameDayAsNext) => {
     const hasLongWord = message?.message
       .split(/\s+/)
-      .some((word) => word.length > 20);
+      .some((word) => word.length > 16);
 
     return (
       <div
@@ -172,7 +238,7 @@ const MessageList = ({
               />
             )}
             <div
-              className={`flex flex-col relative pl-1 py-2 gap-3 rounded-lg w-11/12 ${
+              className={`flex flex-col relative px-1 py-2 gap-3 rounded-lg w-11/12 ${
                 message?.writerId._id !== sessionUserId
                   ? " bg-secondary-700 text-gray-200 rounded-bl-none"
                   : " bg-secondary-800 text-gray-200  rounded-br-none"
@@ -181,26 +247,39 @@ const MessageList = ({
               {message?.replyTo && renderReplyPreview(message)}
 
               {message?.media && <MediaGrid media={message?.media} />}
-              <div className="flex items-end">
+
+              <div className="flex items-end justify-between gap-2">
                 <p
-                  className={`w-full pr-16 pl-2 break-normal font-inter font-extralight text-3xs ${
+                  className={`w-full pl-2 break-normal font-inter font-extralight text-3xs ${
                     hasLongWord ? "break-all" : ""
                   } flex-grow`}
                 >
                   {renderMessageWithLinks(message?.message)}
                 </p>
-                <span
-                  className={`flex gap-1 absolute bottom-1 right-1 font-normal text-[10px] mt-1 text-gray-100 min-w-[30px]`}
+                <div
+                  className={twMerge(`flex items-end -mb-1 pr-2 sm:pr-0
+                    ${message?.replyTo && "pr-0"}
+                    ${message?.media[0] && "pr-0"}`)}
                 >
-                  {format(parseISO(message?.createdAt), "HH:mm")}
-                  <p>{renderMessageStatus(message)}</p>
-                </span>
+                  <span
+                    className={`flex font-normal text-[10px] text-gray-100 min-w-[30px]`}
+                  >
+                    {format(parseISO(message?.createdAt), "HH:mm")}
+                  </span>
+                  <p className="flex">{renderMessageStatus(message)}</p>
+                </div>
               </div>
               {selectedMessage && selectedMessage._id === message?._id && (
                 <div
                   className="absolute bottom-0 right-0 bg-zinc-900 rounded-sm p-2 z-5000"
+                  style={{ touchAction: "none", userSelect: "none" }}
                 >
-                  <button onClick={handleReply}>Reply</button>
+                  <button
+                    style={{ touchAction: "none", userSelect: "none" }}
+                    onClick={handleReply}
+                  >
+                    Reply
+                  </button>
                 </div>
               )}
             </div>
@@ -212,8 +291,7 @@ const MessageList = ({
 
   return (
     <div className="relative h-full">
-      <div
-        className="relative z-10 h-full overflow-y-auto">
+      <div className="scrollableDiv relative z-10 h-full overflow-y-auto w-full">
         {messagesList.length !== 0 && sessionUserId ? (
           <div className={`message-list pb-2`}>
             {messagesList.map((message, index) => {

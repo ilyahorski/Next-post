@@ -110,6 +110,8 @@ const Messages = ({ sessionUserId, closeForm }) => {
       window.addEventListener('blur', () => updateStatus('offline'));
       updateStatus('online');
 
+      const statusInterval = setInterval(() => updateStatus('online'), 10000); 
+
       socket.on("newMessage", (message) => {
         if (message.chatId === chatId) {
           setMessagesList((prevMessages) => {
@@ -138,6 +140,8 @@ const Messages = ({ sessionUserId, closeForm }) => {
         document.removeEventListener('visibilitychange', handleVisibilityChange);
         window.removeEventListener('focus', () => updateStatus('online'));
         window.removeEventListener('blur', () => updateStatus('offline'));
+        clearInterval(statusInterval);
+        updateStatus('offline');
       };
     }
   }, [socket, chatId, sessionUserId]);
@@ -283,15 +287,14 @@ const Messages = ({ sessionUserId, closeForm }) => {
         
       </div>
       <section
-        className={`scrollableDiv w-full max-w-full min-w-0 flex-grow`}
+        className={`scrollableDiv h-full w-full max-w-full min-w-0 flex-grow`}
         id="scrollableDiv"
         style={{
-          maxHeight: "93%",
-          height: "93%",
+          // maxHeight: "100%",
+          // height: "100%",
           overflow: "auto",
           display: "flex",
           flexDirection: "column-reverse",
-          marginBottom: "5px"
         }}
       >
         <InfiniteScroll

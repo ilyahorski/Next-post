@@ -38,16 +38,33 @@ const MediaGrid = ({ media }) => {
         );
       case "audio":
         return (
-          <audio controls id="song" className="block w-[300px] px-1 mr-8">
-            <source src={url} type="audio/mpeg" />
-          </audio>
+          <div className="flex flex-col gap-2 max-w-[350px]">
+            <audio controls id="song" className="flex px-1 w-full">
+              <source src={url} type="audio/mpeg" />
+            </audio>
+            <div className="w-[250px] px-1">
+              <p className="font-normal truncate">
+                {
+                  url
+                    .split("-original-")
+                    [url.split("-original-").length - 1].split(".")[0]
+                }
+              </p>
+            </div>
+          </div>
         );
       case "application":
       case "text":
         const extension = url.split(".").pop();
         return (
-          <div className="w-[300px] p-2 mr-8 bg-gray-700 rounded-md">
-            <p className="font-normal truncate">{url.split("-original-")[url.split("-original-").length - 1].split('.')[0]}</p>
+          <div className="max-w-[300px] p-2 mx-1 mb-2 -mt-4 bg-gray-700 rounded-md">
+            <p className="font-normal truncate">
+              {
+                url
+                  .split("-original-")
+                  [url.split("-original-").length - 1].split(".")[0]
+              }
+            </p>
             <p className="text-sm text-gray-200 pb-2">{`Type: ${extension}`}</p>
             <a
               href={url}
@@ -87,7 +104,7 @@ const MediaGrid = ({ media }) => {
       {imageAndVideoFiles.length > 0 && (
         <Masonry
           breakpointCols={breakpointColumnsObj}
-          className="flex mx-1 w-auto"
+          className="flex w-auto"
           columnClassName="bg-clip-padding p-1"
         >
           {imageAndVideoFiles.map((url, index) => (

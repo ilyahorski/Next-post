@@ -77,7 +77,7 @@ const MessageForm = ({
     if (messageEndRef.current) {
       window.requestAnimationFrame(() => 
         messageEndRef.current.scrollIntoView({
-          behavior: behavior,
+          // behavior: behavior,
           block: "end",
           inline: "end",
         })

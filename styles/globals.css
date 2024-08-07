@@ -21,6 +21,7 @@
 
 .scrollableDiv::-webkit-scrollbar {
   width: 0;
+  height: 0;
 }
 
 .message-list::-webkit-scrollbar {
