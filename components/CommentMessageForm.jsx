@@ -138,7 +138,7 @@ const CommentMessageForm = ({
             className="flex p-2 text-red-600"
             onClick={() => setReplyTo(null)}
           >
-            <IoIosClose />
+            <IoIosClose className="w-5 h-5" />
           </button>
         </div>
       )}

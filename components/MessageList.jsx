@@ -4,9 +4,16 @@ import { format, isSameDay, parseISO } from "date-fns";
 import MediaGrid from "./MediaGrid";
 import Link from "next/link";
 import { SocketContext } from "~/utils/context/SocketContext";
-import { IoCheckmarkOutline } from "react-icons/io5";
-import { IoCheckmarkDoneOutline } from "react-icons/io5";
-import { twJoin, twMerge } from "tailwind-merge";
+import {
+  IoCheckmarkOutline,
+  IoCheckmarkDoneOutline,
+  IoTrashOutline,
+  IoPencilOutline,
+  IoPinOutline,
+} from "react-icons/io5";
+import { IoMdCopy } from "react-icons/io";
+import { GoReply } from "react-icons/go";
+import { twMerge } from "tailwind-merge";
 
 const VideoEmbed = ({ url }) => {
   const getEmbedUrl = (url) => {
@@ -76,6 +83,7 @@ const MessageList = ({
   const longPressTimer = useRef(null);
   const socket = useContext(SocketContext);
   const [isPageVisible, setIsPageVisible] = useState(true);
+  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -119,6 +127,7 @@ const MessageList = ({
   const handleContextMenu = (message, event) => {
     event.preventDefault();
     setSelectedMessage(message);
+    setPopupPosition({ top: event.clientY, left: event.clientX });
   };
 
   const handleTouchStart = (message) => {
@@ -138,6 +147,25 @@ const MessageList = ({
       onReply(selectedMessage);
       setSelectedMessage(null);
     }
+  };
+
+  const handleCopyText = () => {
+    if (selectedMessage) {
+      navigator.clipboard.writeText(selectedMessage.message);
+      setSelectedMessage(null);
+    }
+  };
+
+  const handleEditMessage = () => {
+    // Function to handle message editing
+  };
+
+  const handleDeleteMessage = () => {
+    // Function to handle message deletion
+  };
+
+  const handlePinMessage = () => {
+    // Function to handle message pinning
   };
 
   const scrollToMessage = (messageId) => {
@@ -196,11 +224,11 @@ const MessageList = ({
   const renderMessage = (message, index, isSameDayAsNext) => {
     const hasLongWord = message?.message
       .split(/\s+/)
-      .some((word) => word.length > 16);
+      .some((word) => word.length > 20);
 
     return (
       <div
-        className="z-50"
+        className="relative z-10"
         key={message?._id + index}
         id={`message-${message?._id}`}
         onContextMenu={(e) => handleContextMenu(message, e)}
@@ -215,14 +243,14 @@ const MessageList = ({
           </div>
         )}
         <div
-          className={`flex ${
+          className={`flex relative z-10 ${
             message?.writerId?._id !== sessionUserId
               ? "justify-start"
               : "justify-end"
           }`}
         >
           <div
-            className={`flex items-end gap-2 ${
+            className={`flex items-end gap-2 relative z-10 ${
               message?.writerId._id !== sessionUserId
                 ? "flex-row"
                 : "flex-row-reverse"
@@ -234,11 +262,11 @@ const MessageList = ({
                 alt="user_image"
                 width={30}
                 height={30}
-                className="rounded-full object-fill h-[30px] w-[30px]"
+                className="rounded-full object-fill h-[30px] w-[30px] z-10"
               />
             )}
             <div
-              className={`flex flex-col relative px-1 py-2 gap-3 rounded-lg w-11/12 ${
+              className={`flex flex-col relative px-1 py-2 gap-1 rounded-lg w-11/12 z-10 ${
                 message?.writerId._id !== sessionUserId
                   ? " bg-secondary-700 text-gray-200 rounded-bl-none"
                   : " bg-secondary-800 text-gray-200  rounded-br-none"
@@ -248,39 +276,91 @@ const MessageList = ({
 
               {message?.media && <MediaGrid media={message?.media} />}
 
-              <div className="flex items-end justify-between gap-2">
+              <div className="flex flex-col w-full">
                 <p
-                  className={`w-full pl-2 break-normal font-inter font-extralight text-3xs ${
+                  className={`${
+                    !message?.message && "hidden"
+                  } w-full min-w-[70px] max-w-[700px] px-2 pb-2 break-normal font-inter font-extralight text-3xs ${
                     hasLongWord ? "break-all" : ""
                   } flex-grow`}
                 >
                   {renderMessageWithLinks(message?.message)}
                 </p>
                 <div
-                  className={twMerge(`flex items-end -mb-1 pr-2 sm:pr-0
-                    ${message?.replyTo && "pr-0"}
-                    ${message?.media[0] && "pr-0"}`)}
+                  className={twMerge(
+                    `flex w-full justify-end items-end -mb-2 -mr-1`
+                  )}
                 >
                   <span
-                    className={`flex font-normal text-[10px] text-gray-100 min-w-[30px]`}
+                    className={`flex font-normal text-[10px] h-4 text-gray-100 min-w-[28px]`}
                   >
                     {format(parseISO(message?.createdAt), "HH:mm")}
                   </span>
-                  <p className="flex">{renderMessageStatus(message)}</p>
+                  <p className="flex items-center justify-center text-[14px] h-4">
+                    {renderMessageStatus(message)}
+                  </p>
                 </div>
               </div>
               {selectedMessage && selectedMessage._id === message?._id && (
                 <div
-                  className="absolute bottom-0 right-0 bg-zinc-900 rounded-sm p-2 z-5000"
+                className="flex flex-col gap-3 items-start fixed z-3000 rounded-md bg-zinc-900 p-2"
+                style={{ touchAction: "none", userSelect: "none", top: popupPosition.top, left: popupPosition.left }}
+              >
+                <button
                   style={{ touchAction: "none", userSelect: "none" }}
+                  onClick={handleReply}
+                  className="flex items-center justify-between gap-3"
                 >
-                  <button
-                    style={{ touchAction: "none", userSelect: "none" }}
-                    onClick={handleReply}
-                  >
+                  <GoReply className="w-5 h-5 text-white" />
+                  <p className="flex items-center justify-center text-[14px]">
                     Reply
-                  </button>
-                </div>
+                  </p>
+                </button>
+                <button
+                  style={{ touchAction: "none", userSelect: "none" }}
+                  onClick={handleCopyText}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <IoMdCopy className="w-5 h-5 text-white" />
+                  <p className="flex items-center justify-center text-[14px]">
+                    Copy text
+                  </p>
+                </button>
+                {/* <button
+                disabled
+                  style={{ touchAction: "none", userSelect: "none" }}
+                  onClick={handleEditMessage}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <IoPencilOutline className="w-5 h-5 text-white" />
+                  <p className="flex items-center justify-center text-[14px]">
+                    Edit
+                  </p>
+                </button>
+                <button
+                disabled
+                  style={{ touchAction: "none", userSelect: "none" }}
+                  onClick={handleDeleteMessage}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <IoTrashOutline className="w-5 h-5 text-white" />
+                  <p className="flex items-center justify-center text-[14px]">
+                    Delete
+                  </p>
+                </button>
+                <button
+                disabled
+                  style={{ touchAction: "none", userSelect: "none" }}
+                  onClick={handlePinMessage}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <IoPinOutline className="w-5 h-5 text-white" />
+                  <p className="flex items-center justify-center text-[14px]">
+                    Pin
+                  </p>
+                </button> */}
+              </div>
+                
               )}
             </div>
           </div>
