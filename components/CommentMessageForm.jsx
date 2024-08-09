@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useContext } from "react";
 import { BiLogoTelegram, BiPaperclip } from "react-icons/bi";
 import { useForm } from "react-hook-form";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
@@ -8,6 +8,7 @@ import { IoIosClose } from "react-icons/io";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import CustomFileUpload from "./CustomFileUpload";
+import { MessageContext } from "~/utils/context/SocketContext";
 
 const CommentMessageForm = ({
   type,
@@ -17,6 +18,7 @@ const CommentMessageForm = ({
   messageRef,
   replyTo,
   setReplyTo,
+  initialValue,
 }) => {
   const isMobile = useMobileCheck();
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -24,6 +26,7 @@ const CommentMessageForm = ({
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [message, setMessage] = useState("");
+  const { editingMessage, setEditingMessage } = useContext(MessageContext);
   const cursorPositionRef = useRef(0);
   const fileUploadRef = useRef(null);
 
@@ -92,6 +95,16 @@ const CommentMessageForm = ({
     }
   }, [isSubmitted, type, setFocus]);
 
+  useEffect(() => {
+    if (editingMessage) {
+      const length = editingMessage.message.length;
+      if (messageRef.current) {
+        messageRef.current.setSelectionRange(length, length);
+      }
+      setFocus(type);
+    }
+  }, [editingMessage]);
+
   const handleKeyDown = (event) => {
     if (!isMobile && event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
@@ -142,6 +155,21 @@ const CommentMessageForm = ({
           </button>
         </div>
       )}
+      {editingMessage && (
+        <div className="flex flex-1 justify-between items-center absolute top-0 -mt-8 rounded-t-md w-full text-sm bg-zinc-950 z-5000 text-gray-300 pl-3">
+          <div className="flex flex-col max-w-[300px]">
+            <p className="truncate">
+              {"Edit: " + editingMessage.message || "Write a new message"}
+            </p>
+          </div>
+          <button
+            className="flex p-2 text-red-600"
+            onClick={() => setEditingMessage(null)}
+          >
+            <IoIosClose className="w-5 h-5" />
+          </button>
+        </div>
+      )}
       {showEmojiPicker && (
         <div className="absolute bottom-14 right-0 z-10">
           <Picker
@@ -158,6 +186,7 @@ const CommentMessageForm = ({
           <textarea
             title={`Write your ${type} here`}
             ref={messageRef}
+            defaultValue={initialValue}
             id={type}
             className="w-full min-h-[48px] h-[48px] pl-1 max-h-32 bg-white dark:bg-gray-600/10 outline-none rounded-lg focus:border-[1px] focus:border-primary-50"
             placeholder={placeholder}

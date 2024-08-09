@@ -1,9 +1,9 @@
 import Image from "next/image";
-import { useEffect, useRef, useContext, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import { format, isSameDay, parseISO } from "date-fns";
 import MediaGrid from "./MediaGrid";
 import Link from "next/link";
-import { SocketContext } from "~/utils/context/SocketContext";
+import { SocketContext, MessageContext } from "~/utils/context/SocketContext";
 import {
   IoCheckmarkOutline,
   IoCheckmarkDoneOutline,
@@ -22,14 +22,16 @@ const VideoEmbed = ({ url }) => {
     const youtubeShortsRegex =
       /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/;
 
-    if (youtubeShortsRegex.test(url)) {
-      return null;
-    }
     const match = url.match(youtubeRegex);
+    const matchSorts = url.match(youtubeShortsRegex);
+
     if (match) {
       return `https://www.youtube.com/embed/${match[1]}`;
     }
-    // Add more video platform checks here if needed
+    if (matchSorts) {
+      return `https://youtube.com/shorts/${matchSorts[1]}`;
+    }
+
     return null;
   };
 
@@ -79,11 +81,12 @@ const MessageList = ({
   onReply,
   messageEndRef,
 }) => {
-  const [selectedMessage, setSelectedMessage] = useState(null);
   const longPressTimer = useRef(null);
   const socket = useContext(SocketContext);
   const [isPageVisible, setIsPageVisible] = useState(true);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
+  const { selectedMessage, setSelectedMessage, setEditingMessage } =
+    useContext(MessageContext);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -157,11 +160,17 @@ const MessageList = ({
   };
 
   const handleEditMessage = () => {
-    // Function to handle message editing
+    if (selectedMessage) {
+      setEditingMessage(selectedMessage);
+      setSelectedMessage(null);
+    }
   };
 
   const handleDeleteMessage = () => {
-    // Function to handle message deletion
+    if (selectedMessage) {
+      socket.emit("deleteMessage", { messageId: selectedMessage._id, chatId });
+      setSelectedMessage(null);
+    }
   };
 
   const handlePinMessage = () => {
@@ -224,7 +233,7 @@ const MessageList = ({
   const renderMessage = (message, index, isSameDayAsNext) => {
     const hasLongWord = message?.message
       .split(/\s+/)
-      .some((word) => word.length > 20);
+      .some((word) => word.length > 16);
 
     return (
       <div
@@ -236,7 +245,10 @@ const MessageList = ({
         onTouchEnd={handleTouchEnd}
       >
         {!isSameDayAsNext && (
-          <div className=" flex w-full justify-center">
+          <div
+            style={{ touchAction: "none" }}
+            className="no-select flex w-full justify-center"
+          >
             <div className=" flex max-w-fit text-center font-normal text-[14px] my-2 dark:text-white px-2 py-1 bg-slate-800 bg-opacity-70 rounded-lg">
               {format(parseISO(message?.createdAt), "PPP")}
             </div>
@@ -266,7 +278,7 @@ const MessageList = ({
               />
             )}
             <div
-              className={`flex flex-col relative px-1 py-2 gap-1 rounded-lg w-11/12 z-10 ${
+              className={`no-select flex flex-col relative px-1 py-2 gap-1 rounded-lg w-11/12 z-10 ${
                 message?.writerId._id !== sessionUserId
                   ? " bg-secondary-700 text-gray-200 rounded-bl-none"
                   : " bg-secondary-800 text-gray-200  rounded-br-none"
@@ -303,52 +315,57 @@ const MessageList = ({
               </div>
               {selectedMessage && selectedMessage._id === message?._id && (
                 <div
-                className="flex flex-col gap-3 items-start fixed z-3000 rounded-md bg-zinc-900 p-2"
-                style={{ touchAction: "none", userSelect: "none", top: popupPosition.top, left: popupPosition.left }}
-              >
-                <button
-                  style={{ touchAction: "none", userSelect: "none" }}
-                  onClick={handleReply}
-                  className="flex items-center justify-between gap-3"
+                  className={`no-select flex flex-col w-[150px] gap-3 items-start absolute z-3000 rounded-md bg-zinc-900 p-2
+                  ${
+                    message?.writerId._id !== sessionUserId
+                      ? " left-[30px]"
+                      : " right-[30px]"
+                  }`}
+                  style={{ touchAction: "none", top: 0 }}
                 >
-                  <GoReply className="w-5 h-5 text-white" />
-                  <p className="flex items-center justify-center text-[14px]">
-                    Reply
-                  </p>
-                </button>
-                <button
-                  style={{ touchAction: "none", userSelect: "none" }}
-                  onClick={handleCopyText}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <IoMdCopy className="w-5 h-5 text-white" />
-                  <p className="flex items-center justify-center text-[14px]">
-                    Copy text
-                  </p>
-                </button>
-                {/* <button
-                disabled
-                  style={{ touchAction: "none", userSelect: "none" }}
-                  onClick={handleEditMessage}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <IoPencilOutline className="w-5 h-5 text-white" />
-                  <p className="flex items-center justify-center text-[14px]">
-                    Edit
-                  </p>
-                </button>
-                <button
-                disabled
-                  style={{ touchAction: "none", userSelect: "none" }}
-                  onClick={handleDeleteMessage}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <IoTrashOutline className="w-5 h-5 text-white" />
-                  <p className="flex items-center justify-center text-[14px]">
-                    Delete
-                  </p>
-                </button>
-                <button
+                  <button
+                    style={{ touchAction: "none" }}
+                    onClick={handleReply}
+                    className="no-select flex items-center justify-between gap-3 w-full"
+                  >
+                    <GoReply className="w-3/12 h-5 text-white" />
+                    <p className="flex items-center justify-start text-[14px] w-9/12">
+                      Reply
+                    </p>
+                  </button>
+                  <button
+                    style={{ touchAction: "none" }}
+                    onClick={handleCopyText}
+                    className="no-select flex items-center justify-between gap-3 w-full"
+                  >
+                    <IoMdCopy className="w-3/12 h-5 text-white" />
+                    <p className="flex items-center justify-start text-[14px] w-9/12">
+                      Copy text
+                    </p>
+                  </button>
+                  {selectedMessage.writerId._id === sessionUserId && (
+                    <button
+                      style={{ touchAction: "none" }}
+                      onClick={handleEditMessage}
+                      className="no-select flex items-center justify-between gap-3 w-full"
+                    >
+                      <IoPencilOutline className="w-3/12 h-5 text-white" />
+                      <p className="flex items-center justify-start text-[14px] w-9/12">
+                        Edit
+                      </p>
+                    </button>
+                  )}
+                  <button
+                    style={{ touchAction: "none" }}
+                    onClick={handleDeleteMessage}
+                    className="no-select flex items-center justify-between gap-3 w-full"
+                  >
+                    <IoTrashOutline className="w-3/12 h-5 text-white" />
+                    <p className="flex items-center justify-start text-[14px] w-9/12">
+                      Delete
+                    </p>
+                  </button>
+                  {/* <button
                 disabled
                   style={{ touchAction: "none", userSelect: "none" }}
                   onClick={handlePinMessage}
@@ -359,8 +376,7 @@ const MessageList = ({
                     Pin
                   </p>
                 </button> */}
-              </div>
-                
+                </div>
               )}
             </div>
           </div>

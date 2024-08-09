@@ -11,7 +11,6 @@ const Sidebar = ({ sessionUserId, openForm }) => {
   const [chats, setChats] = useState([]);
   const [search, setSearch] = useState("");
   const sessionId = useContext(SessionContext);
-  // const { unseenMessage } = useContext(MessageContext);
   const [time, setTime] = useState(0);
 
   const getChats = useCallback(async () => {
@@ -108,7 +107,6 @@ const Sidebar = ({ sessionUserId, openForm }) => {
                   )}
                   <div className="flex max-w-[300px]">
                     <p className="truncate">{chat?.lastMessage?.message ? chat?.lastMessage?.message : 'New media'}</p>
-                    {/* <p className="flex items-center justify-center absolute bottom-2 right-1 w-[20px] h-[20px] text-[10px] font-normal rounded-full border border-red-400">{unseenMessage}</p> */}
                   </div>
                 </div>
               </div>

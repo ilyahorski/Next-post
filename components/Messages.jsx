@@ -134,9 +134,29 @@ const Messages = ({ sessionUserId, closeForm }) => {
         );
       });
 
+      socket.on('messageUpdated', (updatedMessage) => {
+        if (updatedMessage && updatedMessage._id) {
+          setMessagesList((prevMessages) =>
+            prevMessages.map((msg) =>
+              msg._id === updatedMessage._id ? { ...msg, message: updatedMessage.message } : msg
+            )
+          );
+        } else {
+          console.error('Received invalid updated message:', updatedMessage);
+        }
+      });
+
+      socket.on('messageDeleted', ({ messageId }) => {
+        setMessagesList((prevMessages) =>
+          prevMessages.filter((msg) => msg._id !== messageId)
+        );
+      });
+
       return () => {
         socket.off("newMessage");
         socket.off('messageStatusUpdated');
+        socket.off('messageUpdated');
+        socket.off('messageDeleted');
         document.removeEventListener('visibilitychange', handleVisibilityChange);
         window.removeEventListener('focus', () => updateStatus('online'));
         window.removeEventListener('blur', () => updateStatus('offline'));

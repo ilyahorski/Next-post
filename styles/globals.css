@@ -9,6 +9,13 @@
   @apply text-zinc-50;
 }
 
+.no-select {
+  user-select: none; /* Отключает выделение текста на большинстве браузеров */
+  -webkit-user-select: none; /* Отключает выделение текста в Safari и Chrome */
+  -moz-user-select: none; /* Отключает выделение текста в Firefox */
+  -ms-user-select: none; /* Отключает выделение текста в Internet Explorer */
+}
+
 .custom-height {
   @apply h-screen;
   height: calc(100vh - 78px);
