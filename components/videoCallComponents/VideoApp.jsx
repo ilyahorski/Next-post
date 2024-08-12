@@ -236,7 +236,7 @@ const VideoApp = ({ chatMembers }) => {
 
   const acceptCall = useCallback(() => {
     setCallAccepted(true);
-    currentAudio.pause();
+    currentAudio && currentAudio?.pause();
     const peer = new Peer({
       initiator: false,
       trickle: false,
@@ -282,7 +282,7 @@ const VideoApp = ({ chatMembers }) => {
         connectionRef.current = null;
       }
       socket.current.emit("endCall", { chatId, to: id });
-      currentAudio.pause();
+      currentAudio?.pause();
       setIsVideoOn(false);
       setIsAudioOn(false);
       setCallEnded(true);
@@ -359,7 +359,7 @@ const VideoApp = ({ chatMembers }) => {
         connectionRef.current.destroy();
         connectionRef.current = null;
       }
-      currentAudio.pause();
+      currentAudio?.pause();
       setIsVideoOn(false);
       setIsAudioOn(false);
       setCallEnded(true);

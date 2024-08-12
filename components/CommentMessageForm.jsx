@@ -42,7 +42,7 @@ const CommentMessageForm = ({
   const resetForm = useCallback(() => {
     setMessage("");
     reset((value) => ({ ...value, message: "" }));
-    if (messageRef.current) {
+    if (messageRef?.current) {
       messageRef.current.value = "";
     }
   }, [reset, messageRef]);
@@ -50,7 +50,7 @@ const CommentMessageForm = ({
   const onSubmit = async (data) => {
     setShowEmojiPicker(false);
     if (selectedFiles.length > 0) {
-      fileUploadRef.current.upload();
+      fileUploadRef?.current?.upload();
     } else {
       await sendMessage(message, []);
     }
@@ -97,13 +97,17 @@ const CommentMessageForm = ({
 
   useEffect(() => {
     if (editingMessage) {
+      setValue(type, editingMessage.message); 
+      setMessage(editingMessage.message);
       const length = editingMessage.message.length;
-      if (messageRef.current) {
+      if (messageRef?.current) {
         messageRef.current.setSelectionRange(length, length);
       }
       setFocus(type);
+    } else {
+      resetForm();
     }
-  }, [editingMessage]);
+  }, [editingMessage, setValue, setFocus, type, messageRef]);
 
   const handleKeyDown = (event) => {
     if (!isMobile && event.key === "Enter" && !event.shiftKey) {
@@ -129,7 +133,7 @@ const CommentMessageForm = ({
       setValue(type, newMessage);
       setFocus(type);
 
-      if (messageRef.current) {
+      if (messageRef?.current) {
         const newCursorPosition = cursorPosition + emoji.native.length;
         messageRef.current.selectionStart = newCursorPosition;
         messageRef.current.selectionEnd = newCursorPosition;
@@ -239,19 +243,21 @@ const CommentMessageForm = ({
           </div>
         </div>
       </form>
-      <CustomFileUpload
-        showFileUpload={showFileUpload}
-        setShowFileUpload={setShowFileUpload}
-        fileUploadRef={fileUploadRef}
-        messageRef={messageRef}
-        onUpload={onUpload}
-        onSelect={onSelect}
-        onClear={onClear}
-        handleChange={handleChange}
-        register={register}
-        errors={errors}
-        resetForm={resetForm}
-      />
+      {showFileUpload && (
+        <CustomFileUpload
+          showFileUpload={showFileUpload}
+          setShowFileUpload={setShowFileUpload}
+          fileUploadRef={fileUploadRef}
+          messageRef={messageRef}
+          onUpload={onUpload}
+          onSelect={onSelect}
+          onClear={onClear}
+          handleChange={handleChange}
+          register={register}
+          errors={errors}
+          resetForm={resetForm}
+        />
+      )}
     </div>
   );
 };

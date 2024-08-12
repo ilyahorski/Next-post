@@ -30,6 +30,12 @@ const MessageForm = ({
         messageId: editingMessage._id,
         newText: data.message,
         chatId: id,
+      }, (response) => {
+        if (response.status === 'success') {
+          console.log("Message updated successfully");
+        } else {
+          console.error("Failed to update message:", response.error);
+        }
       });
       setEditingMessage(null);
     } else if (sessionUserId) {
@@ -81,14 +87,19 @@ const MessageForm = ({
 
   useEffect(() => {
     if (messageEndRef.current) {
-      window.requestAnimationFrame(() => 
-        messageEndRef.current.scrollIntoView({
-          block: "end",
-          inline: "end",
-        })
-      )
+      setTimeout(() => {
+        window.requestAnimationFrame(() => 
+          messageEndRef.current.scrollIntoView({
+            // behavior: 'smooth',
+            block: 'end',
+            // block: "start",
+            // inline: 'nearest'
+          })
+        )
+      }, 200);
     }
   }, [newMessageGet]);
+
 
   return (
     <CommentMessageForm

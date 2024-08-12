@@ -16,48 +16,93 @@ import { GoReply } from "react-icons/go";
 import { twMerge } from "tailwind-merge";
 
 const VideoEmbed = ({ url }) => {
-  const getEmbedUrl = (url) => {
-    const youtubeRegex =
-      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/;
-    const youtubeShortsRegex =
-      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/;
+  const [tiktokLoaded, setTiktokLoaded] = useState(false);
 
-    const match = url.match(youtubeRegex);
-    const matchSorts = url.match(youtubeShortsRegex);
+  const getEmbedInfo = (url) => {
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|shorts\/)?([a-zA-Z0-9_-]+)/;
+    const tiktokRegex = /(?:https?:\/\/)?(?:www\.)?(?:tiktok\.com)\/@([\w.-]+)\/video\/(\d+)/;
 
-    if (match) {
-      return `https://www.youtube.com/embed/${match[1]}`;
+    const youtubeMatch = url.match(youtubeRegex);
+    const tiktokMatch = url.match(tiktokRegex);
+
+    if (youtubeMatch) {
+      return { type: 'youtube', embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}` };
     }
-    if (matchSorts) {
-      return `https://youtube.com/shorts/${matchSorts[1]}`;
+    if (tiktokMatch) {
+      return { type: 'tiktok', videoId: tiktokMatch[2] };
     }
 
-    return null;
+    return { type: 'unknown' };
   };
 
-  const embedUrl = getEmbedUrl(url);
+  const { type, embedUrl, videoId } = getEmbedInfo(url);
 
-  if (!embedUrl) {
-    return (
-      <Link href={url} className="text-blue-500 underline">
-        {url}
-      </Link>
-    );
-  }
+  useEffect(() => {
+    if (type === 'tiktok') {
+      const script = document.createElement('script');
+      script.src = 'https://www.tiktok.com/embed.js';
+      script.async = true;
+      script.onload = () => setTiktokLoaded(true);
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, [type]);
+
+  const renderEmbed = () => {
+    switch (type) {
+      case 'youtube':
+        return (
+          <>
+            <iframe
+              width="100%"
+              height="315"
+              src={embedUrl}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+            <Link href={url} className="text-blue-500 underline">
+              {url}
+            </Link>
+          </>
+        );
+      case 'tiktok':
+        return (
+          <>
+            {tiktokLoaded ? (
+              <blockquote 
+                className="tiktok-embed" 
+                cite={url}
+                data-video-id={videoId}
+                style={{ maxWidth: '605px', minWidth: '325px' }}
+              >
+                <section>
+                  <a target="_blank" title="@username" href={`https://www.tiktok.com/@username`}>@username</a>
+                </section>
+              </blockquote>
+            ) : (
+              <p>Загрузка TikTok видео...</p>
+            )}
+            <Link href={url} className="text-blue-500 underline">
+              {url}
+            </Link>
+          </>
+        );
+      default:
+        return (
+          <Link href={url} className="text-blue-500 underline">
+            {url}
+          </Link>
+        );
+    }
+  };
 
   return (
     <div className="max-w-[300px]">
-      <iframe
-        width="100%"
-        // height="315"
-        src={embedUrl}
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-      ></iframe>
-      <Link href={url} className="text-blue-500 underline">
-        {url}
-      </Link>
+      {renderEmbed()}
     </div>
   );
 };
@@ -84,7 +129,6 @@ const MessageList = ({
   const longPressTimer = useRef(null);
   const socket = useContext(SocketContext);
   const [isPageVisible, setIsPageVisible] = useState(true);
-  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
   const { selectedMessage, setSelectedMessage, setEditingMessage } =
     useContext(MessageContext);
 
@@ -130,7 +174,6 @@ const MessageList = ({
   const handleContextMenu = (message, event) => {
     event.preventDefault();
     setSelectedMessage(message);
-    setPopupPosition({ top: event.clientY, left: event.clientX });
   };
 
   const handleTouchStart = (message) => {
@@ -406,7 +449,8 @@ const MessageList = ({
           </div>
         )}
       </div>
-      <div ref={messageEndRef} />
+      <div className="h-1"/>
+      <div ref={messageEndRef} className="h-0.5" />
     </div>
   );
 };

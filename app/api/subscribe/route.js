@@ -13,12 +13,24 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: 'User ID is required' });
     }
 
-    const newSubscription = new Subscription({
-      userId,
-      endpoint: subscription.endpoint,
-      keys: subscription.keys
+    await Subscription.deleteMany({ userId });
+
+    const existingSubscription = await Subscription.findOne({ 
+      userId, 
+      endpoint: subscription.endpoint 
     });
-    await newSubscription.save();
+
+    if (existingSubscription) {
+      existingSubscription.keys = subscription.keys;
+      await existingSubscription.save();
+    } else {
+      const newSubscription = new Subscription({
+        userId,
+        endpoint: subscription.endpoint,
+        keys: subscription.keys
+      });
+      await newSubscription.save();
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
