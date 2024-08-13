@@ -4,6 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import { createContext, useEffect, useState } from "react";
 import SocketProvider from "~/utils/context/SocketContext";
 import VideoContextProvider from "~/utils/context/VideoContext";
+import useServiceWorker from "~/utils/hooks/useServiceWorker";
 import { getLocalView } from "~/utils/localSrorageService";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PrimeReactProvider } from "primereact/api";
@@ -19,6 +20,8 @@ const Provider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(true);
   const [columnView, setColumnView] = useState(getLocalView());
   const colorTheme = darkMode ? "dark" : "";
+  
+  useServiceWorker();
 
   useEffect(() => {
     const root = window.document.documentElement;

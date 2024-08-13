@@ -1,4 +1,39 @@
 const channel = new BroadcastChannel('sw-messages');
+const CACHE_NAME = 'notification-icons-v1';
+const ICONS_TO_CACHE = [
+  '/assets/icons/call.png',
+  '/assets/icons/callr.png'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(ICONS_TO_CACHE))
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  if (ICONS_TO_CACHE.includes(event.request.url)) {
+    event.respondWith(
+      caches.match(event.request)
+        .then((response) => response || fetch(event.request))
+    );
+  }
+});
+
+self.addEventListener('notificationclose', function(event) {
+  const notification = event.notification;
+  const data = notification.data;
+
+  if (data && data.type === 'call') {
+    // Отправляем сообщение через BroadcastChannel
+    channel.postMessage({
+      type: 'CALL_ENDED',
+      action: 'reject',
+      chatId: data.chatId
+    });
+  }
+});
 
 self.addEventListener('push', function(event) {
   event.preventDefault();
@@ -45,8 +80,8 @@ self.addEventListener('push', function(event) {
 
       if (type === 'call') {
         options.actions = [
-          { action: 'accept', type: 'button', title: 'Accept Call', icon: '/assets/icons/incoming-call.png' },
-          { action: 'reject', type: 'button', title: 'Reject Call', icon: '/assets/icons/rejected.png' },
+          { action: 'accept', type: 'button', title: 'Accept Call', icon: '/assets/icons/call.png' },
+          { action: 'reject', type: 'button', title: 'Reject Call', icon: '/assets/icons/callr.png' },
         ];
 
         // Отправляем сообщение через BroadcastChannel

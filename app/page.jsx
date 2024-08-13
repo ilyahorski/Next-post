@@ -6,10 +6,8 @@ import { useSession } from "next-auth/react";
 import { ScrollToTop } from "~/components/ScrollToTop";
 import { ToastContainer } from "react-toastify";
 import Link from "next/link";
-import useServiceWorker from "~/utils/hooks/useServiceWorker";
 
 const Home = () => {
-  useServiceWorker();
   const { status } = useSession();
 
   const error = console.error;

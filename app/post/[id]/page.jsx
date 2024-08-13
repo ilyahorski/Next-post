@@ -3,6 +3,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ReactTimeAgo from "react-time-ago";
+import JavascriptTimeAgo from "javascript-time-ago";
 import Image from "next/image";
 import {
   supportedLocales,
@@ -18,6 +19,8 @@ import Comments from "~/components/Comments";
 import CommentForm from "~/components/CommentForm";
 import VideoPlayer from "~/components/VideoPlayer";
 import { SocketContext, SessionContext } from "~/utils/context/SocketContext";
+
+JavascriptTimeAgo.addLocale(supportedLocales.en);
 
 const Post = () => {
   const searchParams = useSearchParams();
@@ -35,6 +38,8 @@ const Post = () => {
   const [liked, setLiked] = useState(false);
   const [type, setType] = useState("");
   const [allComments, setAllComments] = useState({});
+  const [localeLoaded, setLocaleLoaded] = useState(false);
+
   const locale = navigator.language;
 
   const socket = useContext(SocketContext);
@@ -89,6 +94,14 @@ const Post = () => {
 
     if (postIds) getPostDetails();
   }, [sessionId]);
+
+  useEffect(() => {
+    const userLocale = navigator.language.split('-')[0];
+    setLocaleLoaded(true);
+    if (userLocale in supportedLocales) {
+      JavascriptTimeAgo.addLocale(supportedLocales[userLocale]);
+    }
+  }, []);
 
   return (
     <>
