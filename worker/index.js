@@ -1,3 +1,5 @@
+const channel = new BroadcastChannel('sw-messages');
+
 self.addEventListener('push', function(event) {
   event.preventDefault();
   let data = {};
@@ -16,7 +18,7 @@ self.addEventListener('push', function(event) {
       const chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${data.chatId}`;
 
       for (let client of clients) {
-        if (client.url.includes(chatUrl) && 'focus' in client) {
+        if (client.url.includes(chatUrl) && 'focus' in client && data.type !== 'call') {
           isChatOpen = true;
           client.focus();
           break;
@@ -33,6 +35,10 @@ self.addEventListener('push', function(event) {
         icon: userIcon,
         badge: '/assets/email.png',
         sound: '/assets/notif.mp3',
+        vibrate: [
+          500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200, 110, 170,
+          40, 500,
+        ],
         tag: notificationTag,
         renotify: false, 
       };
@@ -42,6 +48,12 @@ self.addEventListener('push', function(event) {
           { action: 'accept', type: 'button', title: 'Accept Call', icon: '/assets/icons/incoming-call.png' },
           { action: 'reject', type: 'button', title: 'Reject Call', icon: '/assets/icons/rejected.png' },
         ];
+
+        // Отправляем сообщение через BroadcastChannel
+        channel.postMessage({
+          type: 'INCOMING_CALL',
+          chatId: data.chatId
+        });
 
         return self.registration.showNotification(title, options);
       } else if (!isChatOpen) {
@@ -64,19 +76,39 @@ self.addEventListener('notificationclick', function(event) {
       if (response) {
         return response.json().then(data => {
           const { chatId, type } = data;
-          
-          if (type === 'call') {
-            let chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}?source=push`;
-            
-            if (event.action === 'reject') {
-              chatUrl += '&type=reject';
-            }
 
-            return clients.openWindow(chatUrl);
-          } else {
-            const chatUrl = chatId ? `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}` : `${process.env.NEXT_PUBLIC_BASE_URL}/chat`;
-            return clients.openWindow(chatUrl);
-          }
+          self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clients) {
+            let client = clients.find(c => c.url.startsWith(process.env.NEXT_PUBLIC_BASE_URL) && 'navigate' in c);
+            
+            if (type === 'call') {
+              let chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}?source=push`;
+              
+              if (event.action === 'reject' || event.action === 'accept') {
+                chatUrl += `&type=${event.action}`;
+          
+                // Отправляем сообщение через BroadcastChannel
+                channel.postMessage({
+                  type: 'CALL_ENDED',
+                  action: event.action,
+                  chatId: chatId
+                });
+              }
+  
+              if (event.action === 'reject') {
+                return;
+              }
+              
+              if (client) {
+                return client.navigate(chatUrl).then(client => client.focus());
+              } else {
+                return clients.openWindow(chatUrl);
+              }
+            } else {
+              const chatUrl = chatId ? `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}` : `${process.env.NEXT_PUBLIC_BASE_URL}/chat`;
+              return clients.openWindow(chatUrl);
+            }
+          })
+        
         });
       } else {
         caches.delete('action-data');
@@ -85,4 +117,10 @@ self.addEventListener('notificationclick', function(event) {
       }
     })
   );
+});
+
+// Добавляем обработчик сообщений от основного потока (если понадобится)
+self.addEventListener('message', (event) => {
+  console.log('SW received message:', event.data);
+  // Здесь можно обрабатывать сообщения от основного потока, если это необходимо
 });

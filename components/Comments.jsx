@@ -18,7 +18,7 @@ const Comments = ({postId, isMain, comments, setComments}) => {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    if (postId && socket && isLoading === true) {
+    if (postId && socket && setComments && isLoading === true) {
       socket.emit('getComments', {postId});
       setIsLoading(true);
 
@@ -73,10 +73,10 @@ const Comments = ({postId, isMain, comments, setComments}) => {
   return (
     <>
       <div className='comment-list'>
-        {comments.map((comment, index) => (
+        {comments?.map((comment, index) => (
           <div
             key={comment?._id}
-            ref={index === comments.length - 1 ? endOfComments : null}
+            ref={index === comments?.length - 1 ? endOfComments : null}
             className={!isMain
               ? 'border-b-[1px] border-black/20 dark:border-white/20 flex flex-row justify-between flex-wrap m-1 items-start gap-2'
               : 'flex flex-row justify-between flex-wrap m-1 items-start gap-2'

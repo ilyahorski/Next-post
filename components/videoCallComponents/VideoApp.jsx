@@ -52,6 +52,7 @@ const VideoApp = ({ chatMembers }) => {
   const urlParams = new URLSearchParams(window.location.search);
   const openedFromPush = urlParams.get("source") === "push";
   const actionType = urlParams.get("type") === "reject";
+  // TODO: add ringtone
 
   const router = useRouter();
   const sessionId = useContext(SessionContext);
@@ -199,7 +200,7 @@ const VideoApp = ({ chatMembers }) => {
     (id) => {
       playAudio("/assets/ringtone.mp3");
       setReciever(id);
-      const callerId = users.filter((getId) => getId !== id)[0];
+      const callerId = users?.filter((getId) => getId !== id)[0];
       if (!yourID) {
         console.log("Socket not ready or yourID not set");
         return;
@@ -228,6 +229,10 @@ const VideoApp = ({ chatMembers }) => {
       socket.current.on("callAccepted", (data) => {
         setCallAccepted(true);
         setReceivingCall(true);
+        if (currentAudio) {
+          currentAudio.pause();
+          setCurrentAudio(null);
+        }
         peer.signal(data.signal);
       });
     },
@@ -236,13 +241,21 @@ const VideoApp = ({ chatMembers }) => {
 
   const acceptCall = useCallback(() => {
     setCallAccepted(true);
-    currentAudio && currentAudio?.pause();
+    if (currentAudio) {
+      currentAudio.pause();
+      setCurrentAudio(null);
+    }
     const peer = new Peer({
       initiator: false,
       trickle: false,
       config: iceServersConfig,
       stream: stream,
     });
+
+    if (currentAudio) {
+      currentAudio.pause();
+      setCurrentAudio(null);
+    }
 
     peer.on("signal", (data) => {
       socket.current.emit("acceptCall", {
@@ -259,8 +272,19 @@ const VideoApp = ({ chatMembers }) => {
       }
     });
 
+    if (currentAudio) {
+      currentAudio.pause();
+      setCurrentAudio(null);
+    }
+
     if (callerSignal) {
       if (peer.destroyed) {
+
+        if (currentAudio) {
+          currentAudio.pause();
+          setCurrentAudio(null);
+        }
+
         console.log("Peer is destroyed, cannot signal.");
         return;
       }
@@ -270,6 +294,11 @@ const VideoApp = ({ chatMembers }) => {
     }
 
     connectionRef.current = peer;
+
+    if (currentAudio) {
+      currentAudio.pause();
+      setCurrentAudio(null);
+    }
   }, [callAccepted, caller, callerSignal, stream]);
 
   const leaveCall = useCallback(
@@ -282,7 +311,10 @@ const VideoApp = ({ chatMembers }) => {
         connectionRef.current = null;
       }
       socket.current.emit("endCall", { chatId, to: id });
-      currentAudio?.pause();
+      if (currentAudio) {
+        currentAudio.pause();
+        setCurrentAudio(null);
+      }
       setIsVideoOn(false);
       setIsAudioOn(false);
       setCallEnded(true);
@@ -332,6 +364,10 @@ const VideoApp = ({ chatMembers }) => {
   useEffect(() => {
     if (callAccepted && receivedStream) {
       partnerVideo.current.srcObject = receivedStream;
+      if (currentAudio) {
+        currentAudio.pause();
+        setCurrentAudio(null);
+      }
     }
   }, [callAccepted, receivedStream]);
 
@@ -359,7 +395,10 @@ const VideoApp = ({ chatMembers }) => {
         connectionRef.current.destroy();
         connectionRef.current = null;
       }
-      currentAudio?.pause();
+      if (currentAudio) {
+        currentAudio.pause();
+        setCurrentAudio(null);
+      }
       setIsVideoOn(false);
       setIsAudioOn(false);
       setCallEnded(true);

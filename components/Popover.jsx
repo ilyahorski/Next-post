@@ -4,15 +4,19 @@ import Link from "next/link";
 import { MdOutlineLibraryAdd } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { AiOutlineUserDelete } from "react-icons/ai";
+import { GiSoundOff, GiSoundOn } from "react-icons/gi";
 import SubscribeToPush from "../components/pushNotification/SubscribeToPush";
 import useClickOutside from "~/utils/hooks/useClickOutside";
+import useServiceWorker from "~/utils/hooks/useServiceWorker";
 
 const Popover = ({ handleDelete, session, setIsPopoverOpen, onClose  }) => {
   const popoverRef = useRef(null);
 
+  const { isAudioAllowed, allowAudio } = useServiceWorker()
   useClickOutside(popoverRef, onClose);
+
   return (
-    <div ref={popoverRef} className="bg-zinc-800 p-4 rounded-lg shadow-lg w-64 h-72 relative">
+    <div ref={popoverRef} className="bg-zinc-800 p-4 rounded-lg shadow-lg w-64 h-auto relative">
       <button className="absolute top-2 right-2" onClick={() => setIsPopoverOpen(false)}>
         ✖
       </button>
@@ -38,6 +42,15 @@ const Popover = ({ handleDelete, session, setIsPopoverOpen, onClose  }) => {
         >
           <AiOutlineUserDelete className="w-10 h-10" />
           <span>Delete profile</span>
+        </button>
+        <button
+          className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60"
+          onClick={() => allowAudio()}
+        >
+          {isAudioAllowed ? <GiSoundOn className="w-10 h-10" /> : <GiSoundOff className="w-10 h-10" />}
+          <span>
+            {isAudioAllowed ? "Turn sound off" : "Turn sound on"}
+          </span>
         </button>
       </div>
     </div>

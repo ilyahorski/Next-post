@@ -2,7 +2,6 @@
 
 import { useContext, useEffect, useState } from "react";
 import Image from "next/image";
-import { getProviders } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { parseTags } from "~/utils/tagStringToArray";
 import { HeartIcon } from "@heroicons/react/24/outline";
@@ -35,7 +34,6 @@ const PostCard = ({
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState("");
-  const [providers, setProviders] = useState(null);
   const [localeLoaded, setLocaleLoaded] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -98,13 +96,6 @@ const PostCard = ({
     }
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      const res = await getProviders();
-      setProviders(res);
-    })();
-  }, []);
-
   const handleProfileClick = () => {
     if (post.creator._id === sessionId) return router.push("/profile");
 
@@ -139,7 +130,7 @@ const PostCard = ({
 
   return (
     <>
-      {post && providers && localeLoaded ? (
+      {post && localeLoaded ? (
         <div
           className={`${postCardStyle} ${
             columnView ? " sm:w-[510px] w-[370px]" : "sm:w-[510px] w-[370px]"
@@ -238,58 +229,54 @@ const PostCard = ({
             >
               {post.post}
             </p>
-            {comments && (
-              <>
-                <div className="flex items-start justify-between pb-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {tags.map((tag, i) => (
-                      <p
-                        key={i}
-                        title={`Click to find all ${tag} posts`}
-                        className="font-inter text-sm text-cyan-600 cursor-pointer"
-                        onClick={() => handleTagClick && handleTagClick(tag)}
-                      >
-                        {tag}
-                      </p>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-satoshi text-[16px] text-gray-700 dark:text-gray-400">
-                      {likes}
-                    </p>
-                    <button
-                      onClick={() =>
-                        toggleLike({
-                          id: post._id,
-                          session: sessionId,
-                          setLikes: setLikes,
-                          setLiked: setLiked,
-                        })
-                      }
-                    >
-                      {liked ? (
-                        <Heart className="h-6 w-6 text-red-500 " />
-                      ) : (
-                        <HeartIcon className="h-6 w-6 " />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <div
-                  title="Click to open a comments"
-                  className="cursor-pointer"
-                  onClick={() => handlePostOpen(post)}
+            <div className="flex items-start justify-between pb-1">
+              <div className="flex flex-wrap items-center gap-2">
+                {tags.map((tag, i) => (
+                  <p
+                    key={i}
+                    title={`Click to find all ${tag} posts`}
+                    className="font-inter text-sm text-cyan-600 cursor-pointer"
+                    onClick={() => handleTagClick && handleTagClick(tag)}
+                  >
+                    {tag}
+                  </p>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <p className="font-satoshi text-[16px] text-gray-700 dark:text-gray-400">
+                  {likes}
+                </p>
+                <button
+                  onClick={() =>
+                    toggleLike({
+                      id: post._id,
+                      session: sessionId,
+                      setLikes: setLikes,
+                      setLiked: setLiked,
+                    })
+                  }
                 >
-                  <Comments
-                    postId={post?._id}
-                    isMain={true}
-                    comments={comments}
-                    setComments={setComments}
-                  />
-                </div>
-                <CommentForm postId={post?._id} userId={sessionId} />
-              </>
-            )}
+                  {liked ? (
+                    <Heart className="h-6 w-6 text-red-500 " />
+                  ) : (
+                    <HeartIcon className="h-6 w-6 " />
+                  )}
+                </button>
+              </div>
+            </div>
+            <div
+              title="Click to open a comments"
+              className="cursor-pointer"
+              onClick={() => handlePostOpen(post)}
+            >
+              <Comments
+                postId={post?._id}
+                isMain={true}
+                comments={comments}
+                setComments={setComments}
+              />
+            </div>
+            <CommentForm postId={post?._id} userId={sessionId} />
           </div>
 
           {sessionId === post.creator._id && /^\/profile/.test(pathName) && (
