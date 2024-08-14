@@ -1,41 +1,64 @@
-const channel = new BroadcastChannel('sw-messages');
-const CACHE_NAME = 'notification-icons-v1';
-const ICONS_TO_CACHE = [
-  '/assets/icons/call.png',
-  '/assets/icons/callr.png'
-];
+const channel = new BroadcastChannel("sw-messages");
+const CACHE_NAME = "notification-icons-v1";
+const ICONS_TO_CACHE = ["/assets/icons/call.png", "/assets/icons/callr.png"];
 
-self.addEventListener('install', (event) => {
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(ICONS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ICONS_TO_CACHE))
   );
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener("fetch", (event) => {
   if (ICONS_TO_CACHE.includes(event.request.url)) {
     event.respondWith(
-      caches.match(event.request)
+      caches
+        .match(event.request)
         .then((response) => response || fetch(event.request))
     );
   }
 });
 
-self.addEventListener('notificationclose', function(event) {
+self.addEventListener("notificationclose", function (event) {
+  event.stopImmediatePropagation();
   const notification = event.notification;
   const data = notification.data;
+  console.log("notification close", data);
 
-  if (data && data.type === 'call') {
+  if (data && data.type === "call") {
     // Отправляем сообщение через BroadcastChannel
     channel.postMessage({
-      type: 'CALL_ENDED',
-      action: 'reject',
-      chatId: data.chatId
+      type: "CALL_ENDED",
+      action: "reject",
+      chatId: data.chatId,
+    });
+    // Отправляем сообщение всем активным клиентам
+    self.clients.matchAll().then((clients) => {
+      clients.forEach((client) => {
+        client.postMessage({
+          type: "CALL_ENDED",
+          action: "reject",
+          chatId: data.chatId,
+        });
+      });
+    });
+
+    // Сохраняем информацию о закрытии вызова в кэше
+    caches.open("call-status").then((cache) => {
+      cache.put(
+        "last-call-status",
+        new Response(
+          JSON.stringify({
+            status: "closed",
+            chatId: data.chatId,
+            timestamp: Date.now(),
+          })
+        )
+      );
     });
   }
 });
 
-self.addEventListener('push', function(event) {
+self.addEventListener("push", function (event) {
   event.preventDefault();
   let data = {};
   if (event.data) {
@@ -43,119 +66,155 @@ self.addEventListener('push', function(event) {
   }
 
   if (data.chatId) {
-    const chatDataResponse = new Response(new Blob([JSON.stringify(data)], { type: 'application/json' }));
-    event.waitUntil(caches.open('chat-data').then(cache => cache.put('current-chat-data', chatDataResponse)));
+    const chatDataResponse = new Response(
+      new Blob([JSON.stringify(data)], { type: "application/json" })
+    );
+    event.waitUntil(
+      caches
+        .open("chat-data")
+        .then((cache) => cache.put("current-chat-data", chatDataResponse))
+    );
   }
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clients) {
-      let isChatOpen = false;
-      const chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${data.chatId}`;
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then(function (clients) {
+        let isChatOpen = false;
+        const chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${data.chatId}`;
 
-      for (let client of clients) {
-        if (client.url.includes(chatUrl) && 'focus' in client && data.type !== 'call') {
-          isChatOpen = true;
-          client.focus();
-          break;
-        }
-      }
-
-      const title = data.title || 'Message from Next Post';
-      const userIcon = data.userIcon;
-      const type = data.type || 'message';
-      const notificationTag = `chat-${data.chatId}-${data.body}`;
-
-      const options = {
-        body: data.body || 'Click to open chat',
-        icon: userIcon,
-        badge: '/assets/email.png',
-        sound: '/assets/notif.mp3',
-        vibrate: [
-          500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200, 110, 170,
-          40, 500,
-        ],
-        tag: notificationTag,
-        renotify: false, 
-      };
-
-      if (type === 'call') {
-        options.actions = [
-          { action: 'accept', type: 'button', title: 'Accept Call', icon: '/assets/icons/call.png' },
-          { action: 'reject', type: 'button', title: 'Reject Call', icon: '/assets/icons/callr.png' },
-        ];
-
-        // Отправляем сообщение через BroadcastChannel
-        channel.postMessage({
-          type: 'INCOMING_CALL',
-          chatId: data.chatId
-        });
-
-        return self.registration.showNotification(title, options);
-      } else if (!isChatOpen) {
-        return self.registration.getNotifications({ tag: notificationTag }).then(existingNotifications => {
-          if (existingNotifications.length === 0) {
-            return self.registration.showNotification(title, options);
+        for (let client of clients) {
+          if (
+            client.url.includes(chatUrl) &&
+            "focus" in client &&
+            data.type !== "call"
+          ) {
+            isChatOpen = true;
+            client.focus();
+            break;
           }
-        });
-      }
-    })
+        }
+
+        const title = data.title || "Message from Next Post";
+        const userIcon = data.userIcon;
+        const type = data.type || "message";
+        const notificationTag = `chat-${data.chatId}-${data.body}`;
+
+        const options = {
+          body: data.body || "Click to open chat",
+          icon: userIcon,
+          badge: "/assets/email.png",
+          sound: "/assets/notif.mp3",
+          vibrate: [
+            500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200, 110,
+            170, 40, 500,
+          ],
+          tag: notificationTag,
+          renotify: false,
+        };
+
+        if (type === "call") {
+          options.actions = [
+            {
+              action: "accept",
+              type: "button",
+              title: "Accept Call",
+              icon: "/assets/icons/callr.png",
+            },
+            {
+              action: "reject",
+              type: "button",
+              title: "Reject Call",
+              icon: "/assets/icons/call.png",
+            },
+          ];
+
+          // Отправляем сообщение через BroadcastChannel
+          channel.postMessage({
+            type: "INCOMING_CALL",
+            chatId: data.chatId,
+          });
+
+          return self.registration.showNotification(title, options);
+        } else if (!isChatOpen) {
+          return self.registration
+            .getNotifications({ tag: notificationTag })
+            .then((existingNotifications) => {
+              if (existingNotifications.length === 0) {
+                return self.registration.showNotification(title, options);
+              }
+            });
+        }
+      })
   );
 });
 
-self.addEventListener('notificationclick', function(event) {
+self.addEventListener("notificationclick", function (event) {
   event.preventDefault();
   event.notification.close();
 
   event.waitUntil(
-    caches.open('chat-data').then(cache => cache.match('current-chat-data')).then(response => {
-      if (response) {
-        return response.json().then(data => {
-          const { chatId, type } = data;
+    caches
+      .open("chat-data")
+      .then((cache) => cache.match("current-chat-data"))
+      .then((response) => {
+        if (response) {
+          return response.json().then((data) => {
+            const { chatId, type } = data;
 
-          self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clients) {
-            let client = clients.find(c => c.url.startsWith(process.env.NEXT_PUBLIC_BASE_URL) && 'navigate' in c);
-            
-            if (type === 'call') {
-              let chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}?source=push`;
-              
-              if (event.action === 'reject' || event.action === 'accept') {
-                chatUrl += `&type=${event.action}`;
-          
-                // Отправляем сообщение через BroadcastChannel
-                channel.postMessage({
-                  type: 'CALL_ENDED',
-                  action: event.action,
-                  chatId: chatId
-                });
-              }
-  
-              if (event.action === 'reject') {
-                return;
-              }
-              
-              if (client) {
-                return client.navigate(chatUrl).then(client => client.focus());
-              } else {
-                return clients.openWindow(chatUrl);
-              }
-            } else {
-              const chatUrl = chatId ? `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}` : `${process.env.NEXT_PUBLIC_BASE_URL}/chat`;
-              return clients.openWindow(chatUrl);
-            }
-          })
-        
-        });
-      } else {
-        caches.delete('action-data');
-        caches.delete('chat-data');
-        return clients.openWindow(`${process.env.NEXT_PUBLIC_BASE_URL}/chat`);
-      }
-    })
+            self.clients
+              .matchAll({ type: "window", includeUncontrolled: true })
+              .then(function (clients) {
+                let client = clients.find(
+                  (c) =>
+                    c.url.startsWith(process.env.NEXT_PUBLIC_BASE_URL) &&
+                    "navigate" in c
+                );
+
+                if (type === "call") {
+                  let chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}?source=push`;
+
+                  if (event.action === "reject" || event.action === "accept") {
+                    chatUrl += `&type=${event.action}`;
+
+                    // Отправляем сообщение через BroadcastChannel
+                    channel.postMessage({
+                      type: "CALL_ENDED",
+                      action: event.action,
+                      chatId: chatId,
+                    });
+                  }
+
+                  if (event.action === "reject") {
+                    return;
+                  }
+
+                  if (client) {
+                    return client
+                      .navigate(chatUrl)
+                      .then((client) => client.focus());
+                  } else {
+                    return clients.openWindow(chatUrl);
+                  }
+                } else {
+                  const chatUrl = chatId
+                    ? `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}`
+                    : `${process.env.NEXT_PUBLIC_BASE_URL}/chat`;
+                  return clients.openWindow(chatUrl);
+                }
+              });
+          });
+        } else {
+          caches.delete("action-data");
+          caches.delete("chat-data");
+          return clients.openWindow(`${process.env.NEXT_PUBLIC_BASE_URL}/chat`);
+        }
+      })
   );
 });
 
 // Добавляем обработчик сообщений от основного потока (если понадобится)
-self.addEventListener('message', (event) => {
-  console.log('SW received message:', event.data);
+self.addEventListener("message", (event) => {
+  console.log("SW received message:", event.data);
   // Здесь можно обрабатывать сообщения от основного потока, если это необходимо
 });

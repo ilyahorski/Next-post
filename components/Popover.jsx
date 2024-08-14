@@ -38,19 +38,19 @@ const Popover = ({ handleDelete, session, setIsPopoverOpen, onClose  }) => {
         <SubscribeToPush />
         <button
           className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60"
-          onClick={() => handleDelete()}
-        >
-          <AiOutlineUserDelete className="w-10 h-10" />
-          <span>Delete profile</span>
-        </button>
-        <button
-          className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60"
           onClick={() => allowAudio()}
         >
           {isAudioAllowed ? <GiSoundOn className="w-10 h-10" /> : <GiSoundOff className="w-10 h-10" />}
           <span>
             {isAudioAllowed ? "Turn sound off" : "Turn sound on"}
           </span>
+        </button>
+        <button
+          className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60"
+          onClick={() => handleDelete()}
+        >
+          <AiOutlineUserDelete className="w-10 h-10" />
+          <span>Delete profile</span>
         </button>
       </div>
     </div>

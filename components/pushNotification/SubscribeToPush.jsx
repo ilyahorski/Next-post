@@ -60,7 +60,6 @@ const SubscribeToPush = () => {
         });
 
         setIsSubscribed(true);
-        console.log("User is subscribed:", subscription);
       }
     } catch (error) {
       console.error("Failed to subscribe the user: ", error);

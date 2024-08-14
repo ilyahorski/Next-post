@@ -26,6 +26,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
   const [background, setBackground] = useState('/assets/bg/1.jpg');
   const [userStatuses, setUserStatuses] = useState({});
   const [replyTo, setReplyTo] = useState(null);
+  const [newMessageGet, setNewMessageGet] = useState(false);
   const formEndRef = useRef(null);
   const messageEndRef = useRef(null);
   const popoverRef = useRef(null);
@@ -114,6 +115,8 @@ const Messages = ({ sessionUserId, closeForm }) => {
 
       socket.on("newMessage", (message) => {
         if (message.chatId === chatId) {
+          setNewMessageGet(true);
+          window.scrollTo(0, document.body.scrollHeight);
           setMessagesList((prevMessages) => {
             const commentIds = new Set(prevMessages.map((c) => c._id));
             if (commentIds.has(message._id)) {
@@ -123,6 +126,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
               return [message, ...prevMessages];
             }
           });
+          setNewMessageGet(false);
         }
       });
 
@@ -198,6 +202,22 @@ const Messages = ({ sessionUserId, closeForm }) => {
       setBackground(storedBackground);
     }
   }, [chatId]);
+
+  useEffect(() => {
+    if (newMessageGet) {
+      setTimeout(() => {
+        window.requestAnimationFrame(() => {
+          messageEndRef.current.scrollIntoView({
+            block: 'end',
+          }),
+          formEndRef.current.scrollIntoView({
+            block: 'end',
+          })
+        }
+        )
+      }, 200);
+    }
+  }, [newMessageGet]);
 
   const handlePopoverClick = (event) => {
     event.stopPropagation();
@@ -303,9 +323,6 @@ const Messages = ({ sessionUserId, closeForm }) => {
           </div>
         </div>
       )}
-      <div>
-        
-      </div>
       <section
         className={`scrollableDiv h-full w-full max-w-full min-w-0 flex-grow`}
         id="scrollableDiv"
@@ -344,7 +361,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
         </InfiniteScroll>
       </section>
 
-      <div className="flex items-center w-full gap-2 mt-auto relative bg-black rounded-b-md">
+      <div className="flex items-center w-full gap-2 mt-auto bg-black rounded-b-md">
         <MessageForm
           id={chatId}
           chat={chat}

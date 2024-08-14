@@ -8,9 +8,9 @@ const MessageForm = ({
   id,
   chat,
   sessionUserId,
-  scrollToBottom,
   replyTo,
   setReplyTo,
+  formEndRef,
   messageEndRef,
 }) => {
   const [newMessageGet, setNewMessageGet] = useState(false);
@@ -108,7 +108,7 @@ const MessageForm = ({
       placeholder={editingMessage ? "Edit message" : "Message"}
       maxLength={4000}
       messageRef={messageRef}
-      scrollToBottom={scrollToBottom}
+      formEndRef={formEndRef}
       replyTo={replyTo}
       setReplyTo={setReplyTo}
       initialValue={editingMessage ? editingMessage.message : ""}

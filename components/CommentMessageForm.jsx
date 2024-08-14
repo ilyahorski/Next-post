@@ -16,6 +16,7 @@ const CommentMessageForm = ({
   placeholder,
   maxLength,
   messageRef,
+  formEndRef,
   replyTo,
   setReplyTo,
   initialValue,
@@ -258,6 +259,7 @@ const CommentMessageForm = ({
           resetForm={resetForm}
         />
       )}
+      <div ref={formEndRef}/>
     </div>
   );
 };
