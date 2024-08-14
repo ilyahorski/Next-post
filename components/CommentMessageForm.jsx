@@ -91,7 +91,7 @@ const CommentMessageForm = ({
           input.click();
           setIsSubmitted(false);
         });
-      }, 50);
+      }, 100);
       return () => clearTimeout(timerId);
     }
   }, [isSubmitted, type, setFocus]);
@@ -145,7 +145,7 @@ const CommentMessageForm = ({
   );
 
   return (
-    <div className="flex-grow relative">
+    <div id="messagesContainer" className="flex-grow relative">
       {replyTo && (
         <div className="flex flex-1 justify-between items-center absolute top-0 -mt-10 rounded-t-md w-full text-sm bg-zinc-950 z-5000 text-gray-300 pl-3">
           <div className="flex flex-col max-w-[300px]">

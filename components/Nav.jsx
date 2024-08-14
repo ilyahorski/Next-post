@@ -56,7 +56,7 @@ const Nav = () => {
           title='Click to go to home page'
           src='/assets/images/logo.png'
           alt='logo'
-          width={190}
+          width={140}
           height={90}
           quality={100}
           className='object-contain'

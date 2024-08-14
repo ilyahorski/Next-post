@@ -85,22 +85,6 @@ const MessageForm = ({
     }
   };
 
-  useEffect(() => {
-    if (messageEndRef.current) {
-      setTimeout(() => {
-        window.requestAnimationFrame(() => 
-          messageEndRef.current.scrollIntoView({
-            // behavior: 'smooth',
-            block: 'end',
-            // block: "start",
-            // inline: 'nearest'
-          })
-        )
-      }, 200);
-    }
-  }, [newMessageGet]);
-
-
   return (
     <CommentMessageForm
       type={"message"}

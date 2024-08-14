@@ -204,18 +204,44 @@ const Messages = ({ sessionUserId, closeForm }) => {
   }, [chatId]);
 
   useEffect(() => {
-    if (newMessageGet) {
-      setTimeout(() => {
+    let timeout;
+    
+    if (newMessageGet && messageEndRef.current && formEndRef.current) {
+      const scrollMessageList = () => {
+        return new Promise((resolve) => {
+          window.requestAnimationFrame(() => {
+            const messageList = document.getElementById('scrollableDiv');
+            if (messageList) {
+              messageEndRef.current.scrollIntoView({
+                block: 'end',
+              })
+              resolve();
+            } else {
+              resolve();
+            }
+          });
+        });
+      };
+  
+      const scrollEntireContainer = () => {
         window.requestAnimationFrame(() => {
-          messageEndRef.current.scrollIntoView({
-            block: 'end',
-          }),
-          formEndRef.current.scrollIntoView({
-            block: 'end',
-          })
-        }
-        )
-      }, 200);
+          const container = document.getElementById('messagesContainer');
+          if (container) {
+            timeout = setTimeout(() => {
+              window.requestAnimationFrame(() => 
+                formEndRef.current.scrollIntoView({
+                  block: 'end',
+                })
+              )
+            }, 200);
+          }
+        });
+      };
+      scrollMessageList().then(scrollEntireContainer);
+    }
+
+    return () => {
+      clearTimeout(timeout);
     }
   }, [newMessageGet]);
 
