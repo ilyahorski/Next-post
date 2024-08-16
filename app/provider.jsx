@@ -16,7 +16,7 @@ export const DisplayContext = createContext();
 
 const queryClient = new QueryClient();
 
-const Provider = ({ children }) => {
+const Provider = ({ children, serverSession }) => {
   const [darkMode, setDarkMode] = useState(true);
   const [columnView, setColumnView] = useState(getLocalView());
   const colorTheme = darkMode ? "dark" : "";
@@ -40,7 +40,7 @@ const Provider = ({ children }) => {
 
   return (
     <SessionProvider>
-      <SocketProvider>
+      <SocketProvider serverSession={serverSession}>
         <PrimeReactProvider
           value={{
             unstyled: true,

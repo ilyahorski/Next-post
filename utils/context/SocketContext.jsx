@@ -16,25 +16,32 @@ const SocketProvider = ({ children, serverSession }) => {
   const { data: session, status, update } = useSession();
 
   useEffect(() => {
-    if (!session && !serverSession) {
-      update()
+    if (sessionUserId) {
+      return;
     }
-    const currentSession = session || serverSession;
+    const currentSession = serverSession || session;
     if (currentSession?.user?.id) {
       setSessionUserId(currentSession.user.id);
-      const newSocket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`, {
-        query: {
-          userId: currentSession.user.id
-        }
-      });
-
-      setSocket(newSocket);
-
-      return () => {
-        newSocket.close();
-      };
     }
-  }, [session, serverSession]);
+  }, [serverSession, session]);
+
+  useEffect(() => {
+    if (!sessionUserId) {
+      update();
+    }
+
+    const newSocket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`, {
+      query: {
+        userId: sessionUserId
+      }
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.close();
+    };
+  }, [sessionUserId]);
 
   return (
     <SessionContext.Provider value={sessionUserId}>

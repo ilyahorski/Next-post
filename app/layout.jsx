@@ -3,6 +3,9 @@ import Nav from '~/components/Nav';
 import Provider from "~/app/provider";
 import { Analytics } from '@vercel/analytics/react';
 
+import { getServerSession } from "next-auth/next"
+import {authOptions} from '../app/api/auth/[...nextauth]/route'
+
 export const metadata = {
   title: {
     default: 'Next-post',
@@ -43,14 +46,15 @@ export const viewport = {
   themeColor: "#000000",
 };
 
-const RootLayout = ({children}) => {
+const RootLayout = async({children}) => {
+  const session = await getServerSession(authOptions)
 
   return (
     <html lang='en'>
     <body>
       <div className='main main_gradient_light main_gradient_dark'>
       </div>
-      <Provider>
+      <Provider serverSession={session}>
         <main className='app'>
           <Nav/>
           {children}

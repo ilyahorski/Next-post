@@ -84,7 +84,7 @@ const VideoEmbed = ({ url }) => {
                 </section>
               </blockquote>
             ) : (
-              <p>Загрузка TikTok видео...</p>
+              <div> TikTok loaded...</div>
             )}
             <Link href={url} className="text-blue-500 underline">
               {url}
@@ -145,7 +145,7 @@ const MessageList = ({
   }, []);
 
   useEffect(() => {
-    if (isPageVisible) {
+    if (socket && isPageVisible) {
       const unseenMessages = messagesList.filter(
         (message) =>
           message?.writerId._id !== sessionUserId &&

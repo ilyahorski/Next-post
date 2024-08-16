@@ -89,7 +89,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
   }, [chatId, chat]);
 
   useEffect(() => {
-    if (chatId && socket) {
+    if (chatId && socket && sessionUserId) {
       socket.emit("getMessages", { chatId });
 
       socket.emit('markMessagesAsDelivered', { chatId, userId: sessionUserId });
