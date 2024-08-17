@@ -211,7 +211,7 @@ const MessageList = ({
 
   const handleDeleteMessage = () => {
     if (selectedMessage) {
-      socket.emit("deleteMessage", { messageId: selectedMessage._id, chatId });
+      socket.emit("deleteMessage", { messageId: selectedMessage._id, media: selectedMessage.media,  chatId });
       setSelectedMessage(null);
     }
   };
@@ -321,11 +321,13 @@ const MessageList = ({
               />
             )}
             <div
-              className={`no-select flex flex-col relative px-1 py-2 gap-1 rounded-lg w-11/12 z-10 ${
+              className={twMerge(`no-select flex flex-col relative gap-1 rounded-lg w-11/12 z-10
+                ${message?.media ? "p-2" : "px-1 py-2"} 
+                ${
                 message?.writerId._id !== sessionUserId
                   ? " bg-secondary-700 text-gray-200 rounded-bl-none"
                   : " bg-secondary-800 text-gray-200  rounded-br-none"
-              }`}
+              }`)}
             >
               {message?.replyTo && renderReplyPreview(message)}
 

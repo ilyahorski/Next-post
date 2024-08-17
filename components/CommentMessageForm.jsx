@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback, useContext } from "react";
 import { BiLogoTelegram, BiPaperclip } from "react-icons/bi";
+import { AiOutlineFileAdd } from "react-icons/ai";
 import { useForm } from "react-hook-form";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
 import { IoIosClose } from "react-icons/io";
@@ -9,6 +10,8 @@ import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import CustomFileUpload from "./CustomFileUpload";
 import { MessageContext } from "~/utils/context/SocketContext";
+import AudioRecorder from "./AudioRecorder";
+import VideoRecorder from "./VideoRecorder";
 
 const CommentMessageForm = ({
   type,
@@ -25,11 +28,14 @@ const CommentMessageForm = ({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
+  const [showMediaButtons, setShowMediaButtons] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [message, setMessage] = useState("");
   const { editingMessage, setEditingMessage } = useContext(MessageContext);
   const cursorPositionRef = useRef(0);
   const fileUploadRef = useRef(null);
+  const [isRecordingAudio, setIsRecordingAudio] = useState(false);
+  const [isRecordingVideo, setIsRecordingVideo] = useState(false);
 
   const {
     register,
@@ -98,7 +104,7 @@ const CommentMessageForm = ({
 
   useEffect(() => {
     if (editingMessage) {
-      setValue(type, editingMessage.message); 
+      setValue(type, editingMessage.message);
       setMessage(editingMessage.message);
       const length = editingMessage.message.length;
       if (messageRef?.current) {
@@ -143,6 +149,46 @@ const CommentMessageForm = ({
     },
     [message, setValue, setFocus, type, messageRef]
   );
+
+  const handleAudioRecordStart = () => {
+    setIsRecordingAudio(true);
+  };
+
+  const handleAudioRecordStop = async (audioBlob) => {
+    setIsRecordingAudio(false);
+    await handleMediaUpload(audioBlob, "audio");
+  };
+
+  const handleVideoRecordStart = () => {
+    setIsRecordingVideo(true);
+  };
+
+  const handleVideoRecordStop = async (videoBlob) => {
+    setIsRecordingVideo(false);
+    await handleMediaUpload(videoBlob, "video");
+  };
+
+  const handleMediaUpload = async (mediaBlob, mediaType) => {
+    const file = new File([mediaBlob], `device_record_${Date.now()}.${mediaType === "audio" ? "webm" : "mp4"}`, { type: mediaType === "audio" ? "audio/webm" : "video/mp4" });
+    const formData = new FormData();
+    formData.append("media", file);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/upload-media`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const { mediaUrls } = await response.json();
+        await sendMessage(message, mediaUrls);
+      } else {
+        console.error("Error uploading media");
+      }
+    } catch (error) {
+      console.error("Error uploading media:", error);
+    }
+  };
 
   return (
     <div id="messagesContainer" className="flex-grow relative">
@@ -216,7 +262,7 @@ const CommentMessageForm = ({
 
           <div className="flex items-center gap-1">
             {type === "message" && (
-              <div className="flex items-center gap-1">
+              <div className="relative flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -226,18 +272,46 @@ const CommentMessageForm = ({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowFileUpload(true)}
+                  onClick={() => setShowMediaButtons(!showMediaButtons)}
                   className="flex items-center justify-center w-10 h-10"
                 >
-                  <BiPaperclip className="w-6 h-6 text-primary-300" />
+                  <AiOutlineFileAdd className="w-6 h-6 text-primary-300" />
                 </button>
+                {showMediaButtons && (
+                  <div className="absolute bottom-12 -right-[47px] flex gap-1 bg-white dark:bg-gray-800 p-1 rounded-lg shadow-lg z-5000">
+                    <button
+                      type="button"
+                      onClick={() => setShowFileUpload(true)}
+                      className="flex items-center justify-center w-10 h-10"
+                    >
+                      <BiPaperclip className="w-6 h-6 text-primary-300" />
+                    </button>
+                    <AudioRecorder
+                      onRecordingStart={handleAudioRecordStart}
+                      onRecordingStop={handleAudioRecordStop}
+                      showMediaButtons={showMediaButtons}
+                      setShowMediaButtons={setShowMediaButtons}
+                    />
+                    <VideoRecorder
+                      onRecordingStart={handleVideoRecordStart}
+                      onRecordingStop={handleVideoRecordStop}
+                      showMediaButtons={showMediaButtons}
+                      setShowMediaButtons={setShowMediaButtons}
+                    />
+                  </div>
+                )}
               </div>
             )}
             <button
               title={`Click to send a ${type}`}
               type="submit"
               className="flex items-center justify-center w-10 h-10 cursor-pointer"
-              disabled={!message.trim()}
+              disabled={
+                !message.trim() &&
+                selectedFiles.length === 0 &&
+                !isRecordingAudio &&
+                !isRecordingVideo
+              }
             >
               <BiLogoTelegram className="w-8 h-8 text-primary-300" />
             </button>
@@ -259,7 +333,7 @@ const CommentMessageForm = ({
           resetForm={resetForm}
         />
       )}
-      <div ref={formEndRef}/>
+      <div ref={formEndRef} />
     </div>
   );
 };

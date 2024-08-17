@@ -2,6 +2,8 @@ import React from "react";
 import Masonry from "react-masonry-css";
 import Image from "next/image";
 import ReactPlayer from "react-player";
+import AudioMessageDisplay from "./AudioMessageDisplay";
+import VideoMessageDisplay from "./VideoMessageDisplay";
 
 const MediaGrid = ({ media }) => {
   if (media.length === 0) {
@@ -14,8 +16,13 @@ const MediaGrid = ({ media }) => {
     return filename.split("-")[0];
   };
 
+  const isDeviceRecorded = (url) => {
+    return url.includes("device_record_");
+  };
+
   const renderFile = (url, index) => {
     const fileType = getFileType(url);
+    const isRecorded = isDeviceRecorded(url);
 
     switch (fileType) {
       case "image":
@@ -31,12 +38,18 @@ const MediaGrid = ({ media }) => {
           />
         );
       case "video":
+        if (isRecorded) {
+          return <VideoMessageDisplay videoUrl={url} />;
+        }
         return (
           <div className="max-w-[300px]">
             <ReactPlayer width="100%" height="100%" controls url={url} />
           </div>
         );
       case "audio":
+        if (isRecorded) {
+          return <AudioMessageDisplay audioUrl={url} />;
+        }
         return (
           <div className="flex flex-col gap-2 max-w-[350px]">
             <audio controls id="song" className="flex px-1 w-full">
