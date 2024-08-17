@@ -116,7 +116,7 @@
 }
 
 @layer utilities {
-  @variants responsive {
+  @layer responsive {
     .masonry {
       column-gap: 1.5em;
       column-count: 1;

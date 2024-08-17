@@ -3,10 +3,11 @@
 import { useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import { RiCloseCircleLine } from "react-icons/ri";
-import { BiMessageSquareAdd } from "react-icons/bi";
+import { BsExclamation } from "react-icons/bs";
+import { IoAddOutline } from "react-icons/io5";
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
 import { v4 as uuidv4 } from "uuid";
-import {SessionContext} from "~/utils/context/SocketContext";
+import { SessionContext } from "~/utils/context/SocketContext";
 
 const CreateChatForm = ({ closeForm }) => {
   const [users, setUsers] = useState([]);
@@ -61,7 +62,7 @@ const CreateChatForm = ({ closeForm }) => {
       creatorId: sessionId,
       membersList: selectedUsers,
       chatName: chatName,
-      chatImage: '',
+      chatImage: "",
       lastMessage: null,
       secretToken: uuidv4(),
     };
@@ -77,9 +78,7 @@ const CreateChatForm = ({ closeForm }) => {
 
       if (response.status === 201) {
         setGroupName("");
-        setSelectedUsers(
-          users.filter((user) => user._id === sessionId)
-        );
+        setSelectedUsers(users.filter((user) => user._id === sessionId));
       } else {
         const errorMessage = await response.text();
         console.error("Error creating chat:", errorMessage);
@@ -97,13 +96,21 @@ const CreateChatForm = ({ closeForm }) => {
       {true && (
         <div className="flex flex-1 w-full flex-col">
           <div className="flex gap-1 items-start">
-            <input
-              type="text"
-              placeholder="Create chat name"
-              value={groupName}
-              className="flex w-full dark:bg-gray-600/10 p-2 mb-3 rounded"
-              onChange={(e) => setGroupName(e.target.value)}
-            />
+            <div className="flex w-full relative">
+              <input
+                type="text"
+                placeholder="Create chat name"
+                value={groupName}
+                className="flex w-full dark:bg-gray-600/10 p-2 mb-3 rounded"
+                onChange={(e) => setGroupName(e.target.value)}
+              />
+              <BsExclamation
+                className={`${
+                  groupName ? "hidden" : "block"
+                } absolute top-1 right-1 text-red-600 w-8 h-8`}
+              />
+            </div>
+
             <button
               className="mob:hidden flex justify-center items-center w-[40px] h-[40px]"
               type="button"
@@ -172,7 +179,7 @@ const CreateChatForm = ({ closeForm }) => {
                     alt="user_image"
                     width={50}
                     height={50}
-                    className="rounded-full object-fill h-[50px] w-[50px]"
+                    className="rounded-full object-fill h-12 w-12"
                   />
                   <div className="flex flex-col gap-2">
                     <p className="">{user.username}</p>
@@ -180,17 +187,17 @@ const CreateChatForm = ({ closeForm }) => {
                   </div>
                 </div>
                 <button
-                  className="flex justify-center items-center w-[50px] h-[50px]"
+                  className="flex justify-center items-center w-12 h-12"
                   type="button"
                   onClick={() => addUser(user)}
                 >
-                  <BiMessageSquareAdd className="text-primary-300 w-[40px] h-[40px]" />
+                  <IoAddOutline className="text-primary-300 w-8 h-8" />
                 </button>
               </div>
             ))}
           </div>
 
-          {selectedUsers.length > 1 && (
+          {selectedUsers.length > 1 && groupName && (
             <div className="flex justify-center">
               <button className="w-[200px] black_btn" type="submit">
                 Create a new chat

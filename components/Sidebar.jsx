@@ -1,46 +1,52 @@
 "use client";
 
-import { useContext, useEffect, useState, useCallback } from "react";
+import { useContext, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { PiUsersThin } from "react-icons/pi";
-import { SessionContext, MessageContext } from "~/utils/context/SocketContext";
+import { SessionContext } from "~/utils/context/SocketContext";
 import { format, parseISO } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 
 const Sidebar = ({ sessionUserId, openForm }) => {
-  const [chats, setChats] = useState([]);
   const [search, setSearch] = useState("");
   const sessionId = useContext(SessionContext);
-  const [time, setTime] = useState(0);
 
-  const getChats = useCallback(async () => {
-    if (!sessionId) return;
-
-    const response = await fetch('/api/chats', {
+  const fetchChats = async () => {
+    if (!sessionId) return [];
+    const response = await fetch("/api/chats", {
       headers: {
         userId: sessionId,
       },
     });
+    return response.json();
+  };
 
-    const data = await response.json();
-
-    setChats(data);
-  }, [sessionId]);
-
-  useEffect(() => {
-    getChats();
-
-    const intervalId = setInterval(() => {
-      getChats();
-      setTime(time + 1);
-    }, 10000);
-
-    return () => clearInterval(intervalId);
-  }, [getChats]);
+  const {
+    data: chats = [],
+    isPending,
+    isError,
+    error,
+  } = useQuery({
+    queryKry: ["chats"],
+    queryFn: fetchChats,
+    enabled: !!sessionId,
+    refetchInterval: 10000, 
+    staleTime: 60000,
+    gcTime: 12 * 60 * 60 * 1000,
+  });
 
   const filteredChats = chats.filter((chat) =>
     chat?.chatName?.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (isPending) {
+    return <span>Loading...</span>;
+  }
+
+  if (isError) {
+    return <span>Error: {error.message}</span>;
+  }
 
   return (
     <form className="flex-1 w-full px-1 custom-height">
@@ -67,9 +73,9 @@ const Sidebar = ({ sessionUserId, openForm }) => {
           </div>
         </button>
       </div>
-      {filteredChats.length > 0 && sessionUserId ? (
+      {!!filteredChats.length && sessionUserId ? (
         <div className="chat-list">
-          {filteredChats.map((chat, index) => (
+          {filteredChats.map((chat) => (
             <Link
               href={`/chat/${chat._id}`}
               key={chat._id}
@@ -106,7 +112,11 @@ const Sidebar = ({ sessionUserId, openForm }) => {
                     </span>
                   )}
                   <div className="flex max-w-[300px]">
-                    <p className="truncate">{chat?.lastMessage?.message ? chat?.lastMessage?.message : 'New media'}</p>
+                    <p className="truncate">
+                      {chat?.lastMessage?.message
+                        ? chat?.lastMessage?.message
+                        : "New media"}
+                    </p>
                   </div>
                 </div>
               </div>

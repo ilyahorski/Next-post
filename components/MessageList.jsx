@@ -337,8 +337,8 @@ const MessageList = ({
                 <p
                   className={`${
                     !message?.message && "hidden"
-                  } w-full min-w-[70px] max-w-[700px] px-2 pb-2 break-normal font-inter font-extralight text-3xs ${
-                    hasLongWord ? "break-all" : ""
+                  } w-full min-w-[70px] max-w-[700px] px-2 pb-2 whitespace-pre-wrap font-inter font-extralight text-3xs ${
+                    hasLongWord ? "break-all" : "break-normal"
                   } flex-grow`}
                 >
                   {renderMessageWithLinks(message?.message)}

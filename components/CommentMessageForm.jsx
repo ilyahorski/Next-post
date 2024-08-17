@@ -61,12 +61,12 @@ const CommentMessageForm = ({
     } else {
       await sendMessage(message, []);
     }
+    setIsSubmitted(true);
   };
 
   const sendMessage = async (text, mediaUrls) => {
     await onFormSubmit({ [type]: text }, mediaUrls);
     resetForm();
-    setIsSubmitted(true);
     setSelectedFiles([]);
     setShowFileUpload(false);
   };
@@ -92,12 +92,12 @@ const CommentMessageForm = ({
       const timerId = setTimeout(() => {
         requestAnimationFrame(() => {
           const input = document.getElementById(type);
-          setFocus(type);
+          // setFocus(type);
           input.focus();
           input.click();
           setIsSubmitted(false);
         });
-      }, 100);
+      }, 300);
       return () => clearTimeout(timerId);
     }
   }, [isSubmitted, type, setFocus]);

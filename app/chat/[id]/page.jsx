@@ -3,50 +3,52 @@
 import Sidebar from "~/components/Sidebar";
 import Messages from "~/components/Messages";
 import SplitPane, { SplitPaneLeft, SplitPaneRight, Divider } from '~/components/Splitter';
-import {useContext, useEffect, useState} from "react";
-import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
-import {SessionContext} from "~/utils/context/SocketContext";
+import { useContext, useState, useEffect } from "react";
+import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
+import { SessionContext } from "~/utils/context/SocketContext";
 import { VideoSocketContext } from '~/utils/context/VideoContext';
 import VideoCallPlayer from "~/components/videoCallComponents/VideoCallPlayer";
 import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 const MessageMain = () => {
   const [showCreateChatForm, setShowCreateChatForm] = useState(true);
   const isMobile = useMobileCheck();
-  
-  const [chatMembers, setChatMembers] = useState([]);
+  const sessionId = useContext(SessionContext);
+  const { isVideoChatVisible } = useContext(VideoSocketContext);
   const { id: chatId } = useParams();
 
-  const sessionId = useContext(SessionContext);
-  const {isVideoChatVisible} = useContext(VideoSocketContext);
+  const fetchChatMembers = async () => {
+    if (!chatId) return [];
+    const response = await fetch(`/api/chats/${chatId}`);
+    const data = await response.json();
+    return data.membersList.map(ids => ids._id);
+  };
+
+  const { data: chatMembers = [], isLoading } = useQuery({
+    queryKey: ['chatMembers', chatId],
+    queryFn: fetchChatMembers,
+    enabled: !!chatId && !!sessionId,
+    staleTime: 300000,
+    gcTime: 7200000,
+  });
 
   useEffect(() => {
     if (isMobile) {
-      setShowCreateChatForm(true)
+      setShowCreateChatForm(true);
     }
-    return () => false;
   }, [isMobile]);
-
-  useEffect(() => {
-    if (!chatId) return;
-    const getChat = async () => {
-      const response = await fetch(`/api/chats/${chatId}`);
-      const data = await response.json();
-
-      setChatMembers(data.membersList.map(ids => ids._id));
-    };
-
-    if (chatId) {
-      getChat();
-    }
-  }, [chatId, sessionId]);
 
   const isMember = chatMembers.includes(sessionId);
 
+  if (isLoading) {
+    return <div>Loading ...</div>;
+  }
+
   return (
     <>
-      {sessionId && chatMembers.length > 0 ? (
-        <SplitPane className='w-[100dvw] flex -mt-[40px]' >
+      {sessionId && !!chatMembers.length ? (
+        <SplitPane className='w-[100dvw] flex -mt-[40px]'>
           <SplitPaneLeft>
             {showCreateChatForm && isMobile ? (
               chatMembers && isMember ? (
@@ -84,7 +86,7 @@ const MessageMain = () => {
         </SplitPane>
       ) : (
         <div>
-          Loading ...
+          No chat data available.
         </div>
       )}
     </>

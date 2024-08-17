@@ -212,9 +212,7 @@ const PostCard = ({
                     alt="image"
                     width={dimensions.width}
                     height={dimensions.height}
-                    // fill={true}
                     quality={100}
-                    // loading="eager"
                     sizes="(min-width: 66em) 100vw, (min-width: 44em) 70vw, 60vw"
                   />
                 </div>
@@ -280,15 +278,15 @@ const PostCard = ({
           </div>
 
           {sessionId === post.creator._id && /^\/profile/.test(pathName) && (
-            <div className="mt-5 flex-center gap-4 pt-3">
+            <div className="flex justify-around gap-4 pt-3 w-full">
               <button
-                className="font-inter text-sm green_gradient cursor-pointer"
+                className="flex w-1/2 justify-center font-inter text-xl text-green-700 cursor-pointer"
                 onClick={() => handleEdit()}
               >
                 Edit
               </button>
               <button
-                className="font-inter text-sm red_gradient cursor-pointer"
+                className="flex w-1/2 justify-center font-inter text-xl text-red-700 cursor-pointer"
                 onClick={() => handleDelete()}
               >
                 Delete
