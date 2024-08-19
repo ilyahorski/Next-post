@@ -378,8 +378,8 @@ const Messages = ({ sessionUserId, closeForm }) => {
         >
           <MessageList
             messagesList={messagesList}
+            setMessagesList={setMessagesList}
             isMobile={isMobile}
-            сhatId={chatId}
             sessionUserId={sessionUserId}
             onReply={handleReply}
             messageEndRef={messageEndRef}

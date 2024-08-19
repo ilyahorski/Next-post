@@ -2,14 +2,15 @@ import Image from "next/image";
 import { useEffect, useRef, useState, useContext } from "react";
 import { format, isSameDay, parseISO } from "date-fns";
 import MediaGrid from "./MediaGrid";
+import EmojiPickerComponent from "./EmojiPickerComponent";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { SocketContext, MessageContext } from "~/utils/context/SocketContext";
 import {
   IoCheckmarkOutline,
   IoCheckmarkDoneOutline,
   IoTrashOutline,
   IoPencilOutline,
-  IoPinOutline,
 } from "react-icons/io5";
 import { IoMdCopy } from "react-icons/io";
 import { GoReply } from "react-icons/go";
@@ -19,28 +20,33 @@ const VideoEmbed = ({ url }) => {
   const [tiktokLoaded, setTiktokLoaded] = useState(false);
 
   const getEmbedInfo = (url) => {
-    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|shorts\/)?([a-zA-Z0-9_-]+)/;
-    const tiktokRegex = /(?:https?:\/\/)?(?:www\.)?(?:tiktok\.com)\/@([\w.-]+)\/video\/(\d+)/;
+    const youtubeRegex =
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|shorts\/)?([a-zA-Z0-9_-]+)/;
+    const tiktokRegex =
+      /(?:https?:\/\/)?(?:www\.)?(?:tiktok\.com)\/@([\w.-]+)\/video\/(\d+)/;
 
     const youtubeMatch = url.match(youtubeRegex);
     const tiktokMatch = url.match(tiktokRegex);
 
     if (youtubeMatch) {
-      return { type: 'youtube', embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}` };
+      return {
+        type: "youtube",
+        embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}`,
+      };
     }
     if (tiktokMatch) {
-      return { type: 'tiktok', videoId: tiktokMatch[2] };
+      return { type: "tiktok", videoId: tiktokMatch[2] };
     }
 
-    return { type: 'unknown' };
+    return { type: "unknown" };
   };
 
   const { type, embedUrl, videoId } = getEmbedInfo(url);
 
   useEffect(() => {
-    if (type === 'tiktok') {
-      const script = document.createElement('script');
-      script.src = 'https://www.tiktok.com/embed.js';
+    if (type === "tiktok") {
+      const script = document.createElement("script");
+      script.src = "https://www.tiktok.com/embed.js";
       script.async = true;
       script.onload = () => setTiktokLoaded(true);
       document.body.appendChild(script);
@@ -53,7 +59,7 @@ const VideoEmbed = ({ url }) => {
 
   const renderEmbed = () => {
     switch (type) {
-      case 'youtube':
+      case "youtube":
         return (
           <>
             <iframe
@@ -69,18 +75,24 @@ const VideoEmbed = ({ url }) => {
             </Link>
           </>
         );
-      case 'tiktok':
+      case "tiktok":
         return (
           <>
             {tiktokLoaded ? (
-              <blockquote 
-                className="tiktok-embed" 
+              <blockquote
+                className="tiktok-embed"
                 cite={url}
                 data-video-id={videoId}
-                style={{ maxWidth: '605px', minWidth: '325px' }}
+                style={{ maxWidth: "605px", minWidth: "325px" }}
               >
                 <section>
-                  <a target="_blank" title="@username" href={`https://www.tiktok.com/@username`}>@username</a>
+                  <a
+                    target="_blank"
+                    title="@username"
+                    href={`https://www.tiktok.com/@username`}
+                  >
+                    @username
+                  </a>
                 </section>
               </blockquote>
             ) : (
@@ -100,11 +112,7 @@ const VideoEmbed = ({ url }) => {
     }
   };
 
-  return (
-    <div className="max-w-[300px]">
-      {renderEmbed()}
-    </div>
-  );
+  return <div className="max-w-[300px]">{renderEmbed()}</div>;
 };
 
 const renderMessageWithLinks = (message) => {
@@ -120,8 +128,8 @@ const renderMessageWithLinks = (message) => {
 
 const MessageList = ({
   messagesList,
+  setMessagesList,
   isMobile,
-  chatId,
   sessionUserId,
   onReply,
   messageEndRef,
@@ -131,6 +139,35 @@ const MessageList = ({
   const [isPageVisible, setIsPageVisible] = useState(true);
   const { selectedMessage, setSelectedMessage, setEditingMessage } =
     useContext(MessageContext);
+
+  const { id: chatId } = useParams();
+
+  const messageListRef = useRef(null);
+
+  useEffect(() => {
+    if (selectedMessage) {
+      const selectedElement = document.getElementById(
+        `message-${selectedMessage._id}`
+      );
+      const rect = selectedElement.getBoundingClientRect();
+      const messageListRect = messageListRef.current.getBoundingClientRect();
+
+      // Check if the selected message + toolbar exceeds the visible container
+      const toolbarHeight = 300; // Задайте реальную высоту в пикселях
+
+      // Проверьте, скрыта ли значительная часть бара и пикера за границей видимой области
+      const isPartiallyHidden =
+        rect.bottom + toolbarHeight > messageListRect.bottom;
+
+      // Если хотя бы 20% бара скрыты, выполняем прокрутку
+      const hiddenPercentage =
+        (rect.bottom + toolbarHeight - messageListRect.bottom) / toolbarHeight;
+
+      if (isPartiallyHidden && hiddenPercentage > 0.1) {
+        selectedElement.scrollIntoView({ block: "center" });
+      }
+    }
+  }, [selectedMessage]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -170,6 +207,66 @@ const MessageList = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [selectedMessage]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("messageReactionUpdated", (updatedMessage) => {
+        setMessagesList((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg._id === updatedMessage._id
+              ? { ...msg, reactions: updatedMessage.reactions }
+              : msg
+          )
+        );
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("messageReactionUpdated");
+      }
+    };
+  }, [socket, setMessagesList]);
+
+  const handleReactionClick = (message, emoji) => {
+    const existingReaction = message.reactions?.find((r) => r.emoji === emoji);
+    if (existingReaction && existingReaction.users.includes(sessionUserId)) {
+      socket.emit("removeReaction", {
+        messageId: message._id,
+        emoji,
+        userId: sessionUserId,
+        chatId,
+      });
+    } else {
+      socket.emit("addReaction", {
+        messageId: message._id,
+        emoji,
+        userId: sessionUserId,
+        chatId,
+      });
+    }
+  };
+
+  const renderReactions = (message) => {
+    if (!message.reactions || message.reactions.length === 0) return null;
+
+    return (
+      <div className="flex min-w-[50px] -mb-2 gap-1">
+        {message.reactions.map((reaction) => (
+          <button
+            key={reaction.emoji}
+            onClick={() => handleReactionClick(message, reaction.emoji)}
+            className={`flex items-center bg-transparent px-1 py-1 text-xs ${
+              reaction.users.includes(sessionUserId) ? "bg-blue-500" : ""
+            }`}
+          >
+            <span className="text-[14px] mr-1">{reaction.emoji}</span>
+            <span className="text-[14px]">{reaction.users.length}</span>
+          </button>
+        ))}
+      </div>
+    );
+  };
 
   const handleContextMenu = (message, event) => {
     event.preventDefault();
@@ -211,7 +308,11 @@ const MessageList = ({
 
   const handleDeleteMessage = () => {
     if (selectedMessage) {
-      socket.emit("deleteMessage", { messageId: selectedMessage._id, media: selectedMessage.media,  chatId });
+      socket.emit("deleteMessage", {
+        messageId: selectedMessage._id,
+        media: selectedMessage.media,
+        chatId,
+      });
       setSelectedMessage(null);
     }
   };
@@ -232,7 +333,7 @@ const MessageList = ({
 
     return (
       <div
-        className="bg-zinc-900 p-2 rounded-lg cursor-pointer max-w-[300px] w-full mr-8"
+        className="bg-zinc-900 p-2 rounded-lg cursor-pointer max-w-[300px] no-select w-full mr-8"
         onClick={() => scrollToMessage(replyToMessage.replyTo._id)}
       >
         <p className="text-sm text-gray-100">
@@ -273,7 +374,7 @@ const MessageList = ({
     return null;
   };
 
-  const renderMessage = (message, index, isSameDayAsNext) => {
+  const renderMessage = (message, index, isSameDayAsNext, chatId) => {
     const hasLongWord = message?.message
       .split(/\s+/)
       .some((word) => word.length > 16);
@@ -288,151 +389,160 @@ const MessageList = ({
         onTouchEnd={handleTouchEnd}
       >
         {!isSameDayAsNext && (
-          <div
-            style={{ touchAction: "none" }}
-            className="no-select flex w-full justify-center"
-          >
+          <div className="no-select flex w-full justify-center">
             <div className=" flex max-w-fit text-center font-normal text-[14px] my-2 dark:text-white px-2 py-1 bg-slate-800 bg-opacity-70 rounded-lg">
               {format(parseISO(message?.createdAt), "PPP")}
             </div>
           </div>
         )}
-        <div
-          className={`flex relative z-10 ${
-            message?.writerId?._id !== sessionUserId
-              ? "justify-start"
-              : "justify-end"
-          }`}
-        >
+        {message?.writerId?._id && (
           <div
-            className={`flex items-end gap-2 relative z-10 ${
-              message?.writerId._id !== sessionUserId
-                ? "flex-row"
-                : "flex-row-reverse"
+            className={`flex relative z-10 ${
+              message?.writerId?._id !== sessionUserId
+                ? "justify-start"
+                : "justify-end"
             }`}
           >
-            {!isMobile && (
-              <Image
-                src={message?.writerId.userImage || message?.writerId.image}
-                alt="user_image"
-                width={30}
-                height={30}
-                className="rounded-full object-fill h-[30px] w-[30px] z-10"
-              />
-            )}
             <div
-              className={twMerge(`no-select flex flex-col relative gap-1 rounded-lg w-11/12 z-10
+              className={`flex items-end gap-2 relative z-10 ${
+                message?.writerId?._id !== sessionUserId
+                  ? "flex-row"
+                  : "flex-row-reverse"
+              }`}
+            >
+              {!isMobile && (
+                <Image
+                  src={message?.writerId.userImage || message?.writerId.image}
+                  alt="user_image"
+                  width={30}
+                  height={30}
+                  className="rounded-full object-fill h-[30px] w-[30px] z-10"
+                />
+              )}
+              <div
+                className={twMerge(`no-select flex flex-col relative gap-1 rounded-lg w-11/12 z-10
                 ${message?.media ? "p-2" : "px-1 py-2"} 
                 ${
-                message?.writerId._id !== sessionUserId
-                  ? " bg-secondary-700 text-gray-200 rounded-bl-none"
-                  : " bg-secondary-800 text-gray-200  rounded-br-none"
-              }`)}
-            >
-              {message?.replyTo && renderReplyPreview(message)}
+                  message?.writerId._id !== sessionUserId
+                    ? " bg-secondary-700 text-gray-200 rounded-bl-none"
+                    : " bg-secondary-800 text-gray-200  rounded-br-none"
+                }`)}
+              >
+                {message?.replyTo && renderReplyPreview(message)}
 
-              {message?.media && <MediaGrid media={message?.media} />}
+                {message?.media && <MediaGrid media={message?.media} />}
 
-              <div className="flex flex-col w-full">
-                <p
-                  className={`${
-                    !message?.message && "hidden"
-                  } w-full min-w-[70px] max-w-[700px] px-2 pb-2 whitespace-pre-wrap font-inter font-extralight text-3xs ${
-                    hasLongWord ? "break-all" : "break-normal"
-                  } flex-grow`}
-                >
-                  {renderMessageWithLinks(message?.message)}
-                </p>
-                <div
-                  className={twMerge(
-                    `flex w-full justify-end items-end -mb-2 -mr-1`
-                  )}
-                >
-                  <span
-                    className={`flex font-normal text-[10px] h-4 text-gray-100 min-w-[28px]`}
+                <div className="flex flex-col w-full z-10 no-select">
+                  <p
+                    className={`${
+                      !message?.message && "hidden"
+                    } w-full min-w-[70px] max-w-[700px] px-2 pb-2 z-10 whitespace-pre-wrap font-inter font-extralight text-3xs ${
+                      hasLongWord ? "break-all" : "break-normal"
+                    } flex-grow`}
                   >
-                    {format(parseISO(message?.createdAt), "HH:mm")}
-                  </span>
-                  <p className="flex items-center justify-center text-[14px] h-4">
-                    {renderMessageStatus(message)}
+                    {renderMessageWithLinks(message?.message)}
                   </p>
-                </div>
-              </div>
-              {selectedMessage && selectedMessage._id === message?._id && (
-                <div
-                  className={`no-select flex flex-col w-[150px] gap-3 items-start absolute z-3000 rounded-md bg-zinc-900 p-2
-                  ${
-                    message?.writerId._id !== sessionUserId
-                      ? " left-[30px]"
-                      : " right-[30px]"
-                  }`}
-                  style={{ touchAction: "none", top: 0 }}
-                >
-                  <button
-                    style={{ touchAction: "none" }}
-                    onClick={handleReply}
-                    className="no-select flex items-center justify-between gap-3 w-full"
-                  >
-                    <GoReply className="w-3/12 h-5 text-white" />
-                    <p className="flex items-center justify-start text-[14px] w-9/12">
-                      Reply
-                    </p>
-                  </button>
-                  <button
-                    style={{ touchAction: "none" }}
-                    onClick={handleCopyText}
-                    className="no-select flex items-center justify-between gap-3 w-full"
-                  >
-                    <IoMdCopy className="w-3/12 h-5 text-white" />
-                    <p className="flex items-center justify-start text-[14px] w-9/12">
-                      Copy text
-                    </p>
-                  </button>
-                  {selectedMessage.writerId._id === sessionUserId && (
-                    <button
-                      style={{ touchAction: "none" }}
-                      onClick={handleEditMessage}
-                      className="no-select flex items-center justify-between gap-3 w-full"
+                  <div className="flex justify-end">
+                    {renderReactions(message)}
+                    <div
+                      className={twMerge(
+                        `flex w-[50px] justify-end items-end -mb-2 -mr-1`
+                      )}
                     >
-                      <IoPencilOutline className="w-3/12 h-5 text-white" />
-                      <p className="flex items-center justify-start text-[14px] w-9/12">
-                        Edit
+                      <span
+                        className={`flex font-normal text-[10px] h-4 text-gray-100 min-w-[28px]`}
+                      >
+                        {format(parseISO(message?.createdAt), "HH:mm")}
+                      </span>
+                      <p className="flex items-center justify-center text-[14px] h-4">
+                        {renderMessageStatus(message)}
                       </p>
-                    </button>
-                  )}
-                  <button
-                    style={{ touchAction: "none" }}
-                    onClick={handleDeleteMessage}
-                    className="no-select flex items-center justify-between gap-3 w-full"
-                  >
-                    <IoTrashOutline className="w-3/12 h-5 text-white" />
-                    <p className="flex items-center justify-start text-[14px] w-9/12">
-                      Delete
-                    </p>
-                  </button>
-                  {/* <button
-                disabled
-                  style={{ touchAction: "none", userSelect: "none" }}
-                  onClick={handlePinMessage}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <IoPinOutline className="w-5 h-5 text-white" />
-                  <p className="flex items-center justify-center text-[14px]">
-                    Pin
-                  </p>
-                </button> */}
+                    </div>
+                  </div>
                 </div>
-              )}
+                {selectedMessage && selectedMessage._id === message?._id && (
+                  <div
+                    style={{ touchAction: "none", top: 0 }}
+                    className={`flex flex-col items-center justify-center gap-1 w-72 absolute z-3000
+                    ${
+                      message?.writerId._id !== sessionUserId
+                        ? " left-[30px]"
+                        : " right-[30px]"
+                    }`}
+                  >
+                    <div
+                      className={`no-select flex flex-col w-48 gap-3 items-center justify-center rounded-md bg-zinc-900/70 backdrop-blur-sm p-2`}
+                    >
+                      <button
+                        style={{ touchAction: "none" }}
+                        onClick={handleReply}
+                        className="no-select flex items-center justify-between gap-3 w-full"
+                      >
+                        <GoReply className="w-3/12 h-5 text-white" />
+                        <p className="flex items-center justify-start text-[14px] w-9/12">
+                          Reply
+                        </p>
+                      </button>
+                      <button
+                        style={{ touchAction: "none" }}
+                        onClick={handleCopyText}
+                        className="no-select flex items-center justify-between gap-3 w-full"
+                      >
+                        <IoMdCopy className="w-3/12 h-5 text-white" />
+                        <p className="flex items-center justify-start text-[14px] w-9/12">
+                          Copy text
+                        </p>
+                      </button>
+                      {selectedMessage.writerId._id === sessionUserId && (
+                        <button
+                          style={{ touchAction: "none" }}
+                          onClick={handleEditMessage}
+                          className="no-select flex items-center justify-between gap-3 w-full"
+                        >
+                          <IoPencilOutline className="w-3/12 h-5 text-white" />
+                          <p className="flex items-center justify-start text-[14px] w-9/12">
+                            Edit
+                          </p>
+                        </button>
+                      )}
+                      <button
+                        style={{ touchAction: "none" }}
+                        onClick={handleDeleteMessage}
+                        className="no-select flex items-center justify-between gap-3 w-full"
+                      >
+                        <IoTrashOutline className="w-3/12 h-5 text-white" />
+                        <p className="flex items-center justify-start text-[14px] w-9/12">
+                          Delete
+                        </p>
+                      </button>
+                    </div>
+                    <div className="flex w-80">
+                      {chatId && (
+                        <EmojiPickerComponent
+                          isYour={message.writerId._id === sessionUserId}
+                          setSelectedMessage={setSelectedMessage}
+                          messageId={message._id}
+                          userId={sessionUserId}
+                          chatId={chatId}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     );
   };
 
   return (
     <div className="relative h-full">
-      <div className="scrollableDiv relative z-10 h-full overflow-y-auto w-full">
+      <div
+        className="scrollableDiv relative z-10 h-full overflow-y-auto w-full"
+        ref={messageListRef}
+      >
         {messagesList.length !== 0 && sessionUserId ? (
           <div className={`message-list pb-2`}>
             {messagesList.map((message, index) => {
@@ -442,7 +552,7 @@ const MessageList = ({
                   parseISO(message?.createdAt),
                   parseISO(messagesList[index + 1].createdAt)
                 );
-              return renderMessage(message, index, isSameDayAsNext);
+              return renderMessage(message, index, isSameDayAsNext, chatId);
             })}
           </div>
         ) : (
@@ -451,7 +561,7 @@ const MessageList = ({
           </div>
         )}
       </div>
-      <div className="h-1"/>
+      <div className="h-1" />
       <div ref={messageEndRef} className="h-0.5" />
     </div>
   );

@@ -169,15 +169,22 @@ const CommentMessageForm = ({
   };
 
   const handleMediaUpload = async (mediaBlob, mediaType) => {
-    const file = new File([mediaBlob], `device_record_${Date.now()}.${mediaType === "audio" ? "webm" : "mp4"}`, { type: mediaType === "audio" ? "audio/webm" : "video/mp4" });
+    const file = new File(
+      [mediaBlob],
+      `device_record_${Date.now()}.${mediaType === "audio" ? "webm" : "mp4"}`,
+      { type: mediaType === "audio" ? "audio/webm" : "video/mp4" }
+    );
     const formData = new FormData();
     formData.append("media", file);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/upload-media`, {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/upload-media`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (response.ok) {
         const { mediaUrls } = await response.json();
@@ -226,8 +233,20 @@ const CommentMessageForm = ({
           <Picker
             data={data}
             onEmojiSelect={addEmoji}
+            categories={[
+              "frequent",
+              "people",
+              "nature",
+              "food",
+              "activity",
+              "places",
+              "objects",
+              "symbols",
+              "flags",
+            ]}
             onClickOutside={() => setShowEmojiPicker(false)}
-            title="Pick your emoji"
+            previewPosition="none"
+            title=""
             emoji="point_up"
           />
         </div>

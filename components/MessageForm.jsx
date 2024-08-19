@@ -47,6 +47,7 @@ const MessageForm = ({
         messageStatus: "sent",
         deletedBy: null,
         replyTo: replyTo ? replyTo._id : null,
+        reactions: [],
       };
 
       if (socket) {

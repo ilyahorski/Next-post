@@ -92,6 +92,10 @@
   height: 1px;
 }
 
+.sticky.padding-small.align-l {
+  display: none !important;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 10px;

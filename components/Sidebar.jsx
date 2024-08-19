@@ -28,7 +28,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
     isError,
     error,
   } = useQuery({
-    queryKry: ["chats"],
+    queryKey: ["chats"],
     queryFn: fetchChats,
     enabled: !!sessionId,
     refetchInterval: 10000, 

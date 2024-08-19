@@ -31,7 +31,15 @@ const MessageSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Message',
     default: null
-  }
+  },
+  reactions: [{
+    emoji: String,
+    users: [{
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    default: []
+  }]
 }, {
   timestamps: true,
 });

@@ -23,6 +23,7 @@ module.exports = {
       zIndex: {
         '3000': '3000',
         '5000': '5000',
+        '8000': '8000',
       },
       extend: {
         gridAutoFlow: ['dense'],
