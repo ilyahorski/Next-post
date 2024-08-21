@@ -54,7 +54,7 @@ const CreateChatForm = ({ closeForm }) => {
       chatName = groupName
         ? groupName
         : sessionId === selectedUsers[0]._id
-        ? selectedUsers[1].username
+        ? selectedUsers[1]?.username
         : selectedUsers[0].username;
     }
 
@@ -99,7 +99,7 @@ const CreateChatForm = ({ closeForm }) => {
             <div className="flex w-full relative">
               <input
                 type="text"
-                placeholder="Create chat name"
+                placeholder="Enter chat name"
                 value={groupName}
                 className="flex w-full dark:bg-gray-600/10 p-2 mb-3 rounded"
                 onChange={(e) => setGroupName(e.target.value)}
@@ -197,7 +197,7 @@ const CreateChatForm = ({ closeForm }) => {
             ))}
           </div>
 
-          {selectedUsers.length > 1 && groupName && (
+          {selectedUsers.length >= 1 && groupName && (
             <div className="flex justify-center">
               <button className="w-[200px] black_btn" type="submit">
                 Create a new chat

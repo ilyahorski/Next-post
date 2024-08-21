@@ -8,19 +8,12 @@ import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as Heart } from "@heroicons/react/24/solid";
 import Sceleton from "~/components/Sceleton";
 import { toggleLike } from "~/utils/toggleLike";
-import ReactTimeAgo from "react-time-ago";
-import {
-  localeToFullLocale,
-  supportedLocales,
-} from "~/utils/constants/supportedLocales";
-import JavascriptTimeAgo from "javascript-time-ago";
+import ReactTimeAgoWrapper from "~/components/ReactTimeAgoWrapper";
 import { handleCopy } from "~/utils/handleCopy";
 import Comments from "~/components/Comments";
 import CommentForm from "~/components/CommentForm";
 import VideoPlayer from "~/components/VideoPlayer";
 import { SocketContext, SessionContext } from "~/utils/context/SocketContext";
-
-JavascriptTimeAgo.addLocale(supportedLocales.en);
 
 const PostCard = ({
   columnView,
@@ -34,12 +27,10 @@ const PostCard = ({
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState("");
-  const [localeLoaded, setLocaleLoaded] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   const pathName = usePathname();
   const router = useRouter();
-  const locale = navigator.language;
   const tags = parseTags(post.tag);
   const JSImage = window.Image;
   const postCardStyle =
@@ -88,14 +79,6 @@ const PostCard = ({
     }
   }, [post._id, sessionId, socket]);
 
-  useEffect(() => {
-    const userLocale = navigator.language.split("-")[0];
-    setLocaleLoaded(true);
-    if (userLocale in supportedLocales) {
-      JavascriptTimeAgo.addLocale(supportedLocales[userLocale]);
-    }
-  }, []);
-
   const handleProfileClick = () => {
     if (post.creator._id === sessionId) return router.push("/profile");
 
@@ -130,7 +113,7 @@ const PostCard = ({
 
   return (
     <>
-      {post && localeLoaded ? (
+      {post ? (
         <div
           className={`${postCardStyle} ${
             columnView ? " sm:w-[510px] w-[370px]" : "sm:w-[510px] w-[370px]"
@@ -167,15 +150,7 @@ const PostCard = ({
 
             <div className="flex flex-col items-end gap-[6px]">
               <div className="flex overflow-auto justify-center items-center font-inter text-sm text-gray-500">
-                <ReactTimeAgo
-                  date={new Date(post.createdAt).getTime()}
-                  locale={
-                    locale in supportedLocales
-                      ? localeToFullLocale[locale]
-                      : "en-GB"
-                  }
-                  timeStyle="round"
-                />
+                <ReactTimeAgoWrapper date={post.createdAt} />
               </div>
               <button
                 title="Click to copy post link"

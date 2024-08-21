@@ -1,14 +1,13 @@
-"use client";
-
 import Feed from "~/components/Feed";
-import Provider from "~/app/provider";
-import { useSession } from "next-auth/react";
+
 import { ScrollToTop } from "~/components/ScrollToTop";
 import { ToastContainer } from "react-toastify";
 import Link from "next/link";
+import { getServerSession } from "next-auth/next"
+import {authOptions} from '../app/api/auth/[...nextauth]/route'
 
-const Home = () => {
-  const { status } = useSession();
+const Home = async () => {
+  const session = await getServerSession(authOptions)
 
   const error = console.error;
   console.error = (...args) => {
@@ -21,17 +20,16 @@ const Home = () => {
       <p className="desc text-center dark:text-gray-400 -mt-6">
         A modern messanger for communication, creation and sharing posts.
       </p>
-      <Provider>
-        <div className="flex md:hidden w-full justify-center gap-3 mt-3 -mb-6">
+      <div className="flex md:hidden w-full justify-center gap-3 mt-3 -mb-6">
           <Link
             href="/create-post"
-            className={status === "authenticated" ? "black_btn" : "hidden"}
+            className={!!session?.user.id ? "black_btn" : "hidden"}
           >
             Create Post
           </Link>
           <Link
             href="/chat"
-            className={status === "authenticated" ? "chat_btn" : "hidden"}
+            className={!!session?.user.id ? "chat_btn" : "hidden"}
           >
             Open Chats
           </Link>
@@ -39,7 +37,6 @@ const Home = () => {
         <Feed />
         <ScrollToTop />
         <ToastContainer />
-      </Provider>
     </section>
   );
 };

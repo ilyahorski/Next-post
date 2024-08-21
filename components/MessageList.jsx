@@ -433,7 +433,7 @@ const MessageList = ({
                 {message?.media && <MediaGrid media={message?.media} />}
 
                 <div className="flex flex-col w-full z-10 no-select">
-                  <p
+                  <div
                     className={`${
                       !message?.message && "hidden"
                     } w-full min-w-[70px] max-w-[700px] px-2 pb-2 z-10 whitespace-pre-wrap font-inter font-extralight text-3xs ${
@@ -441,7 +441,7 @@ const MessageList = ({
                     } flex-grow`}
                   >
                     {renderMessageWithLinks(message?.message)}
-                  </p>
+                  </div>
                   <div className="flex justify-end">
                     {renderReactions(message)}
                     <div
@@ -454,9 +454,9 @@ const MessageList = ({
                       >
                         {format(parseISO(message?.createdAt), "HH:mm")}
                       </span>
-                      <p className="flex items-center justify-center text-[14px] h-4">
+                      <div className="flex items-center justify-center text-[14px] h-4">
                         {renderMessageStatus(message)}
-                      </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -516,7 +516,7 @@ const MessageList = ({
                         </p>
                       </button>
                     </div>
-                    <div className="flex w-80">
+                    <div className="flex w-80 z-5000">
                       {chatId && (
                         <EmojiPickerComponent
                           isYour={message.writerId._id === sessionUserId}

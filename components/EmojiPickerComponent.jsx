@@ -41,7 +41,7 @@ const EmojiPickerComponent = ({ isYour, setSelectedMessage, messageId, userId, c
   return (
     <div className="flex rounded-xl h-12 pt-1 items-center z-8000">
       <EmojiPicker
-        className={`${isExpanded ? (isYour ? "-mt-[74px]" : "-mt-[10px]") : "mt-0"} absolute`}
+        className={`${isExpanded ? (isYour ? "-mt-[74px]" : "-mt-[10px]") : "mt-0"} absolute z-8000`}
         onEmojiClick={handleEmojiClick}
         reactionsDefaultOpen={true}
         onReactionClick={handleEmojiClick}

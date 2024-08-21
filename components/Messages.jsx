@@ -277,8 +277,8 @@ const Messages = ({ sessionUserId, closeForm }) => {
                     chat?.chatImage
                       ? chat?.chatImage
                       : sessionUserId === chat?.membersList[0]._id
-                      ? chat?.membersList[1].userImage ||
-                        chat?.membersList[1].image
+                      ? chat?.membersList[1]?.userImage ||
+                        chat?.membersList[1]?.image
                       : chat?.membersList[0].userImage ||
                         chat?.membersList[0].image
                   }

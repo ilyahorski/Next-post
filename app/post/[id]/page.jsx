@@ -2,13 +2,8 @@
 
 import { useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import ReactTimeAgo from "react-time-ago";
-import JavascriptTimeAgo from "javascript-time-ago";
 import Image from "next/image";
-import {
-  supportedLocales,
-  localeToFullLocale,
-} from "~/utils/constants/supportedLocales";
+import ReactTimeAgoWrapper from "~/components/ReactTimeAgoWrapper";
 import Loading from "~/utils/loading";
 import { parseTags } from "~/utils/tagStringToArray";
 import { HeartIcon as Heart } from "@heroicons/react/24/solid";
@@ -19,8 +14,6 @@ import Comments from "~/components/Comments";
 import CommentForm from "~/components/CommentForm";
 import VideoPlayer from "~/components/VideoPlayer";
 import { SocketContext, SessionContext } from "~/utils/context/SocketContext";
-
-JavascriptTimeAgo.addLocale(supportedLocales.en);
 
 const Post = () => {
   const searchParams = useSearchParams();
@@ -38,9 +31,6 @@ const Post = () => {
   const [liked, setLiked] = useState(false);
   const [type, setType] = useState("");
   const [allComments, setAllComments] = useState({});
-  const [localeLoaded, setLocaleLoaded] = useState(false);
-
-  const locale = navigator.language;
 
   const socket = useContext(SocketContext);
 
@@ -95,14 +85,6 @@ const Post = () => {
     if (postIds) getPostDetails();
   }, [sessionId]);
 
-  useEffect(() => {
-    const userLocale = navigator.language.split('-')[0];
-    setLocaleLoaded(true);
-    if (userLocale in supportedLocales) {
-      JavascriptTimeAgo.addLocale(supportedLocales[userLocale]);
-    }
-  }, []);
-
   return (
     <>
       {post.post ? (
@@ -133,15 +115,7 @@ const Post = () => {
                 </div>
               </div>
               <div className="flex h-12 justify-center items-start font-inter text-sm text-gray-700 dark:text-gray-400">
-                <ReactTimeAgo
-                  date={new Date(post.createdAt).getTime()}
-                  locale={
-                    locale in supportedLocales
-                      ? localeToFullLocale[locale]
-                      : "en-GB"
-                  }
-                  timeStyle="round"
-                />
+                <ReactTimeAgoWrapper date={post.createdAt} />
               </div>
             </div>
 
@@ -202,7 +176,12 @@ const Post = () => {
                 postId={postIds}
                 isMain={false}
                 comments={allComments[postIds]}
-                setComments={(newComments) => setAllComments(prev => ({ ...prev, [postIds]: newComments }))}
+                setComments={(newComments) =>
+                  setAllComments((prev) => ({
+                    ...prev,
+                    [postIds]: newComments,
+                  }))
+                }
               />
               <CommentForm postId={postIds} userId={sessionId} />
             </div>
