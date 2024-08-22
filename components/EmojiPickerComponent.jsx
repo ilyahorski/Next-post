@@ -4,7 +4,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import EmojiPicker from 'emoji-picker-react';
 import { SocketContext } from "~/utils/context/SocketContext";
 
-const EmojiPickerComponent = ({ isYour, setSelectedMessage, messageId, userId, chatId }) => {
+const EmojiPickerComponent = ({ setSelectedMessage, messageId, userId, chatId }) => {
   const socket = useContext(SocketContext);
   const pickerRef = useRef(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -41,7 +41,7 @@ const EmojiPickerComponent = ({ isYour, setSelectedMessage, messageId, userId, c
   return (
     <div className="flex rounded-xl h-12 pt-1 items-center z-8000">
       <EmojiPicker
-        className={`${isExpanded ? (isYour ? "-mt-[74px]" : "-mt-[10px]") : "mt-0"} absolute z-8000`}
+        className={`${isExpanded ? "-mt-[200px]" : "mt-0"} absolute z-8000`}
         onEmojiClick={handleEmojiClick}
         reactionsDefaultOpen={true}
         onReactionClick={handleEmojiClick}

@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import ReactTimeAgoWrapper from "~/components/ReactTimeAgoWrapper";
-import Loading from "~/utils/loading";
+import { Loader } from "~/components/Loading";
 import { parseTags } from "~/utils/tagStringToArray";
 import { HeartIcon as Heart } from "@heroicons/react/24/solid";
 import { HeartIcon } from "@heroicons/react/24/outline";
@@ -188,7 +188,7 @@ const Post = () => {
           </div>
         </>
       ) : (
-        <Loading />
+        <Loader />
       )}
     </>
   );

@@ -6,6 +6,7 @@ import SplitPane, { SplitPaneLeft, SplitPaneRight, Divider } from '~/components/
 import {useContext, useEffect, useState} from "react";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
 import {SessionContext} from "~/utils/context/SocketContext";
+import { Loader } from "~/components/Loading";
 
 const ChatMain = () => {
   const [showCreateChatForm, setShowCreateChatForm] = useState(false);
@@ -44,9 +45,7 @@ const ChatMain = () => {
           )}
         </SplitPane>
       ) : (
-        <div>
-          Loading ...
-        </div>
+        <Loader />
       )}
     </>
   );

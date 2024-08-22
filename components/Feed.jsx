@@ -159,7 +159,7 @@ const Feed = () => {
         next={fetchNextPage}
         hasMore={hasNextPage}
         loader={
-          isFetchingNextPage && <LoadingBar ref={loaderRef} isMessage={false} />
+          isFetchingNextPage && <div ref={loaderRef} isMessage={false} />
         }
         endMessage={
           <p style={{ textAlign: "center" }}>

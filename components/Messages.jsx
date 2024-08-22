@@ -2,27 +2,22 @@
 
 import { useContext, useEffect, useState, useRef } from "react";
 import { useRouter } from 'next/navigation'
+import { useParams } from "next/navigation";
+import { useInfiniteQuery, useQueryClient, useQuery  } from "@tanstack/react-query";
 import MessageForm from "~/components/MessageForm";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
-import { useParams } from "next/navigation";
-import { SocketContext, MessageContext } from "~/utils/context/SocketContext";
+import { SocketContext } from "~/utils/context/SocketContext";
 import { VideoSocketContext } from "~/utils/context/VideoContext";
 import MessageList from "~/components/MessageList";
 import SettingsPopover from "~/components/SettingsPopover";
-import { LoadingBar } from "~/components/Loading";
-import InfiniteScroll from "react-infinite-scroll-component";
+import { Loader } from "~/components/Loading";
 import { FaArrowLeft } from "react-icons/fa6";
 import { SlCallOut, SlCallEnd } from "react-icons/sl";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import Image from "next/image";
 
-const Messages = ({ sessionUserId, closeForm }) => {
-  const [chat, setChat] = useState(null);
-  const [messagesList, setMessagesList] = useState([]);
-  const [page, setPage] = useState(1);
-  const [messagesCount, setMessagesCount] = useState(1);
+const Messages = ({ sessionUserId }) => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const [background, setBackground] = useState('/assets/bg/1.jpg');
   const [userStatuses, setUserStatuses] = useState({});
   const [replyTo, setReplyTo] = useState(null);
@@ -36,68 +31,61 @@ const Messages = ({ sessionUserId, closeForm }) => {
   const router = useRouter()
 
   const socket = useContext(SocketContext);
-  const { isVideoChatVisible, setIsVideoChatVisible } =
-    useContext(VideoSocketContext);
+  const { isVideoChatVisible, setIsVideoChatVisible } = useContext(VideoSocketContext);
+  const queryClient = useQueryClient();
 
-  const handleReply = (message) => {
-    setReplyTo(message);
-  };
-
-  const getMessages = async () => {
-    if (messagesList.length >= messagesCount) {
-      setHasMore(false);
-      return;
-    }
-    const response = await fetch(`/api/message?page=${page}&limit=100`, {
-      headers: {
-        chatId: chatId,
-      },
+  const fetchMessages = async ({ pageParam = 1 }) => {
+    const response = await fetch(`/api/message?page=${pageParam}&limit=100`, {
+      headers: { chatId },
     });
     const data = await response.json();
-
-    setMessagesCount(data.totalMessages);
-    setPage(page + 1);
-    setMessagesList((prevMessages) => {
-      const newMessages = [...prevMessages, ...data.usersMessages];
-      const uniqueMessages = new Map();
-      newMessages.forEach((message) => {
-        uniqueMessages.set(message._id, message);
-      });
-      return Array.from(uniqueMessages.values());
-    });
+    return data;
   };
 
-  useEffect(() => {
-    if (!chatId) return;
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status
+  } = useInfiniteQuery({
+    queryKey: ['messages', chatId],
+    queryFn: fetchMessages,
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.usersMessages.length < 100) return undefined;
+      return pages.length + 1;
+    },
+    enabled: !!chatId,
+  });
 
-    const getChat = async () => {
-      const response = await fetch(`/api/chats/${chatId}`);
-      const data = await response.json();
+  const messagesList = data ? data.pages.flatMap(page => page.usersMessages) : [];
 
-      setChat(data);
-    };
-
-    if (chatId) {
-      getChat();
+  const fetchChat = async (chatId) => {
+    const response = await fetch(`/api/chats/${chatId}`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
     }
-  }, [chatId]);
+    return response.json();
+  };
 
-  useEffect(() => {
-    if (!chatId) return;
-
-    if (chatId && chat) getMessages();
-  }, [chatId, chat]);
+  const { data: chat, error, isLoading } = useQuery(
+    ["chat", chatId],
+    () => fetchChat(chatId),
+    {
+      enabled: !!chatId, // Запрос выполняется только при наличии chatId
+      refetchOnWindowFocus: false, // Отключаем повторный запрос при фокусе на окно
+    }
+  );
 
   useEffect(() => {
     if (chatId && socket && sessionUserId) {
       socket.emit("getMessages", { chatId });
-
       socket.emit('markMessagesAsDelivered', { chatId, userId: sessionUserId });
 
       const updateStatus = (status) => {
         socket.emit('setUserStatus', { userId: sessionUserId, status });
       };
-  
+
       const handleVisibilityChange = () => {
         if (document.hidden) {
           updateStatus('offline');
@@ -105,55 +93,77 @@ const Messages = ({ sessionUserId, closeForm }) => {
           updateStatus('online');
         }
       };
-  
+
       document.addEventListener('visibilitychange', handleVisibilityChange);
       window.addEventListener('focus', () => updateStatus('online'));
       window.addEventListener('blur', () => updateStatus('offline'));
       updateStatus('online');
 
-      const statusInterval = setInterval(() => updateStatus('online'), 10000); 
+      const statusInterval = setInterval(() => updateStatus('online'), 10000);
 
       socket.on("newMessage", (message) => {
         if (message.chatId === chatId) {
           setNewMessageGet(true);
-          window.scrollTo(0, document.body.scrollHeight);
-          setMessagesList((prevMessages) => {
-            const commentIds = new Set(prevMessages.map((c) => c._id));
-            if (commentIds.has(message._id)) {
-              return prevMessages;
-            } else {
-              socket.emit('markMessageAsDelivered', { messageId: message._id, chatId });
-              return [message, ...prevMessages];
-            }
+          queryClient.setQueryData(['messages', chatId], (oldData) => {
+            if (!oldData) return { pages: [{ usersMessages: [message] }], pageParams: [1] };
+            return {
+              ...oldData,
+              pages: [
+                { usersMessages: [message, ...oldData.pages[0].usersMessages] },
+                ...oldData.pages.slice(1)
+              ]
+            };
           });
+          socket.emit('markMessageAsDelivered', { messageId: message._id, chatId });
           setNewMessageGet(false);
         }
       });
 
       socket.on('messageStatusUpdated', (updatedMessage) => {
-        setMessagesList((prevMessages) =>
-          prevMessages.map((msg) =>
-            msg._id === updatedMessage._id ? { ...msg, messageStatus: updatedMessage.messageStatus } : msg
-          )
-        );
+        queryClient.setQueryData(['messages', chatId], (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map(page => ({
+              ...page,
+              usersMessages: page.usersMessages.map(msg =>
+                msg._id === updatedMessage._id ? { ...msg, messageStatus: updatedMessage.messageStatus } : msg
+              )
+            }))
+          };
+        });
       });
 
       socket.on('messageUpdated', (updatedMessage) => {
         if (updatedMessage && updatedMessage._id) {
-          setMessagesList((prevMessages) =>
-            prevMessages.map((msg) =>
-              msg._id === updatedMessage._id ? { ...msg, message: updatedMessage.message } : msg
-            )
-          );
+          queryClient.setQueryData(['messages', chatId], (oldData) => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              pages: oldData.pages.map(page => ({
+                ...page,
+                usersMessages: page.usersMessages.map(msg =>
+                  msg._id === updatedMessage._id ? { ...msg, message: updatedMessage.message } : msg
+                )
+              }))
+            };
+          });
         } else {
           console.error('Received invalid updated message:', updatedMessage);
         }
       });
 
       socket.on('messageDeleted', ({ messageId }) => {
-        setMessagesList((prevMessages) =>
-          prevMessages.filter((msg) => msg._id !== messageId)
-        );
+        queryClient.setQueryData(['messages', chatId], (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map(page => ({
+              ...page,
+              usersMessages: page.usersMessages.filter(msg => msg._id !== messageId)
+            }))
+          };
+        });
       });
 
       return () => {
@@ -168,7 +178,7 @@ const Messages = ({ sessionUserId, closeForm }) => {
         updateStatus('offline');
       };
     }
-  }, [socket, chatId, sessionUserId]);
+  }, [socket, chatId, sessionUserId, queryClient]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -250,12 +260,19 @@ const Messages = ({ sessionUserId, closeForm }) => {
     setIsSettingOpen(true);
   };
 
+  const handleReply = (message) => {
+    setReplyTo(message);
+  };
+
+  if (isLoading) return <Loader />;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <div
       className="scrollableBg flex flex-col custom-height flex-grow w-full"
       style={{ '--scrollableDiv-background': `url(${background})` }}
     >
-      {chat && chat?.length !== 0 && sessionUserId && (
+      {chat.length !== 0 && (
         <div className="flex gap-1 flex-grow w-full items-center bg-black rounded-t-md">
           <div className="flex items-center relative flex-grow w-full gap-2 px-1 mt-auto rounded-t-md mb-auto bg-gray-600/20 bg-clip-padding backdrop-filter backdrop-blur-lg">
             <button
@@ -350,41 +367,27 @@ const Messages = ({ sessionUserId, closeForm }) => {
         </div>
       )}
       <section
-        className={`scrollableDiv h-full w-full max-w-full min-w-0 flex-grow`}
+        className={`scrollableDiv flex flex-col-reverse overflow-y-auto h-full w-full max-w-full min-w-0 flex-grow`}
         id="scrollableDiv"
-        style={{
-          // maxHeight: "100%",
-          // height: "100%",
-          overflow: "auto",
-          display: "flex",
-          flexDirection: "column-reverse",
-        }}
       >
-        <InfiniteScroll
-          style={{ display: "flex", flexDirection: "column-reverse" }}
-          dataLength={messagesList?.length}
-          next={getMessages}
-          hasMore={hasMore}
-          loader={<LoadingBar isMessage={true} />}
-          refreshFunction={getMessages}
-          scrollableTarget="scrollableDiv"
-          scrollThreshold="200px"
-          inverse={true}
-          endMessage={
-            <p style={{ textAlign: "center" }}>
-              <b>You have seen it all</b>
-            </p>
-          }
-        >
+        <div className="flex-grow overflow-hidden">
+        {status === 'loading' ? (
+          <Loader />
+        ) : status === 'error' ? (
+          <p>Error loading messages</p>
+        ) : (
           <MessageList
             messagesList={messagesList}
-            setMessagesList={setMessagesList}
             isMobile={isMobile}
             sessionUserId={sessionUserId}
             onReply={handleReply}
             messageEndRef={messageEndRef}
+            fetchNextPage={fetchNextPage}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
           />
-        </InfiniteScroll>
+        )}
+      </div>
       </section>
 
       <div className="flex items-center w-full gap-2 mt-auto bg-black rounded-b-md">

@@ -1,6 +1,6 @@
 'use client'
 
-import CommentMessageForm from "./CommentMessageForm";
+import CommentSendForm from "./CommentSendForm";
 import {useContext} from "react";
 import {SocketContext} from "~/utils/context/SocketContext";
 
@@ -13,28 +13,29 @@ const CommentForm = ({ userId, postId }) => {
       const commentData = {
         commentatorId: userId,
         postId: postId,
-        comment: data.message
+        comment: data.comment
       };
 
-      socket.emit('sendComment', commentData);
+      socket.emit("sendComment", commentData);
 
-      socket.on('commentSent', (response) => {
-        if (response.status === 'success') {
-          console.log('Comment sent successfully');
+      socket.on("commentSent", (response) => {
+        if (response.status === "success") {
+          console.log("Comment sent successfully");
         } else {
-          console.log('Error sending comment: ', response.message);
+          console.log("Error sending comment: ", response.message);
         }
       });
 
       return () => {
-        socket.off('commentSent');
+        socket.off("commentSent");
       };
+    } else {
+      console.log("Socket is not available");
     }
   };
 
   return (
-    <CommentMessageForm
-      type={'comment'}
+    <CommentSendForm
       onFormSubmit={onFormSubmit}
       placeholder="Comment message"
       maxLength={2000}

@@ -5,6 +5,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* * {
+  outline: 1px solid green !important;
+} */
+
 .dark {
   @apply text-zinc-50;
 }
@@ -236,7 +240,7 @@
 }
 
 .message-list {
-  @apply flex flex-grow w-full flex-col-reverse gap-1 px-2 mb-2 max-h-[93%] flex-1 rounded-lg text-clip break-words break-all leading-4	
+  @apply flex flex-grow w-[98%] mob:w-full flex-col-reverse gap-1 px-2 mb-2 max-h-[93%] flex-1 rounded-lg text-clip break-words break-all leading-4	
 }
 
 .chat-list {

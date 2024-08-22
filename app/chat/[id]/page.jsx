@@ -10,6 +10,7 @@ import { VideoSocketContext } from '~/utils/context/VideoContext';
 import VideoCallPlayer from "~/components/videoCallComponents/VideoCallPlayer";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { Loader } from "~/components/Loading";
 
 const MessageMain = () => {
   const [showCreateChatForm, setShowCreateChatForm] = useState(true);
@@ -42,7 +43,7 @@ const MessageMain = () => {
   const isMember = chatMembers.includes(sessionId);
 
   if (isLoading) {
-    return <div>Loading ...</div>;
+    return <Loader />;
   }
 
   return (

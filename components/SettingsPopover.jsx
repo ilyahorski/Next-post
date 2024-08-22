@@ -12,6 +12,8 @@ const SettingsPopover = ({
   chat,
   background,
   setBackground,
+  setChat,
+  setIsSettingOpen,
 }) => {
   const pathname = usePathname().split("/")[2];
   const router = useRouter();
@@ -59,18 +61,30 @@ const SettingsPopover = ({
       dataURL = await convertFileToBase64(compressedFile);
     }
 
-    fetch(`/api/chats/${chat._id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        chatName,
-        chatImage: dataURL || chatImage,
-      }),
-    }).then(() => onClose());
-    setCropperVisible(false);
-    window.location.reload();
+    try {
+      const response = await fetch(`/api/chats/${chat._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chatName,
+          chatImage: dataURL || chatImage,
+        }),
+      });
+
+      if (response.ok) {
+        const updatedChat = await response.json();
+        setChat(updatedChat);
+        onClose();
+      } else {
+        throw new Error("Error updating chat");
+      }
+    } catch (error) {
+      console.error("Error updating chat:", error);
+    } finally {
+      setCropperVisible(false);
+    }
   };
 
   const compressImage = async (dataURL) => {

@@ -1,9 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, useRef, useContext } from "react";
-import { LoadingBar } from "~/components/Loading";
+import { useEffect, useState, useRef, useContext, useCallback } from "react";
+import { Loader } from "~/components/Loading";
 import { SocketContext } from "~/utils/context/SocketContext";
+import ReactTimeAgoWrapper from "./ReactTimeAgoWrapper";
+
+// TODO: Fix comments not updating
 
 const Comments = ({ postId, isMain, comments, setComments }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -11,45 +14,52 @@ const Comments = ({ postId, isMain, comments, setComments }) => {
 
   const socket = useContext(SocketContext);
 
-  useEffect(() => {
-    if (postId && socket && setComments && isLoading === true) {
-      socket.emit("getComments", { postId });
-      setIsLoading(true);
-
-      const handleCommentsReceived = (receivedComments) => {
-        setIsLoading(false);
-        if (receivedComments.status && receivedComments.status === "error") {
-          console.log("Error getting comments: ", receivedComments.message);
+  const handleCommentsReceived = useCallback(
+    (receivedComments) => {
+      setIsLoading(false);
+      if (receivedComments.status && receivedComments.status === "error") {
+        console.log("Error getting comments: ", receivedComments.message);
+      } else {
+        if (
+          receivedComments &&
+          receivedComments.length > 0 &&
+          receivedComments[0]?.postId === postId
+        ) {
+          setComments(
+            isMain
+              ? [receivedComments[receivedComments.length - 1]]
+              : receivedComments
+          );
         } else {
-          if (
-            receivedComments &&
-            receivedComments.length > 0 &&
-            receivedComments[0]?.postId === postId
-          ) {
-            setComments(
-              isMain
-                ? [receivedComments[receivedComments.length - 1]]
-                : receivedComments
-            );
-          } else {
-            setComments([]);
-          }
+          setComments([]);
         }
-      };
+      }
+    },
+    [postId, isMain]
+  );
 
-      const handleNewComment = (comment) => {
-        if (comment.postId === postId) {
-          setComments((prevComments) => {
-            if (!prevComments) return [comment];
-            const commentIds = new Set(prevComments.map((c) => c._id));
-            if (commentIds.has(comment._id)) {
-              return prevComments;
-            } else {
-              return isMain ? [comment] : [...prevComments, comment];
-            }
-          });
-        }
-      };
+  const handleNewComment = useCallback(
+    (comment) => {
+      if (comment.postId === postId) {
+        setComments((prevComments) => {
+          if (!prevComments) return [comment];
+          const commentIds = new Set(prevComments.map((c) => c._id));
+          if (commentIds.has(comment._id)) {
+            return prevComments;
+          } else {
+            return isMain ? [comment] : [...prevComments, comment];
+          }
+        });
+      }
+    },
+    [socket, postId, isMain, comments, setComments]
+  );
+
+  useEffect(() => {
+    if (postId && socket && setComments) {
+      socket.emit("getComments", { postId });
+
+      setIsLoading(true);
 
       socket.on("commentsReceived", handleCommentsReceived);
       socket.on("newComment", handleNewComment);
@@ -59,16 +69,16 @@ const Comments = ({ postId, isMain, comments, setComments }) => {
         socket.off("newComment", handleNewComment);
       };
     }
-  }, [socket, postId, isMain, comments, setComments]);
+  }, [socket, postId]);
 
   useEffect(() => {
-    if (endOfComments.current) {
+    if (!isLoading && endOfComments.current) {
       const scrollContainer = endOfComments.current.parentElement;
       scrollContainer.scrollTop = scrollContainer.scrollHeight;
     }
-  }, [comments]);
+  }, [comments, isLoading]);
 
-  if (isLoading) return <LoadingBar isMessage={true} />;
+  if (isLoading) return <Loader />;
 
   if (!comments || comments.length === 0) return null;
 

@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, useContext } from "react";
 import { format, isSameDay, parseISO } from "date-fns";
+import { useInView } from "react-intersection-observer";
+import { useQueryClient } from "@tanstack/react-query";
 import MediaGrid from "./MediaGrid";
 import EmojiPickerComponent from "./EmojiPickerComponent";
 import Link from "next/link";
@@ -128,11 +130,13 @@ const renderMessageWithLinks = (message) => {
 
 const MessageList = ({
   messagesList,
-  setMessagesList,
   isMobile,
   sessionUserId,
   onReply,
   messageEndRef,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
 }) => {
   const longPressTimer = useRef(null);
   const socket = useContext(SocketContext);
@@ -141,30 +145,49 @@ const MessageList = ({
     useContext(MessageContext);
 
   const { id: chatId } = useParams();
+  const queryClient = useQueryClient();
 
   const messageListRef = useRef(null);
+
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // useEffect(() => {
+  //   if (selectedMessage) {
+  //     const selectedElement = document.getElementById(`message-${selectedMessage._id}`);
+  //     if (selectedElement && messageListRef.current) {
+  //       const containerRect = messageListRef.current.getBoundingClientRect();
+  //       const selectedRect = selectedElement.getBoundingClientRect();
+
+  //       // Высота меню с кнопками и эмодзи баром
+  //       const menuHeight = 300;
+
+  //       // Проверяем, достаточно ли места для отображения меню
+  //       const spaceBelow = containerRect.bottom - selectedRect.bottom;
+
+  //       if (spaceBelow < menuHeight) {
+  //         // Если места недостаточно, прокручиваем контейнер
+  //         const scrollAmount = menuHeight - spaceBelow + 50; // 20px дополнительно для отступа
+  //         messageListRef.current.scrollTop += scrollAmount; // Используем отрицательное значение, так как контейнер перевернут
+  //       }
+  //     }
+  //   }
+  // }, [selectedMessage]);
 
   useEffect(() => {
     if (selectedMessage) {
       const selectedElement = document.getElementById(
         `message-${selectedMessage._id}`
       );
-      const rect = selectedElement.getBoundingClientRect();
-      const messageListRect = messageListRef.current.getBoundingClientRect();
-
-      // Check if the selected message + toolbar exceeds the visible container
-      const toolbarHeight = 300; // Задайте реальную высоту в пикселях
-
-      // Проверьте, скрыта ли значительная часть бара и пикера за границей видимой области
-      const isPartiallyHidden =
-        rect.bottom + toolbarHeight > messageListRect.bottom;
-
-      // Если хотя бы 20% бара скрыты, выполняем прокрутку
-      const hiddenPercentage =
-        (rect.bottom + toolbarHeight - messageListRect.bottom) / toolbarHeight;
-
-      if (isPartiallyHidden && hiddenPercentage > 0.1) {
-        selectedElement.scrollIntoView({ block: "center" });
+      if (selectedElement) {
+        selectedElement.scrollIntoView({ block: "nearest" });
       }
     }
   }, [selectedMessage]);
@@ -211,13 +234,20 @@ const MessageList = ({
   useEffect(() => {
     if (socket) {
       socket.on("messageReactionUpdated", (updatedMessage) => {
-        setMessagesList((prevMessages) =>
-          prevMessages.map((msg) =>
-            msg._id === updatedMessage._id
-              ? { ...msg, reactions: updatedMessage.reactions }
-              : msg
-          )
-        );
+        queryClient.setQueryData(["messages", chatId], (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              usersMessages: page.usersMessages.map((msg) =>
+                msg._id === updatedMessage._id
+                  ? { ...msg, reactions: updatedMessage.reactions }
+                  : msg
+              ),
+            })),
+          };
+        });
       });
     }
 
@@ -226,7 +256,7 @@ const MessageList = ({
         socket.off("messageReactionUpdated");
       }
     };
-  }, [socket, setMessagesList]);
+  }, [socket, chatId, queryClient]);
 
   const handleReactionClick = (message, emoji) => {
     const existingReaction = message.reactions?.find((r) => r.emoji === emoji);
@@ -374,6 +404,80 @@ const MessageList = ({
     return null;
   };
 
+  const renderMessageMenu = (message) => {
+    if (selectedMessage && selectedMessage._id === message._id) {
+      return (
+        <div
+          style={{ touchAction: "none", bottom: 0 }}
+          className={`flex flex-col items-center justify-center gap-1 w-72 absolute z-8000
+                    ${
+                      message?.writerId._id !== sessionUserId
+                        ? " left-[30px]"
+                        : " right-[30px]"
+                    }`}
+        >
+          <div
+            className={`no-select flex flex-col w-48 gap-3 items-center justify-center rounded-md bg-zinc-900/70 backdrop-blur-sm p-2`}
+          >
+            <button
+              style={{ touchAction: "none" }}
+              onClick={handleReply}
+              className="no-select flex items-center justify-between gap-3 w-full"
+            >
+              <GoReply className="w-3/12 h-5 text-white" />
+              <p className="flex items-center justify-start text-[14px] w-9/12">
+                Reply
+              </p>
+            </button>
+            <button
+              style={{ touchAction: "none" }}
+              onClick={handleCopyText}
+              className="no-select flex items-center justify-between gap-3 w-full"
+            >
+              <IoMdCopy className="w-3/12 h-5 text-white" />
+              <p className="flex items-center justify-start text-[14px] w-9/12">
+                Copy text
+              </p>
+            </button>
+            {selectedMessage.writerId._id === sessionUserId && (
+              <button
+                style={{ touchAction: "none" }}
+                onClick={handleEditMessage}
+                className="no-select flex items-center justify-between gap-3 w-full"
+              >
+                <IoPencilOutline className="w-3/12 h-5 text-white" />
+                <p className="flex items-center justify-start text-[14px] w-9/12">
+                  Edit
+                </p>
+              </button>
+            )}
+            <button
+              style={{ touchAction: "none" }}
+              onClick={handleDeleteMessage}
+              className="no-select flex items-center justify-between gap-3 w-full"
+            >
+              <IoTrashOutline className="w-3/12 h-5 text-white" />
+              <p className="flex items-center justify-start text-[14px] w-9/12">
+                Delete
+              </p>
+            </button>
+          </div>
+          <div className="flex w-80 z-5000">
+            {chatId && (
+              <EmojiPickerComponent
+                setSelectedMessage={setSelectedMessage}
+                messageId={message._id}
+                userId={sessionUserId}
+                chatId={chatId}
+              />
+            )}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   const renderMessage = (message, index, isSameDayAsNext, chatId) => {
     const hasLongWord = message?.message
       .split(/\s+/)
@@ -381,7 +485,7 @@ const MessageList = ({
 
     return (
       <div
-        className="relative z-10"
+        className="relative"
         key={message?._id + index}
         id={`message-${message?._id}`}
         onContextMenu={(e) => handleContextMenu(message, e)}
@@ -397,14 +501,14 @@ const MessageList = ({
         )}
         {message?.writerId?._id && (
           <div
-            className={`flex relative z-10 ${
+            className={`flex relative ${
               message?.writerId?._id !== sessionUserId
                 ? "justify-start"
                 : "justify-end"
             }`}
           >
             <div
-              className={`flex items-end gap-2 relative z-10 ${
+              className={`flex items-end gap-2 relative ${
                 message?.writerId?._id !== sessionUserId
                   ? "flex-row"
                   : "flex-row-reverse"
@@ -416,11 +520,11 @@ const MessageList = ({
                   alt="user_image"
                   width={30}
                   height={30}
-                  className="rounded-full object-fill h-[30px] w-[30px] z-10"
+                  className="rounded-full object-fill h-[30px] w-[30px]"
                 />
               )}
               <div
-                className={twMerge(`no-select flex flex-col relative gap-1 rounded-lg w-11/12 z-10
+                className={twMerge(`no-select flex flex-col relative gap-1 rounded-lg w-11/12
                 ${message?.media ? "p-2" : "px-1 py-2"} 
                 ${
                   message?.writerId._id !== sessionUserId
@@ -432,11 +536,11 @@ const MessageList = ({
 
                 {message?.media && <MediaGrid media={message?.media} />}
 
-                <div className="flex flex-col w-full z-10 no-select">
+                <div className="flex flex-col w-full no-select">
                   <div
                     className={`${
                       !message?.message && "hidden"
-                    } w-full min-w-[70px] max-w-[700px] px-2 pb-2 z-10 whitespace-pre-wrap font-inter font-extralight text-3xs ${
+                    } w-full min-w-[70px] max-w-[700px] px-2 pb-2 whitespace-pre-wrap font-inter font-extralight text-3xs ${
                       hasLongWord ? "break-all" : "break-normal"
                     } flex-grow`}
                   >
@@ -460,75 +564,7 @@ const MessageList = ({
                     </div>
                   </div>
                 </div>
-                {selectedMessage && selectedMessage._id === message?._id && (
-                  <div
-                    style={{ touchAction: "none", top: 0 }}
-                    className={`flex flex-col items-center justify-center gap-1 w-72 absolute z-3000
-                    ${
-                      message?.writerId._id !== sessionUserId
-                        ? " left-[30px]"
-                        : " right-[30px]"
-                    }`}
-                  >
-                    <div
-                      className={`no-select flex flex-col w-48 gap-3 items-center justify-center rounded-md bg-zinc-900/70 backdrop-blur-sm p-2`}
-                    >
-                      <button
-                        style={{ touchAction: "none" }}
-                        onClick={handleReply}
-                        className="no-select flex items-center justify-between gap-3 w-full"
-                      >
-                        <GoReply className="w-3/12 h-5 text-white" />
-                        <p className="flex items-center justify-start text-[14px] w-9/12">
-                          Reply
-                        </p>
-                      </button>
-                      <button
-                        style={{ touchAction: "none" }}
-                        onClick={handleCopyText}
-                        className="no-select flex items-center justify-between gap-3 w-full"
-                      >
-                        <IoMdCopy className="w-3/12 h-5 text-white" />
-                        <p className="flex items-center justify-start text-[14px] w-9/12">
-                          Copy text
-                        </p>
-                      </button>
-                      {selectedMessage.writerId._id === sessionUserId && (
-                        <button
-                          style={{ touchAction: "none" }}
-                          onClick={handleEditMessage}
-                          className="no-select flex items-center justify-between gap-3 w-full"
-                        >
-                          <IoPencilOutline className="w-3/12 h-5 text-white" />
-                          <p className="flex items-center justify-start text-[14px] w-9/12">
-                            Edit
-                          </p>
-                        </button>
-                      )}
-                      <button
-                        style={{ touchAction: "none" }}
-                        onClick={handleDeleteMessage}
-                        className="no-select flex items-center justify-between gap-3 w-full"
-                      >
-                        <IoTrashOutline className="w-3/12 h-5 text-white" />
-                        <p className="flex items-center justify-start text-[14px] w-9/12">
-                          Delete
-                        </p>
-                      </button>
-                    </div>
-                    <div className="flex w-80 z-5000">
-                      {chatId && (
-                        <EmojiPickerComponent
-                          isYour={message.writerId._id === sessionUserId}
-                          setSelectedMessage={setSelectedMessage}
-                          messageId={message._id}
-                          userId={sessionUserId}
-                          chatId={chatId}
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
+                {renderMessageMenu(message)}
               </div>
             </div>
           </div>
@@ -538,10 +574,15 @@ const MessageList = ({
   };
 
   return (
-    <div className="relative h-full">
+    <div className="flex flex-col h-full">
       <div
-        className="scrollableDiv relative z-10 h-full overflow-y-auto w-full"
         ref={messageListRef}
+        className="flex flex-grow overflow-y-auto -mb-2 scrollableDiv"
+        style={{
+          height: "calc(100vh - 190px)",
+          display: "flex",
+          flexDirection: "column-reverse",
+        }}
       >
         {messagesList.length !== 0 && sessionUserId ? (
           <div className={`message-list pb-2`}>
@@ -554,6 +595,8 @@ const MessageList = ({
                 );
               return renderMessage(message, index, isSameDayAsNext, chatId);
             })}
+            {isFetchingNextPage && <div>Loading more...</div>}
+            <div ref={ref} className="h-0.5 border-2 border-transparent" />
           </div>
         ) : (
           <div className="message-list">

@@ -7,6 +7,7 @@ import { PiUsersThin } from "react-icons/pi";
 import { SessionContext } from "~/utils/context/SocketContext";
 import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { Loader } from "./Loading";
 
 const Sidebar = ({ sessionUserId, openForm }) => {
   const [search, setSearch] = useState("");
@@ -31,7 +32,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
     queryKey: ["chats"],
     queryFn: fetchChats,
     enabled: !!sessionId,
-    refetchInterval: 10000, 
+    refetchInterval: 5000, 
     staleTime: 60000,
     gcTime: 12 * 60 * 60 * 1000,
   });
@@ -41,7 +42,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
   );
 
   if (isPending) {
-    return <span>Loading...</span>;
+    return <Loader />;
   }
 
   if (isError) {
