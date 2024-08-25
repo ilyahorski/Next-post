@@ -1,15 +1,12 @@
-"use client";
-
+import React, { useEffect, useState, useRef, useContext, useCallback } from "react";
 import Image from "next/image";
-import { useEffect, useState, useRef, useContext, useCallback } from "react";
 import { Loader } from "~/components/Loading";
 import { SocketContext } from "~/utils/context/SocketContext";
 import ReactTimeAgoWrapper from "./ReactTimeAgoWrapper";
 
-// TODO: Fix comments not updating
-
-const Comments = ({ postId, isMain, comments, setComments }) => {
+const Comments = ({ postId, isMain }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [comments, setComments] = useState([]);
   const endOfComments = useRef(null);
 
   const socket = useContext(SocketContext);
@@ -21,17 +18,18 @@ const Comments = ({ postId, isMain, comments, setComments }) => {
         console.log("Error getting comments: ", receivedComments.message);
       } else {
         if (
-          receivedComments &&
-          receivedComments.length > 0 &&
+          receivedComments 
+          &&
+          // receivedComments.length > 0 &&
           receivedComments[0]?.postId === postId
         ) {
-          setComments(
-            isMain
-              ? [receivedComments[receivedComments.length - 1]]
-              : receivedComments
-          );
+          if (isMain) {
+            setComments([receivedComments[receivedComments.length - 1]]);
+          } else {
+            setComments(receivedComments);
+          }
         } else {
-          setComments([]);
+          // setComments([]);
         }
       }
     },
@@ -42,24 +40,30 @@ const Comments = ({ postId, isMain, comments, setComments }) => {
     (comment) => {
       if (comment.postId === postId) {
         setComments((prevComments) => {
-          if (!prevComments) return [comment];
-          const commentIds = new Set(prevComments.map((c) => c._id));
-          if (commentIds.has(comment._id)) {
-            return prevComments;
+          if (isMain) {
+            return [comment];
           } else {
-            return isMain ? [comment] : [...prevComments, comment];
+            const commentIds = new Set(prevComments.map((c) => c._id));
+            if (commentIds.has(comment._id)) {
+              return prevComments;
+            } else {
+              return [...prevComments, comment];
+            }
           }
         });
       }
     },
-    [socket, postId, isMain, comments, setComments]
+    [postId, isMain]
   );
 
   useEffect(() => {
-    if (postId && socket && setComments) {
-      socket.emit("getComments", { postId });
+    if (socket) {
+      const getComments = () => {
+        setIsLoading(true);
+        socket.emit("getComments", { postId });
+      };
 
-      setIsLoading(true);
+      getComments();
 
       socket.on("commentsReceived", handleCommentsReceived);
       socket.on("newComment", handleNewComment);
@@ -69,7 +73,7 @@ const Comments = ({ postId, isMain, comments, setComments }) => {
         socket.off("newComment", handleNewComment);
       };
     }
-  }, [socket, postId]);
+  }, [socket]);
 
   useEffect(() => {
     if (!isLoading && endOfComments.current) {
@@ -85,10 +89,10 @@ const Comments = ({ postId, isMain, comments, setComments }) => {
   return (
     <>
       <div className="comment-list">
-        {comments?.map((comment, index) => (
+        {comments.map((comment, index) => (
           <div
             key={comment?._id}
-            ref={index === comments?.length - 1 ? endOfComments : null}
+            ref={index === comments.length - 1 ? endOfComments : null}
             className={
               !isMain
                 ? "border-b-[1px] border-black/20 dark:border-white/20 flex flex-row justify-between flex-wrap m-1 items-start gap-2"

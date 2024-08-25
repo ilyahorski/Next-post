@@ -20,9 +20,7 @@ const PostCard = ({
   post,
   myPosts,
   setMyPosts,
-  handleTagClick,
-  comments,
-  setComments,
+  handleTagClick
 }) => {
   const [likes, setLikes] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -245,8 +243,6 @@ const PostCard = ({
               <Comments
                 postId={post?._id}
                 isMain={true}
-                comments={comments}
-                setComments={setComments}
               />
             </div>
             <CommentForm postId={post?._id} userId={sessionId} />

@@ -1,9 +1,13 @@
 "use client";
 
 import { useContext, useEffect, useState, useRef } from "react";
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
-import { useInfiniteQuery, useQueryClient, useQuery  } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQueryClient,
+  useQuery,
+} from "@tanstack/react-query";
 import MessageForm from "~/components/MessageForm";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
 import { SocketContext } from "~/utils/context/SocketContext";
@@ -18,7 +22,7 @@ import Image from "next/image";
 
 const Messages = ({ sessionUserId }) => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
-  const [background, setBackground] = useState('/assets/bg/1.jpg');
+  const [background, setBackground] = useState("/assets/bg/1.jpg");
   const [userStatuses, setUserStatuses] = useState({});
   const [replyTo, setReplyTo] = useState(null);
   const [newMessageGet, setNewMessageGet] = useState(false);
@@ -28,10 +32,11 @@ const Messages = ({ sessionUserId }) => {
 
   const isMobile = useMobileCheck();
   const { id: chatId } = useParams();
-  const router = useRouter()
+  const router = useRouter();
 
   const socket = useContext(SocketContext);
-  const { isVideoChatVisible, setIsVideoChatVisible } = useContext(VideoSocketContext);
+  const { isVideoChatVisible, setIsVideoChatVisible } =
+    useContext(VideoSocketContext);
   const queryClient = useQueryClient();
 
   const fetchMessages = async ({ pageParam = 1 }) => {
@@ -42,23 +47,20 @@ const Messages = ({ sessionUserId }) => {
     return data;
   };
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status
-  } = useInfiniteQuery({
-    queryKey: ['messages', chatId],
-    queryFn: fetchMessages,
-    getNextPageParam: (lastPage, pages) => {
-      if (lastPage.usersMessages.length < 100) return undefined;
-      return pages.length + 1;
-    },
-    enabled: !!chatId,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
+    useInfiniteQuery({
+      queryKey: ["messages", chatId],
+      queryFn: fetchMessages,
+      getNextPageParam: (lastPage, pages) => {
+        if (lastPage.usersMessages.length < 100) return undefined;
+        return pages.length + 1;
+      },
+      enabled: !!chatId,
+    });
 
-  const messagesList = data ? data.pages.flatMap(page => page.usersMessages) : [];
+  const messagesList = data
+    ? data.pages.flatMap((page) => page.usersMessages)
+    : [];
 
   const fetchChat = async (chatId) => {
     const response = await fetch(`/api/chats/${chatId}`);
@@ -68,114 +70,127 @@ const Messages = ({ sessionUserId }) => {
     return response.json();
   };
 
-  const { data: chat, error, isLoading } = useQuery(
-    ["chat", chatId],
-    () => fetchChat(chatId),
-    {
-      enabled: !!chatId, // Запрос выполняется только при наличии chatId
-      refetchOnWindowFocus: false, // Отключаем повторный запрос при фокусе на окно
-    }
-  );
+  const {
+    data: chat,
+    error,
+    isLoading,
+  } = useQuery(["chat", chatId], () => fetchChat(chatId), {
+    enabled: !!chatId, // Запрос выполняется только при наличии chatId
+    refetchOnWindowFocus: false, // Отключаем повторный запрос при фокусе на окно
+  });
 
   useEffect(() => {
     if (chatId && socket && sessionUserId) {
       socket.emit("getMessages", { chatId });
-      socket.emit('markMessagesAsDelivered', { chatId, userId: sessionUserId });
+      socket.emit("markMessagesAsDelivered", { chatId, userId: sessionUserId });
 
       const updateStatus = (status) => {
-        socket.emit('setUserStatus', { userId: sessionUserId, status });
+        socket.emit("setUserStatus", { userId: sessionUserId, status });
       };
 
       const handleVisibilityChange = () => {
         if (document.hidden) {
-          updateStatus('offline');
+          updateStatus("offline");
         } else {
-          updateStatus('online');
+          updateStatus("online");
         }
       };
 
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-      window.addEventListener('focus', () => updateStatus('online'));
-      window.addEventListener('blur', () => updateStatus('offline'));
-      updateStatus('online');
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      window.addEventListener("focus", () => updateStatus("online"));
+      window.addEventListener("blur", () => updateStatus("offline"));
+      updateStatus("online");
 
-      const statusInterval = setInterval(() => updateStatus('online'), 10000);
+      const statusInterval = setInterval(() => updateStatus("online"), 10000);
 
       socket.on("newMessage", (message) => {
         if (message.chatId === chatId) {
           setNewMessageGet(true);
-          queryClient.setQueryData(['messages', chatId], (oldData) => {
-            if (!oldData) return { pages: [{ usersMessages: [message] }], pageParams: [1] };
+          queryClient.setQueryData(["messages", chatId], (oldData) => {
+            if (!oldData)
+              return { pages: [{ usersMessages: [message] }], pageParams: [1] };
             return {
               ...oldData,
               pages: [
                 { usersMessages: [message, ...oldData.pages[0].usersMessages] },
-                ...oldData.pages.slice(1)
-              ]
+                ...oldData.pages.slice(1),
+              ],
             };
           });
-          socket.emit('markMessageAsDelivered', { messageId: message._id, chatId });
+          socket.emit("markMessageAsDelivered", {
+            messageId: message._id,
+            chatId,
+          });
           setNewMessageGet(false);
         }
       });
 
-      socket.on('messageStatusUpdated', (updatedMessage) => {
-        queryClient.setQueryData(['messages', chatId], (oldData) => {
+      socket.on("messageStatusUpdated", (updatedMessage) => {
+        queryClient.setQueryData(["messages", chatId], (oldData) => {
           if (!oldData) return oldData;
           return {
             ...oldData,
-            pages: oldData.pages.map(page => ({
+            pages: oldData.pages.map((page) => ({
               ...page,
-              usersMessages: page.usersMessages.map(msg =>
-                msg._id === updatedMessage._id ? { ...msg, messageStatus: updatedMessage.messageStatus } : msg
-              )
-            }))
+              usersMessages: page.usersMessages.map((msg) =>
+                msg._id === updatedMessage._id
+                  ? { ...msg, messageStatus: updatedMessage.messageStatus }
+                  : msg
+              ),
+            })),
           };
         });
       });
 
-      socket.on('messageUpdated', (updatedMessage) => {
+      socket.on("messageUpdated", (updatedMessage) => {
         if (updatedMessage && updatedMessage._id) {
-          queryClient.setQueryData(['messages', chatId], (oldData) => {
+          queryClient.setQueryData(["messages", chatId], (oldData) => {
             if (!oldData) return oldData;
             return {
               ...oldData,
-              pages: oldData.pages.map(page => ({
+              pages: oldData.pages.map((page) => ({
                 ...page,
-                usersMessages: page.usersMessages.map(msg =>
-                  msg._id === updatedMessage._id ? { ...msg, message: updatedMessage.message } : msg
-                )
-              }))
+                usersMessages: page.usersMessages.map((msg) =>
+                  msg._id === updatedMessage._id
+                    ? { ...msg, message: updatedMessage.message }
+                    : msg
+                ),
+              })),
             };
           });
         } else {
-          console.error('Received invalid updated message:', updatedMessage);
+          console.error("Received invalid updated message:", updatedMessage);
         }
       });
 
-      socket.on('messageDeleted', ({ messageId }) => {
-        queryClient.setQueryData(['messages', chatId], (oldData) => {
+      socket.on("messageDeleted", ({ messageId }) => {
+        queryClient.setQueryData(["messages", chatId], (oldData) => {
           if (!oldData) return oldData;
           return {
             ...oldData,
-            pages: oldData.pages.map(page => ({
+            pages: oldData.pages.map((page) => ({
               ...page,
-              usersMessages: page.usersMessages.filter(msg => msg._id !== messageId)
-            }))
+              usersMessages: page.usersMessages.filter(
+                (msg) => msg._id !== messageId
+              ),
+            })),
           };
         });
       });
 
       return () => {
         socket.off("newMessage");
-        socket.off('messageStatusUpdated');
-        socket.off('messageUpdated');
-        socket.off('messageDeleted');
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-        window.removeEventListener('focus', () => updateStatus('online'));
-        window.removeEventListener('blur', () => updateStatus('offline'));
+        socket.off("messageStatusUpdated");
+        socket.off("messageUpdated");
+        socket.off("messageDeleted");
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange
+        );
+        window.removeEventListener("focus", () => updateStatus("online"));
+        window.removeEventListener("blur", () => updateStatus("offline"));
         clearInterval(statusInterval);
-        updateStatus('offline');
+        updateStatus("offline");
       };
     }
   }, [socket, chatId, sessionUserId, queryClient]);
@@ -192,15 +207,15 @@ const Messages = ({ sessionUserId }) => {
 
   useEffect(() => {
     if (socket) {
-      socket.on('userStatusUpdated', ({ userId, status, username }) => {
-        setUserStatuses(prevStatuses => ({
+      socket.on("userStatusUpdated", ({ userId, status, username }) => {
+        setUserStatuses((prevStatuses) => ({
           ...prevStatuses,
-          [userId]: { status, username }
+          [userId]: { status, username },
         }));
       });
-  
+
       return () => {
-        socket.off('userStatusUpdated');
+        socket.off("userStatusUpdated");
       };
     }
   }, [socket]);
@@ -215,16 +230,16 @@ const Messages = ({ sessionUserId }) => {
 
   useEffect(() => {
     let timeout;
-    
+
     if (newMessageGet && messageEndRef.current && formEndRef.current) {
       const scrollMessageList = () => {
         return new Promise((resolve) => {
           window.requestAnimationFrame(() => {
-            const messageList = document.getElementById('scrollableDiv');
+            const messageList = document.getElementById("scrollableDiv");
             if (messageList) {
               messageEndRef.current.scrollIntoView({
-                block: 'end',
-              })
+                block: "end",
+              });
               resolve();
             } else {
               resolve();
@@ -232,17 +247,17 @@ const Messages = ({ sessionUserId }) => {
           });
         });
       };
-  
+
       const scrollEntireContainer = () => {
         window.requestAnimationFrame(() => {
-          const container = document.getElementById('messagesContainer');
+          const container = document.getElementById("messagesContainer");
           if (container) {
             timeout = setTimeout(() => {
-              window.requestAnimationFrame(() => 
+              window.requestAnimationFrame(() =>
                 formEndRef.current.scrollIntoView({
-                  block: 'end',
+                  block: "end",
                 })
-              )
+              );
             }, 200);
           }
         });
@@ -252,7 +267,7 @@ const Messages = ({ sessionUserId }) => {
 
     return () => {
       clearTimeout(timeout);
-    }
+    };
   }, [newMessageGet]);
 
   const handlePopoverClick = (event) => {
@@ -270,7 +285,7 @@ const Messages = ({ sessionUserId }) => {
   return (
     <div
       className="scrollableBg flex flex-col custom-height flex-grow w-full"
-      style={{ '--scrollableDiv-background': `url(${background})` }}
+      style={{ "--scrollableDiv-background": `url(${background})` }}
     >
       {chat.length !== 0 && (
         <div className="flex gap-1 flex-grow w-full items-center bg-black rounded-t-md">
@@ -278,7 +293,7 @@ const Messages = ({ sessionUserId }) => {
             <button
               className="mob:hidden flex justify-center items-center w-[40px] h-[40px]"
               type="button"
-              onClick={() => router.push('/chat')}
+              onClick={() => router.push("/chat")}
             >
               <div className="flex gap-0.5 items-center flex-col">
                 <FaArrowLeft
@@ -307,33 +322,39 @@ const Messages = ({ sessionUserId }) => {
                 <div className="flex h-[50px] max-w-[250px] us:max-w-[400px] xl:max-w-[750px] flex-col gap-0.5 py-0.5">
                   <p className="h-[20px]">{chat?.chatName}</p>
                   <div className="h-[20px] flex flex-wrap gap-2">
-                    {chat?.membersList.map(member => (
-                      member._id !== sessionUserId && (
-                        <span key={member._id} className="text-sm">
-                          {member.username}: {userStatuses[member._id]?.status || 'offline'}
-                        </span>
-                      )
-                    ))}
+                    {chat?.membersList.map(
+                      (member) =>
+                        member._id !== sessionUserId && (
+                          <span key={member._id} className="text-sm">
+                            {member.username}:{" "}
+                            {userStatuses[member._id]?.status || "offline"}
+                          </span>
+                        )
+                    )}
                   </div>
                 </div>
               </div>
               <div className="flex gap-2">
-                <button
-                  title="Open video chat"
-                  className="flex p-2 cursor-pointer text-zinc-800 dark:text-zinc-400"
-                  type="button"
-                  onClick={() => setIsVideoChatVisible(!isVideoChatVisible)}
-                >
-                  {!isVideoChatVisible ? (<SlCallOut
-                    className="w-[20px] h-[20px]"
-                    placeholder="Open video chat"
-                  />) : (
-                    <SlCallEnd
-                    className="w-[20px] h-[20px] text-red-500"
-                    placeholder="Close video chat"
-                  />
-                  )}
-                </button>
+                {chat?.membersList.length > 1 && (
+                  <button
+                    title="Open video chat"
+                    className="flex p-2 cursor-pointer text-zinc-800 dark:text-zinc-400"
+                    type="button"
+                    onClick={() => setIsVideoChatVisible(!isVideoChatVisible)}
+                  >
+                    {!isVideoChatVisible ? (
+                      <SlCallOut
+                        className="w-[20px] h-[20px]"
+                        placeholder="Open video chat"
+                      />
+                    ) : (
+                      <SlCallEnd
+                        className="w-[20px] h-[20px] text-red-500"
+                        placeholder="Close video chat"
+                      />
+                    )}
+                  </button>
+                )}
 
                 <div className="w-full us:w-[100%] flex gap-2 justify-end items-end">
                   <button
@@ -371,23 +392,23 @@ const Messages = ({ sessionUserId }) => {
         id="scrollableDiv"
       >
         <div className="flex-grow overflow-hidden">
-        {status === 'loading' ? (
-          <Loader />
-        ) : status === 'error' ? (
-          <p>Error loading messages</p>
-        ) : (
-          <MessageList
-            messagesList={messagesList}
-            isMobile={isMobile}
-            sessionUserId={sessionUserId}
-            onReply={handleReply}
-            messageEndRef={messageEndRef}
-            fetchNextPage={fetchNextPage}
-            hasNextPage={hasNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-          />
-        )}
-      </div>
+          {status === "loading" ? (
+            <Loader />
+          ) : status === "error" ? (
+            <p>Error loading messages</p>
+          ) : (
+            <MessageList
+              messagesList={messagesList}
+              isMobile={isMobile}
+              sessionUserId={sessionUserId}
+              onReply={handleReply}
+              messageEndRef={messageEndRef}
+              fetchNextPage={fetchNextPage}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+            />
+          )}
+        </div>
       </section>
 
       <div className="flex items-center w-full gap-2 mt-auto bg-black rounded-b-md">

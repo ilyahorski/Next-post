@@ -10,7 +10,6 @@ import { BsColumns } from "react-icons/bs";
 import { TbColumns1 } from "react-icons/tb";
 import { DisplayContext } from "~/app/provider";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
-import { SessionContext } from "~/utils/context/SocketContext";
 
 const fetchPosts = async ({ pageParam = 1 }) => {
   const response = await fetch(`/api/post?page=${pageParam}&limit=4`);
@@ -22,11 +21,9 @@ const Feed = () => {
   const [searchText, setSearchText] = useState("");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchedResults, setSearchedResults] = useState([]);
-  const [allComments, setAllComments] = useState({});
   const { columnView, setColumnView } = useContext(DisplayContext);
   const isMobile = useMobileCheck();
   const loaderRef = useRef();
-  const sessionId = useContext(SessionContext);
 
   const {
     data,
@@ -58,17 +55,17 @@ const Feed = () => {
         return uniquePosts;
       });
 
-      setAllComments((prevComments) => {
-        const newComments = {};
-        data.pages.forEach((page) => {
-          page.posts.forEach((post) => {
-            if (!prevComments[post._id]) {
-              newComments[post._id] = null; // null indicates comments haven't been fetched yet
-            }
-          });
-        });
-        return { ...prevComments, ...newComments };
-      });
+      // setAllComments((prevComments) => {
+      //   const newComments = {};
+      //   data.pages.forEach((page) => {
+      //     page.posts.forEach((post) => {
+      //       if (!prevComments[post._id]) {
+      //         newComments[post._id] = null; // null indicates comments haven't been fetched yet
+      //       }
+      //     });
+      //   });
+      //   return { ...prevComments, ...newComments };
+      // });
     }
   }, [data]);
 
@@ -158,9 +155,7 @@ const Feed = () => {
         dataLength={allPosts.length}
         next={fetchNextPage}
         hasMore={hasNextPage}
-        loader={
-          isFetchingNextPage && <div ref={loaderRef} isMessage={false} />
-        }
+        loader={isFetchingNextPage && <div ref={loaderRef} isMessage={false} />}
         endMessage={
           <p style={{ textAlign: "center" }}>
             <b>Yay! You have seen it all</b>
@@ -180,23 +175,11 @@ const Feed = () => {
           </h3>
         }
       >
-        {searchText ? (
-          <PostCardList
-            columnView={columnView}
-            data={searchedResults}
-            handleTagClick={handleTagClick}
-            allComments={allComments}
-            setAllComments={setAllComments}
-          />
-        ) : (
-          <PostCardList
-            columnView={columnView}
-            data={allPosts}
-            handleTagClick={handleTagClick}
-            allComments={allComments}
-            setAllComments={setAllComments}
-          />
-        )}
+        <PostCardList
+          columnView={columnView}
+          data={searchText ? searchedResults : allPosts}
+          handleTagClick={handleTagClick}
+        />
       </InfiniteScroll>
     </section>
   );
