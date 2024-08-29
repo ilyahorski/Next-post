@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import {
@@ -26,6 +26,7 @@ const Messages = ({ sessionUserId }) => {
   const [userStatuses, setUserStatuses] = useState({});
   const [replyTo, setReplyTo] = useState(null);
   const [newMessageGet, setNewMessageGet] = useState(false);
+  const [newMessages, setNewMessages] = useState([]);
   const formEndRef = useRef(null);
   const messageEndRef = useRef(null);
   const popoverRef = useRef(null);
@@ -79,6 +80,31 @@ const Messages = ({ sessionUserId }) => {
     refetchOnWindowFocus: false, // Отключаем повторный запрос при фокусе на окно
   });
 
+  const updateMessages = useCallback((newMessage) => {
+    setNewMessageGet(true);
+    queryClient.setQueryData(["messages", chatId], (oldData) => {
+      if (!oldData) {
+        return { pages: [{ usersMessages: [newMessage] }], pageParams: [1] };
+      }
+      
+      const messageExists = oldData.pages.some(page => 
+        page.usersMessages.some(msg => msg._id === newMessage._id)
+      );
+      
+      if (messageExists) {
+        return oldData;
+      }
+      
+      return {
+        ...oldData,
+        pages: [
+          { usersMessages: [newMessage, ...oldData.pages[0].usersMessages] },
+          ...oldData.pages.slice(1),
+        ],
+      };
+    });
+  }, [queryClient, chatId]);
+
   useEffect(() => {
     if (chatId && socket && sessionUserId) {
       socket.emit("getMessages", { chatId });
@@ -103,27 +129,19 @@ const Messages = ({ sessionUserId }) => {
 
       const statusInterval = setInterval(() => updateStatus("online"), 10000);
 
-      socket.on("newMessage", (message) => {
+      const handleNewMessage = (message) => {
         if (message.chatId === chatId) {
-          setNewMessageGet(true);
-          queryClient.setQueryData(["messages", chatId], (oldData) => {
-            if (!oldData)
-              return { pages: [{ usersMessages: [message] }], pageParams: [1] };
-            return {
-              ...oldData,
-              pages: [
-                { usersMessages: [message, ...oldData.pages[0].usersMessages] },
-                ...oldData.pages.slice(1),
-              ],
-            };
-          });
+          setNewMessages(prev => [...prev, message]);
+          updateMessages(message);
           socket.emit("markMessageAsDelivered", {
             messageId: message._id,
             chatId,
           });
           setNewMessageGet(false);
         }
-      });
+      };
+
+      socket.on("newMessage", handleNewMessage);
 
       socket.on("messageStatusUpdated", (updatedMessage) => {
         queryClient.setQueryData(["messages", chatId], (oldData) => {
@@ -179,7 +197,7 @@ const Messages = ({ sessionUserId }) => {
       });
 
       return () => {
-        socket.off("newMessage");
+        socket.off("newMessage", handleNewMessage);
         socket.off("messageStatusUpdated");
         socket.off("messageUpdated");
         socket.off("messageDeleted");
@@ -194,6 +212,15 @@ const Messages = ({ sessionUserId }) => {
       };
     }
   }, [socket, chatId, sessionUserId, queryClient]);
+
+  useEffect(() => {
+    if (newMessages.length > 0) {
+      const timer = setTimeout(() => {
+        setNewMessages([]);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [newMessages]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
