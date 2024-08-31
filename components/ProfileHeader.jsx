@@ -37,26 +37,26 @@ const ProfileHeader = ({ name, session, data }) => {
           {data[0]?.creator.email}
         </p>
       </div>
-      <div className="w-full us:w-[100%] flex gap-2 justify-end items-end">
-        <button
-          className="flex items-center justify-center text-[18px] md:text-[26px] px-3 md:pb-1 font-light bg-gray-800 rounded-md text-zinc-200"
-          onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-        >
-          Settings
-        </button>
-        {isPopoverOpen && (
-          <div
-            className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-[1000]"
+      {name === "/profile" && (
+        <div className="w-full us:w-[100%] flex gap-2 justify-end items-end">
+          <button
+            className="flex items-center justify-center text-[18px] md:text-[26px] px-3 md:pb-1 font-light bg-gray-800 rounded-md text-zinc-200"
+            onClick={() => setIsPopoverOpen(!isPopoverOpen)}
           >
-            <Popover
-              handleDelete={handleDelete}
-              session={session}
-              setIsPopoverOpen={setIsPopoverOpen}
-              onClose={() => setIsPopoverOpen(false)}
-            />
-          </div>
-        )}
-      </div>
+            Settings
+          </button>
+          {isPopoverOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-[1000]">
+              <Popover
+                handleDelete={handleDelete}
+                session={session}
+                setIsPopoverOpen={setIsPopoverOpen}
+                onClose={() => setIsPopoverOpen(false)}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

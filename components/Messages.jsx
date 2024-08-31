@@ -57,6 +57,8 @@ const Messages = ({ sessionUserId }) => {
         return pages.length + 1;
       },
       enabled: !!chatId,
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     });
 
   const messagesList = data
@@ -76,8 +78,8 @@ const Messages = ({ sessionUserId }) => {
     error,
     isLoading,
   } = useQuery(["chat", chatId], () => fetchChat(chatId), {
-    enabled: !!chatId, // Запрос выполняется только при наличии chatId
-    refetchOnWindowFocus: false, // Отключаем повторный запрос при фокусе на окно
+    enabled: !!chatId,
+    refetchOnWindowFocus: false,
   });
 
   const updateMessages = useCallback((newMessage) => {

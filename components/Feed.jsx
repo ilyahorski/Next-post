@@ -41,6 +41,8 @@ const Feed = () => {
       }
       return undefined;
     },
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   useEffect(() => {
@@ -54,22 +56,9 @@ const Feed = () => {
         ];
         return uniquePosts;
       });
-
-      // setAllComments((prevComments) => {
-      //   const newComments = {};
-      //   data.pages.forEach((page) => {
-      //     page.posts.forEach((post) => {
-      //       if (!prevComments[post._id]) {
-      //         newComments[post._id] = null; // null indicates comments haven't been fetched yet
-      //       }
-      //     });
-      //   });
-      //   return { ...prevComments, ...newComments };
-      // });
     }
   }, [data]);
 
-  // const allPosts = data ? data.pages.flatMap(page => page.posts) : []
 
   const filterPosts = useCallback(
     (searchtext) => {
@@ -113,7 +102,7 @@ const Feed = () => {
   };
 
   if (status === "loading") return <LoadingBar isMessage={false} />;
-  if (status === "error") return <div>Error fetching posts</div>;
+  if (status === "error") return <div>Error fetching posts: {error.message}</div>;
 
   return (
     <section className="feed">

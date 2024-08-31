@@ -34,7 +34,9 @@ const Sidebar = ({ sessionUserId, openForm }) => {
     enabled: !!sessionId,
     refetchInterval: 5000, 
     staleTime: 60000,
-    gcTime: 12 * 60 * 60 * 1000,
+    gcTime: 72000000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const filteredChats = chats.filter((chat) =>

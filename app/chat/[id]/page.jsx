@@ -32,6 +32,8 @@ const MessageMain = () => {
     enabled: !!chatId && !!sessionId,
     staleTime: 300000,
     gcTime: 7200000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   useEffect(() => {
