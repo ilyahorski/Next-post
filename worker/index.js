@@ -42,7 +42,7 @@ self.addEventListener("notificationclose", function (event) {
       });
     });
 
-    // Сохраняем информацию о закрытии вызова в кэше
+    // Сохраняем информацию о закрытии вызова
     caches.open("call-status").then((cache) => {
       cache.put(
         "last-call-status",
