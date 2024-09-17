@@ -245,6 +245,7 @@ const VideoApp = ({ chatMembers }) => {
       currentAudio.pause();
       setCurrentAudio(null);
     }
+
     const peer = new Peer({
       initiator: false,
       trickle: false,
