@@ -42,7 +42,7 @@ self.addEventListener("notificationclose", function (event) {
       });
     });
 
-    // Сохраняем информацию о закрытии вызова
+    // Сохраняем информацию о закрытии вызова в кэше
     caches.open("call-status").then((cache) => {
       cache.put(
         "last-call-status",
@@ -107,7 +107,7 @@ self.addEventListener("push", function (event) {
           sound: "/assets/notif.mp3",
           vibrate: [
             500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200, 110,
-            170, 40, 500,
+            170, 40,
           ],
           tag: notificationTag,
           renotify: false,
