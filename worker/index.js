@@ -153,65 +153,87 @@ self.addEventListener("notificationclick", function (event) {
   event.preventDefault();
   event.notification.close();
 
+  console.log("Notification click received:", event);
+
   event.waitUntil(
-    caches
-      .open("chat-data")
-      .then((cache) => cache.match("current-chat-data"))
-      .then((response) => {
+    (async function () {
+      try {
+        // Открываем кэш и пытаемся получить данные текущего чата
+        const cache = await caches.open("chat-data");
+        const response = await cache.match("current-chat-data");
+
         if (response) {
-          return response.json().then((data) => {
-            const { chatId, type } = data;
+          const data = await response.json();
+          const { chatId, type } = data;
 
-            self.clients
-              .matchAll({ type: "window", includeUncontrolled: true })
-              .then(function (clients) {
-                let client = clients.find(
-                  (c) =>
-                    c.url.startsWith(process.env.NEXT_PUBLIC_BASE_URL) &&
-                    "navigate" in c
-                );
+          console.log("Chat Data:", data);
 
-                if (type === "call") {
-                  let chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}?source=push`;
+          // Определяем базовый URL
+          const baseUrl = self.location.origin; // Используем self.location.origin вместо process.env
 
-                  if (event.action === "reject" || event.action === "accept") {
-                    chatUrl += `&type=${event.action}`;
+          // Формируем URL чата
+          let chatUrl = chatId
+            ? `${baseUrl}/chat/${chatId}`
+            : `${baseUrl}/chat`;
 
-                    // Отправляем сообщение через BroadcastChannel
-                    channel.postMessage({
-                      type: "CALL_ENDED",
-                      action: event.action,
-                      chatId: chatId,
-                    });
-                  }
+          if (type === "call") {
+            chatUrl += `?source=push`;
 
-                  if (event.action === "reject") {
-                    return;
-                  }
+            if (event.action === "reject" || event.action === "accept") {
+              chatUrl += `&type=${event.action}`;
 
-                  if (client) {
-                    return client
-                      .navigate(chatUrl)
-                      .then((client) => client.focus());
-                  } else {
-                    return clients.openWindow(chatUrl);
-                  }
-                } else {
-                  const chatUrl = chatId
-                    ? `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${chatId}`
-                    : `${process.env.NEXT_PUBLIC_BASE_URL}/chat`;
-                  return clients.openWindow(chatUrl);
-                }
+              // Отправляем сообщение через BroadcastChannel
+              channel.postMessage({
+                type: "CALL_ENDED",
+                action: event.action,
+                chatId: chatId,
               });
+
+              console.log(`Call ${event.action} for chatId: ${chatId}`);
+            }
+
+            if (event.action === "reject") {
+              console.log("Call rejected");
+              return; // Завершаем обработку, если звонок отклонён
+            }
+          }
+
+          // Пытаемся найти уже открытое окно PWA
+          const allClients = await self.clients.matchAll({
+            type: "window",
+            includeUncontrolled: true,
           });
+
+          let client = allClients.find((c) =>
+            c.url.startsWith(baseUrl) && "navigate" in c
+          );
+
+          if (client) {
+            console.log("Found existing client, navigating...");
+            // Навигация к нужному URL
+            await client.navigate(chatUrl);
+            await client.focus();
+          } else {
+            console.log("No existing client found, opening new window...");
+            // Открываем новое окно с нужным URL
+            await self.clients.openWindow(chatUrl);
+          }
         } else {
-          caches.delete("action-data");
-          caches.delete("chat-data");
-          return clients.openWindow(`${process.env.NEXT_PUBLIC_BASE_URL}/chat`);
+          console.log("No chat data found in cache, opening default chat window.");
+          // Если данных нет, очищаем кэш и открываем стандартное окно чата
+          await caches.delete("action-data");
+          await caches.delete("chat-data");
+          await self.clients.openWindow(`${self.location.origin}/chat`);
         }
-      })
+      } catch (error) {
+        console.error("Error handling notification click:", error);
+        // В случае ошибки открываем стандартное окно чата
+        await self.clients.openWindow(`${self.location.origin}/chat`);
+      }
+    })()
   );
 });
+
 
 // Добавляем обработчик сообщений от основного потока (если понадобится)
 self.addEventListener("message", (event) => {
