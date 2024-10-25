@@ -12,7 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader } from "./Loading";
 
 const fetchUsers = async () => {
-  const response = await fetch(`/api/users`);
+  const response = await fetch(`/api/users?timestamp=${Date.now()}`);
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
