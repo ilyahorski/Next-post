@@ -20,6 +20,7 @@ const fetchUsers = async () => {
 };
 
 const CreateChatForm = ({ closeForm }) => {
+  const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
