@@ -13,6 +13,7 @@ export const GET = async (request, { params }) => {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-store',
       },
+    });
   } catch (error) {
     return new Response('Failed to fetch users', { status: 500 });
   }
