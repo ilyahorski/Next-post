@@ -21,20 +21,33 @@ const fetchUsers = async () => {
 
 const CreateChatForm = ({ closeForm }) => {
   const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [groupName, setGroupName] = useState("");
   const sessionId = useContext(SessionContext);
 
-  const { data: users, isLoading, isError } = useQuery({
-    queryKey: ['users'],
-    queryFn: fetchUsers,
-    enabled: !!sessionId,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    refetchInterval: 5000, 
-    staleTime: 60000,
-    gcTime: 72000000,
-  });
+  useEffect(() => {
+    const loadUsers = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      try {
+        const usersData = await fetchUsers();
+        setUsers(usersData);
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUsers();
+
+    const intervalId = setInterval(loadUsers, 60000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   useEffect(() => {
     if (users && sessionId) {
