@@ -13,35 +13,27 @@ const SocketProvider = ({ children, serverSession }) => {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [editingMessage, setEditingMessage] = useState(null);
   const [sessionUserId, setSessionUserId] = useState(serverSession?.user?.id || null);
-  const { data: session, status, update } = useSession();
+  const { data: clientSession, status } = useSession();
 
   useEffect(() => {
-    if (sessionUserId) {
-      return;
+    if (!serverSession && status === 'authenticated' && clientSession?.user?.id) {
+      setSessionUserId(clientSession.user.id);
     }
-    const currentSession = serverSession || session;
-    if (currentSession?.user?.id) {
-      setSessionUserId(currentSession.user.id);
-    }
-  }, [serverSession, session]);
+  }, [serverSession, status, clientSession]);
 
   useEffect(() => {
-    if (!sessionUserId) {
-      update();
-    }
-
+    if (!sessionUserId) return;
+    
     const newSocket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`, {
-      query: {
-        userId: sessionUserId
-      }
+      query: { userId: sessionUserId }
     });
-
     setSocket(newSocket);
-
+  
     return () => {
       newSocket.close();
     };
   }, [sessionUserId]);
+  
 
   return (
     <SessionContext.Provider value={sessionUserId}>
