@@ -1,28 +1,28 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useRef, useState, useContext } from 'react';
 import Form from '~/components/Form';
 import { useSubmitHandler } from "~/utils/hooks/useSubmitHandler";
 import { useInputChangeHandler } from "~/utils/hooks/useInputChangeHandler";
+import {SessionContext} from "~/utils/context/SocketContext";
 
 const CreatePost = () => {
   const [post, setPost] = useState({ post: '', tag: '', image: '' });
   const [fileData, setFileData] = useState(null);
   const handleInputChange = useInputChangeHandler(setPost);
   const cropperRef = useRef(null);
-  const { data: session } = useSession();
+  const sessionId = useContext(SessionContext);
 
-  const buildRequestBody = ({post, session, imageUrl}) => ({
+  const buildRequestBody = ({post, imageUrl}) => ({
     post: post.post,
-    userId: session.user.id,
+    userId: sessionId,
     tag: post.tag,
     image: imageUrl,
   });
 
   const { handleSubmit, isSubmitting } = useSubmitHandler(
     fileData,
-    session,
+    sessionId,
     post,
     cropperRef,
     setPost,

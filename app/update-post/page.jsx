@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Form from '~/components/Form';
 import { useSubmitHandler}  from "~/utils/hooks/useSubmitHandler";
 import { useInputChangeHandler}  from "~/utils/hooks/useInputChangeHandler";
-import { useSession } from "next-auth/react";
+import {SessionContext} from "~/utils/context/SocketContext";
 
 const UpdatePost = () => {
   const [post, setPost] = useState({ post: '', tag: '', image: '' });
@@ -13,8 +13,8 @@ const UpdatePost = () => {
   const searchParams = useSearchParams();
   const cropperRef = useRef(null);
   const postId = searchParams.get('id');
-  const { data: session } = useSession();
   const [fileData, setFileData] = useState(null);
+  const sessionId = useContext(SessionContext);
 
   const buildRequestBody = ({post, imageUrl}) => ({
     post: post.post,
@@ -24,7 +24,7 @@ const UpdatePost = () => {
 
   const { handleSubmit, isSubmitting } = useSubmitHandler(
     fileData,
-    session,
+    sessionId,
     post,
     cropperRef,
     setPost,

@@ -14,6 +14,7 @@ export const GET = async (request, { params }) => {
     const chat = await Chat.findById(params.id)
       .populate('creatorId')
       .populate('membersList')
+      .populate('lastMessage')
 
     if (!chat) return new Response('Chat Not Found', { status: 404 });
 
@@ -25,36 +26,29 @@ export const GET = async (request, { params }) => {
 };
 
 export const PATCH = async (request, { params }) => {
-  const { chatName, chatImage, lastMessage } = await request.json();
-
   try {
     await connectToDB();
 
-    const chatData = await Chat.findById(params.id)
-      .populate('creatorId')
-      .populate('membersList')
+    const { chatName, chatImage, lastMessage } = await request.json();
 
-    if (!chatData) {
-      return new Response('Data not found', { status: 404 });
+    const updatedChat = await Chat.findByIdAndUpdate(
+      params.id,
+      {
+        ...(chatName !== undefined && { chatName }),
+        ...(chatImage !== undefined && { chatImage }),
+        ...(lastMessage !== undefined && { lastMessage }),
+      },
+      { new: true }
+    );
+
+    if (!updatedChat) {
+      return new Response('Chat not found', { status: 404 });
     }
 
-    if (chatName !== undefined) {
-      chatData.chatName = chatName;
-    }
-
-    if (chatImage !== undefined) {
-      chatData.chatImage = chatImage;
-    }
-
-    if (lastMessage !== undefined) {
-      chatData.lastMessage = lastMessage;
-    }
-
-    await chatData.save();
-
-    return new Response('Successfully updated', { status: 200 });
+    return new Response(JSON.stringify(updatedChat), { status: 200 });
   } catch (error) {
-    return new Response('Error Updating Chat', { status: 500 });
+    console.error('Error updating chat:', error);
+    return new Response('Error updating chat', { status: 500 });
   }
 };
 

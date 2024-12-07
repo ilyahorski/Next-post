@@ -1,38 +1,37 @@
-'use client';
+"use client";
 
-import {useSession} from 'next-auth/react';
-import {useEffect, useState} from 'react';
-import {usePathname, useRouter} from 'next/navigation';
-
-import Profile from '~/components/Profile';
+import { useEffect, useState, useContext } from "react";
+import { usePathname } from "next/navigation";
+import Profile from "~/components/Profile";
 import axios from "axios";
-import {LoadingBar} from "~/components/Loading";
+import { Loader } from "~/components/Loading";
+import { SessionContext } from "~/utils/context/SocketContext";
 
 const MyProfile = () => {
-  const pathname = usePathname()
+  const pathname = usePathname();
   const [myPosts, setMyPosts] = useState([]);
-  const {data: session, status} = useSession();
+  const sessionId = useContext(SessionContext);
 
   useEffect(() => {
-    if (status === 'loading' || !session) return;
+    if (!sessionId) return;
 
-    axios.get(`/api/users/${session?.user?.id}/posts`)
-      .then(response => {
+    axios
+      .get(`/api/users/${sessionId}/posts`)
+      .then((response) => {
         setMyPosts(response.data);
       })
-      .catch(error => console.error(error));
-
-  }, [session?.user]);
+      .catch((error) => console.error(error));
+  }, [sessionId]);
 
   return (
     <>
-      {!session?.user ? (
-        <LoadingBar/>
+      {!sessionId ? (
+        <Loader />
       ) : (
         <Profile
           name={pathname}
           data={myPosts}
-          session={session?.user.id}
+          session={sessionId}
           myPosts={myPosts}
           setMyPosts={setMyPosts}
         />

@@ -13,6 +13,10 @@ const MessageSchema = new Schema({
   message: {
     type: String,
   },
+  media: {
+    type: [String],
+    default: []
+  },
   messageStatus: {
     type: String,
     enum: ['sent', 'delivered', 'seen'],
@@ -23,6 +27,19 @@ const MessageSchema = new Schema({
     ref: 'User',
     default: null
   },
+  replyTo: {
+    type: Schema.Types.ObjectId,
+    ref: 'Message',
+    default: null
+  },
+  reactions: [{
+    emoji: String,
+    users: [{
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    default: []
+  }]
 }, {
   timestamps: true,
 });

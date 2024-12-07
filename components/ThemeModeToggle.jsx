@@ -10,6 +10,7 @@ function DarkModeToggle() {
 
   return (
     <div
+      title='Click to change theme'
       tabIndex={0}
       onClick={() => handleChange()} 
       onKeyDown={(e) => {

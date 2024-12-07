@@ -1,12 +1,27 @@
 const path = require('path');
 const withTM = require('next-transpile-modules')([]);
 
+const withPWA = require("@ducanh2912/next-pwa").default({
+  dest: "public",
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  reloadOnOnline: true,
+  swcMinify: true,
+  // disable: process.env.NODE_ENV === "development",
+  workboxOptions: {
+    disableDevLogs: true,
+  },
+  // ... other options you like
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    appDir: true,
     serverComponentsExternalPackages: ['mongoose'],
+    serverActions: {
+      bodySizeLimit: '50mb',
+    },
   },
   images: {
     remotePatterns: [
@@ -48,15 +63,15 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/api/auth/:path*',
+        source: '/api/:path*',
         headers: [
           {
             key: 'Access-Control-Allow-Credentials',
             value: 'true',
           },
           {
-            key: 'Access-Control-Allow-Origin',
-            value: 'https://next-post-bc80bba88d82.herokuapp.com/',
+            key: "Access-Control-Allow-Origin",
+            value: "*",
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -72,4 +87,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withTM(nextConfig);
+module.exports = withTM(withPWA(nextConfig));

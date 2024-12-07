@@ -1,0 +1,23 @@
+{
+  "short_name": "Next Post",
+  "name": "Next Post",
+  "icons": [
+    {
+      "src": "/assets/icons/logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/assets/icons/logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#09090b",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#09090b",
+  "description": "Next Post - your go-to app for social media interaction",
+  "orientation": "natural"
+}

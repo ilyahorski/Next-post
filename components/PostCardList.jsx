@@ -18,7 +18,7 @@ export const PostCardList = ({ data, columnView, handleTagClick }) => {
         className="my-masonry-grid"
         columnClassName="my-masonry-grid_column"
       >
-        {data.map((post) => (
+        {data.map((post, index) => (
           <PostCard
             columnView={columnView}
             key={post._id}

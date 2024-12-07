@@ -5,29 +5,21 @@ import CreateChatForm from "~/components/CreateChatForm";
 import SplitPane, { SplitPaneLeft, SplitPaneRight, Divider } from '~/components/Splitter';
 import {useContext, useEffect, useState} from "react";
 import {useMobileCheck} from "~/utils/hooks/useMobileCheck";
-import {useSession} from "next-auth/react";
 import {SessionContext} from "~/utils/context/SocketContext";
-import Messages from "~/components/Messages";
+import { Loader } from "~/components/Loading";
 
 const ChatMain = () => {
-  const [showCreateChatForm, setShowCreateChatForm] = useState(true);
-  const {data: session, status, update} = useSession();
+  const [showCreateChatForm, setShowCreateChatForm] = useState(false);
   const isMobile = useMobileCheck();
 
   const sessionId = useContext(SessionContext);
 
   useEffect(() => {
-    if (!session?.user) {
-      update()
-    }
-  }, [session])
-
-  useEffect(() => {
     if (isMobile) {
-      setShowCreateChatForm(true)
+      setShowCreateChatForm(false)
     }
     return () => false;
-  }, []);
+  }, [isMobile]);
 
   return (
     <>
@@ -36,12 +28,12 @@ const ChatMain = () => {
           <SplitPaneLeft>
             {showCreateChatForm && isMobile ? (
               <CreateChatForm
-                closeForm={() => setShowCreateChatForm(false)} // функция для закрытия формы
+                closeForm={() => setShowCreateChatForm(false)} 
               />
             ) : (!showCreateChatForm || !isMobile) && (
               <Sidebar
                 sessionUserId={sessionId}
-                openForm={() => setShowCreateChatForm(true)} // функция для открытия формы
+                openForm={() => setShowCreateChatForm(true)} 
               />
             )}
           </SplitPaneLeft>
@@ -53,9 +45,7 @@ const ChatMain = () => {
           )}
         </SplitPane>
       ) : (
-        <div>
-          Loading ...
-        </div>
+        <Loader />
       )}
     </>
   );

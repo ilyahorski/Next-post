@@ -1,38 +1,42 @@
-'use client';
+import Feed from "~/components/Feed";
 
-import Feed from '~/components/Feed';
-import Provider from "~/app/provider";
-import { useSession } from "next-auth/react";
 import { ScrollToTop } from "~/components/ScrollToTop";
-import {ToastContainer} from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import Link from "next/link";
+import { getServerSession } from "next-auth/next"
+import {authOptions} from '../app/api/auth/[...nextauth]/route'
 
-const Home = () => {
-  const {data: session, status} = useSession();
+const Home = async () => {
+  const session = await getServerSession(authOptions)
+
+  const error = console.error;
+  console.error = (...args) => {
+    if (/defaultProps/.test(args[0])) return;
+    error(...args);
+  };
 
   return (
-    <section className='w-full flex-center flex-col'>
-      <div className='head_text text-center dark:text-gray-300'>
-        Open world of the
-        <br className='md:hidden'/>
-        <span className='blue_gradient text-center'> Next Post</span>
-      </div>
-      <p className='desc text-center dark:text-gray-400'>
-        Next-Post is an open-source platform to discover, create and share creative post!
+    <section className="w-full flex-center flex-col">
+      <p className="desc text-center dark:text-gray-400 -mt-6">
+        A modern messanger for communication, creation and sharing posts.
       </p>
-      <Provider>
-        <div className='flex md:hidden w-full justify-center gap-3 mt-3 -mb-6'>
-          <Link href='/create-post' className={(status === 'authenticated') ? 'black_btn' : 'hidden'}>
+      <div className="flex md:hidden w-full justify-center gap-3 mt-3 -mb-6">
+          <Link
+            href="/create-post"
+            className={!!session?.user.id ? "black_btn" : "hidden"}
+          >
             Create Post
           </Link>
-          <Link href='/chat' className={(status === 'authenticated') ? 'chat_btn' : 'hidden'}>
+          <Link
+            href="/chat"
+            className={!!session?.user.id ? "chat_btn" : "hidden"}
+          >
             Open Chats
           </Link>
         </div>
-        <Feed/>
-        <ScrollToTop/>
-        <ToastContainer/>
-      </Provider>
+        <Feed />
+        <ScrollToTop />
+        <ToastContainer />
     </section>
   );
 };

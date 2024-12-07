@@ -12,7 +12,8 @@ export const GET = async (request, { params }) => {
 
     return new Response(JSON.stringify(userInfo), { status: 200 });
   } catch (error) {
-    return new Response('Failed to fetch user info', { status: 500 });
+    console.error('Failed to fetch user info:', error);
+    return new Response(JSON.stringify({ message: 'Failed to fetch user info', error: error.message }), { status: 500 });
   }
 };
 
@@ -25,19 +26,21 @@ export const PATCH = async (request, { params }) => {
     const userData = await User.findById(params.id);
 
     if (!userData) {
-      return new Response('Data not found', { status: 404 });
+      return new Response(JSON.stringify({ message: 'Data not found' }), { status: 404 });
     }
 
-    // Update the post with new data
-    userData.username = username;
-    userData.userImage = userImage;
-    userData.image = image;
+    userData.username = username || userData.username;
+    userData.userImage = userImage || userData.userImage;
+    userData.image = image || userData.image;
+    userData.status = "offline" || userData.status;
+    userData.blockedUsers = userData.blockedUsers;
 
     await userData.save();
 
-    return new Response('Successfully updated', { status: 200 });
+    return new Response(JSON.stringify({ message: 'Successfully updated' }), { status: 200 });
   } catch (error) {
-    return new Response('Error Updating User', { status: 500 });
+    console.error('Error Updating User:', error);
+    return new Response(JSON.stringify({ message: 'Error Updating User', error: error.message }), { status: 500 });
   }
 };
 
@@ -48,7 +51,7 @@ export const DELETE = async (request, { params }) => {
     // Check if the user exists
     const user = await User.findById(params.id);
     if (!user) {
-      return new Response('User not found', { status: 404 });
+      return new Response(JSON.stringify({ message: 'User not found' }), { status: 404 });
     }
     // Delete all likes made by the user
     await Like.deleteMany({ user: params.id });
@@ -62,9 +65,9 @@ export const DELETE = async (request, { params }) => {
     // Finally delete the user
     await User.findByIdAndRemove(params.id);
 
-    return new Response('User deleted successfully', { status: 200 });
+    return new Response(JSON.stringify({ message: 'User deleted successfully' }), { status: 200 });
   } catch (error) {
-    return new Response('Error deleting user', { status: 500 });
+    console.error('Error deleting user:', error);
+    return new Response(JSON.stringify({ message: 'Error deleting user', error: error.message }), { status: 500 });
   }
 };
-

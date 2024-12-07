@@ -3,20 +3,20 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {useContext, useEffect, useRef, useState} from 'react';
-import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
+import { signIn, signOut, getProviders } from 'next-auth/react';
 import DarkModeToggle from "~/components/ThemeModeToggle";
 import useClickOutside from "~/utils/hooks/useClickOutside";
 import {usePathname} from "next/navigation";
-import {SocketContext} from "~/utils/context/SocketContext";
+import {SocketContext, SessionContext} from "~/utils/context/SocketContext";
 
 const Nav = () => {
-  const { data: session, status } = useSession();
   const [toggleDropdown, setToggleDropdown] = useState(false);
   const [providers, setProviders] = useState(null);
   const [data, setData] = useState({ username: '', userImage: '', image: ''});
   const ref = useRef(null);
   const pathname = usePathname().split('/')[1]
   const socket = useContext(SocketContext);
+  const sessionId = useContext(SessionContext);
 
   useClickOutside(ref, () => setToggleDropdown(false));
 
@@ -32,11 +32,11 @@ const Nav = () => {
       const res = await getProviders();
       setProviders(res);
     })();
-  }, [session]);
+  }, [sessionId]);
 
   useEffect(() => {
     const getUserData = async () => {
-      const response = await fetch(`/api/users/edit/${session?.user.id}`);
+      const response = await fetch(`/api/users/edit/${sessionId}`);
       const data = await response.json();
 
       setData({
@@ -46,16 +46,17 @@ const Nav = () => {
       });
     };
 
-    if (session) getUserData();
-  }, [session]);
+    if (sessionId) getUserData();
+  }, [sessionId]);
 
   return (
     <nav className={`${pathname === 'chat' ? 'w-[100dvw] px-2' : 'w-full'} flex-between mb-16 pt-3`}>
       <Link href='/' className='flex gap-2 flex-center'>
         <Image
+          title='Click to go to home page'
           src='/assets/images/logo.png'
           alt='logo'
-          width={190}
+          width={140}
           height={90}
           quality={100}
           className='object-contain'
@@ -64,9 +65,9 @@ const Nav = () => {
 
       {/* Desktop Navigation */}
       <div className='md:flex hidden'>
-        {session?.user ? (
+        {sessionId && data.image ? (
           <div className='flex items-center gap-3 md:gap-5'>
-            <DarkModeToggle />
+            {/* <DarkModeToggle /> */}
 
             <Link href='/chat' className='chat_btn'>
               Open Chats
@@ -89,7 +90,7 @@ const Nav = () => {
               href='/profile'
             >
               <Image
-                src={data?.userImage ? data?.userImage : session?.user.image}
+                src={data?.userImage ? data?.userImage : data?.image}
                 width={40}
                 height={40}
                 className='rounded-full'
@@ -99,7 +100,7 @@ const Nav = () => {
           </div>
         ) : (
           <div className='flex items-center gap-3 md:gap-5'>
-            <DarkModeToggle />
+            {/* <DarkModeToggle /> */}
             {providers &&
               Object.values(providers).map((provider) => (
                 <button
@@ -120,12 +121,12 @@ const Nav = () => {
 
       {/* Mobile Navigation */}
       <div ref={ref} className='md:hidden flex relative'>
-        {session?.user ? (
+        {sessionId && data.image ? (
           <div className='flex items-center gap-5'>
-            <DarkModeToggle />
+            {/* <DarkModeToggle /> */}
 
             <Image
-              src={data?.userImage ? data?.userImage : session?.user.image}
+              src={data?.userImage ? data?.userImage : data?.image}
               width={37}
               height={37}
               className='rounded-full'

@@ -1,63 +1,62 @@
-import Link from "next/link";
-import {signOut} from "next-auth/react";
+import { useState, useRef } from "react";
+import { signOut } from "next-auth/react";
+import Popover from "./Popover";
 
-const ProfileHeader = ({name, session, data}) => {
+const ProfileHeader = ({ name, session, data }) => {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const handleDelete = async () => {
     const hasConfirmed = confirm(
-      'Are you sure you want to delete our account and all data?',
+      "Are you sure you want to delete your account and all data?"
     );
 
     if (hasConfirmed) {
       try {
         const response = await fetch(`/api/users/edit/${session}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
         if (!response.ok) {
           throw new Error(`Failed to delete user: ${response.status}`);
         }
 
         // Only redirect to home page if the deletion was successful.
-        await signOut({callbackUrl: '/'});
-
+        await signOut({ callbackUrl: "/" });
       } catch (error) {
-        console.error('Error deleting user:', error);
+        console.error("Error deleting user:", error);
       }
     }
   };
 
   return (
-    <div className='w-full us:w-[80%] flex justify-between items-center'>
-      <div className='head_text text-start xs:-mt-4'>
-        <span className='orange_gradient'>{name === '/profile' ? 'My' : name} profile</span>
-        <p className='font-inter font-normal text-sm text-gray-500 pt-2'>{data[0]?.creator.email}</p>
+    <div className="w-full us:w-[80%] flex justify-between items-center">
+      <div className="head_text text-start xs:-mt-4">
+        <span className="text-teal-600 -ml-[4px]">
+          {name === "/profile" ? "My" : name} profile
+        </span>
+        <p className="font-inter font-normal text-sm text-gray-500 pt-2">
+          {data[0]?.creator.email}
+        </p>
       </div>
-      <div className='w-full us:w-[80%] flex gap-2 justify-between items-center'>
-        <button
-          className={name === '/profile' ? 'flex flex-end w-full text-xl md:text-3xl font-light leading-[1.15] text-red-600' : 'hidden'}
-          onClick={() => handleDelete()}
-        >
-          <p>
-            Delete
-            <br/>
-            Account
-          </p>
-        </button>
-        <div className='flex flex-col flex-grow justify-center gap-[6px] mt-[2px] md:gap-[5px] md:mb-[2px] w-full '>
-          <Link
-            href={'/create-post'}
-            className={name === '/profile' ? 'flex justify-center w-full text-l md:text-2xl font-light leading-[1.15] text-cyan-600' : 'hidden'}
+      {name === "/profile" && (
+        <div className="w-full us:w-[100%] flex gap-2 justify-end items-end">
+          <button
+            className="flex items-center justify-center text-[18px] md:text-[26px] px-3 md:pb-1 font-light bg-gray-800 rounded-md text-zinc-200"
+            onClick={() => setIsPopoverOpen(!isPopoverOpen)}
           >
-            Create post
-          </Link>
-          <Link
-            href={`/profile/edit/?id=${session}`}
-            className={name === '/profile' ? 'flex justify-center w-full text-l md:text-2xl font-light leading-[1.15] text-emerald-600' : 'hidden'}
-          >
-            Edit profile
-          </Link>
+            Settings
+          </button>
+          {isPopoverOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-[1000]">
+              <Popover
+                handleDelete={handleDelete}
+                session={session}
+                setIsPopoverOpen={setIsPopoverOpen}
+                onClose={() => setIsPopoverOpen(false)}
+              />
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 };

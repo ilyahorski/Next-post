@@ -5,7 +5,7 @@ import {dataURLtoBlob} from "~/utils/dataUrlToBlob";
 
 export const useSubmitHandler = (
   fileData,
-  session,
+  sessionId,
   post,
   cropperRef,
   setPost,
@@ -17,15 +17,13 @@ export const useSubmitHandler = (
 ) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const LOCAL = 'http://localhost:4000';
-  const HEROKU = 'https://next-post-bc80bba88d82.herokuapp.com';
 
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
       setIsSubmitting(true);
 
-      if (!session || !session.user.id) {
+      if (!sessionId) {
         console.error("Session or user ID is missing");
         alert('Session is not available, please log in again');
         setIsSubmitting(false);
@@ -37,13 +35,13 @@ export const useSubmitHandler = (
       let cropper = cropperRef.current;
 
       try {
-        if (fileData.type === 'video') {
+        if (fileData && fileData.type === 'video') {
           try {
             const formData = new FormData();
             formData.append("file", fileData.data);
             formData.append("filename", fileData.name);
 
-            const response = await axios.post(`${HEROKU}/cloud-upload`, formData, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/cloud-upload`, formData, {
               headers: {
                 'Content-Type': 'multipart/form-data',
                 'Access-Control-Allow-Origin': "https://next-post-two.vercel.app",
@@ -66,13 +64,13 @@ export const useSubmitHandler = (
           }
         }
 
-        if (blob && fileData.type === 'image') {
+        if (blob && fileData && fileData.type === 'image') {
           try {
             const formData = new FormData();
             formData.append('file', blob);
             formData.append("filename", fileData.name);
 
-            const response = await axios.post(`${HEROKU}/cloud-upload`, formData, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/cloud-upload`, formData, {
               headers: {
                 'Content-Type': 'multipart/form-data',
                 'Access-Control-Allow-Origin': "https://next-post-two.vercel.app",
@@ -87,7 +85,7 @@ export const useSubmitHandler = (
           }
         }
 
-        const requestBody = buildRequestBody({post, session, imageUrl});
+        const requestBody = buildRequestBody({post, sessionId, imageUrl});
         const response = await fetch(apiEndpoint, {
           method: httpMethod,
           body: JSON.stringify(requestBody),
@@ -105,7 +103,7 @@ export const useSubmitHandler = (
         setIsSubmitting(false);
       }
     },
-    [session, post, cropperRef, setPost, alertMessage, apiEndpoint, httpMethod, routerDestination, buildRequestBody],
+    [sessionId, post, cropperRef, setPost, alertMessage, apiEndpoint, httpMethod, routerDestination, buildRequestBody],
   );
 
   return { handleSubmit, isSubmitting };

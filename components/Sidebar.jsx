@@ -1,151 +1,136 @@
-'use client'
+"use client";
 
-import {useContext, useEffect, useState} from 'react';
+import { useContext, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {useSession} from "next-auth/react";
-import {GoSidebarCollapse} from "react-icons/go";
-import {SocketContext} from "~/utils/context/SocketContext";
-import {usePathname, useRouter} from "next/navigation";
+import { PiUsersThin } from "react-icons/pi";
+import { SessionContext } from "~/utils/context/SocketContext";
+import { format, parseISO } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { Loader } from "./Loading";
 
-const Sidebar = ({sessionUserId, openForm}) => {
-  const {data: session, status} = useSession();
-  const [chats, setChats] = useState([]);
-  const [search, setSearch] = useState('');
-  const pathname = usePathname().split('/')[2];
-  const router = useRouter()
-  const socket = useContext(SocketContext);
+const Sidebar = ({ sessionUserId, openForm }) => {
+  const [search, setSearch] = useState("");
+  const sessionId = useContext(SessionContext);
 
-  useEffect(() => {
-    console.log(sessionUserId, 'sessionUSERIDJFPAJDIFJAISJF')
-    const getChats = async () => {
-      const response = await fetch(`/api/chats`, {
-        headers: {
-          'userId': sessionUserId
-        }
-      });
-
-      const data = await response.json();
-
-      setChats(data);
-    };
-
-    if (sessionUserId) {
-      getChats();
-    }
-
-  }, [sessionUserId, status]);
-
-  useEffect(() => {
-    if (!session?.user && !socket) return;
-
-    if (socket) {
-      socket.on('chatUpdated', (updatedChat) => {
-        setChats((prevChats) => {
-          const chatIds = new Set(prevChats.map((c) => c._id));
-          if (chatIds.has(updatedChat._id)) {
-            return prevChats;
-          } else {
-            return [...prevChats, updatedChat];
-          }
-        });
-
-      });
-
-      return () => {
-        socket.off('chatUpdated');
-      };
-    }
-  }, []);
-
-  const handleDelete = async () => {
-    const hasConfirmed = confirm(
-      'Are you sure you want to delete this chat and all messages?',
-    );
-
-    if (hasConfirmed) {
-      try {
-        const response = await fetch(`/api/chats/${pathname}`, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to delete chat: ${response.status}`);
-        }
-
-        await router.push('/chat');
-
-      } catch (error) {
-        console.error('Error deleting chat:', error);
-      }
-    }
+  const fetchChats = async () => {
+    if (!sessionId) return [];
+    const response = await fetch("/api/chats", {
+      headers: {
+        userId: sessionId,
+      },
+    });
+    return response.json();
   };
+
+  const {
+    data: chats = [],
+    isPending,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["chats"],
+    queryFn: fetchChats,
+    enabled: !!sessionId,
+    refetchInterval: 5000, 
+    staleTime: 60000,
+    gcTime: 72000000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
 
   const filteredChats = chats.filter((chat) =>
     chat?.chatName?.toLowerCase().includes(search.toLowerCase())
   );
 
+  if (isPending) {
+    return <Loader />;
+  }
+
+  if (isError) {
+    return <span>Error: {error.message}</span>;
+  }
+
   return (
     <form className="flex-1 w-full px-1 custom-height">
-      <div className='flex gap-1 items-start'>
+      <div className="flex gap-1 items-start">
         <input
-          className="w-full p-2 mb-3 rounded"
+          className="w-full dark:bg-gray-600/10 p-2 mb-3 rounded"
           placeholder="Find chats"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <button
-          className='mob:hidden flex justify-center items-center w-[40px] h-[40px]'
-          type="submit"
+          className={`mob:hidden flex justify-center items-center w-[40px] h-[40px] ${
+            chats.length === 0 ? "blink" : ""
+          }`}
+          type="button"
           onClick={openForm}
         >
-          <GoSidebarCollapse className='text-primary-300 w-[40px] h-[40px]'/>
+          <div className="flex gap-0.5 items-center flex-col">
+            <PiUsersThin
+              className="text-emerald-700 w-[30px] h-[30px]"
+              placeholder="Open users list"
+            />
+            <p className="text-emerald-700 font-normal text-6xs">Users</p>
+          </div>
         </button>
       </div>
-      {filteredChats.length !== 0 && sessionUserId && (
-        <div className='chat-list'>
-          {filteredChats.map((chat, index) => (
-            <Link href={`/chat/${chat._id}`}
-                  key={chat._id}
-                  className={'flex flex-row justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-300'}>
-              <div
-                className='flex gap-2 justify-start items-center'
-              >
+      {!!filteredChats.length && sessionUserId ? (
+        <div className="chat-list">
+          {filteredChats.map((chat) => (
+            <Link
+              href={`/chat/${chat._id}`}
+              key={chat._id}
+              className={
+                "flex flex-row relative justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-300"
+              }
+            >
+              <div className="flex gap-2 justify-start items-center">
                 <Image
                   src={
                     chat?.chatImage
                       ? chat.chatImage
-                      : (sessionUserId === chat?.membersList[0]._id
-                        ? (chat?.membersList[1].userImage || chat?.membersList[1].image)
-                        : (chat?.membersList[0].userImage || chat?.membersList[0].image))
+                      : sessionUserId === chat?.membersList[0]._id
+                      ? chat?.membersList[1]?.userImage ||
+                        chat?.membersList[1]?.image
+                      : chat?.membersList[0].userImage ||
+                        chat?.membersList[0].image
                   }
-                  alt='user_image'
+                  alt="user_image"
                   width={50}
                   height={50}
-                  className='rounded-full object-fill h-[50px] w-[50px]'
+                  className="rounded-full object-fill h-[50px] w-[50px]"
                 />
-                <div className='flex flex-col gap-2'>
-                  <p className=''>
-                    {chat.chatName}
-                  </p>
-                  <p className=''>
-                    {chat?.lastMessage?.message}
-                  </p>
+                <div className="flex flex-col gap-2">
+                  <p className="">{chat.chatName}</p>
+                  {chat?.lastMessage?.createdAt && (
+                    <span
+                      className={`absolute top-1 right-1 font-normal text-[10px] mt-1 text-white min-w-[30px]`}
+                    >
+                      {format(
+                        parseISO(chat.lastMessage.createdAt),
+                        "HH:mm, PPP"
+                      )}
+                    </span>
+                  )}
+                  <div className="flex max-w-[300px]">
+                    <p className="truncate">
+                      {chat?.lastMessage?.message
+                        ? chat?.lastMessage?.message
+                        : (chat?.lastMessage?.media ? "New media" : "Start messaging")}
+                    </p>
+                  </div>
                 </div>
               </div>
-              {pathname === chat._id && (
-                <button
-                  className={'flex text-xl font-light leading-[1.15] text-red-600'}
-                  onClick={() => handleDelete()}
-                >
-                  <p>
-                    Delete
-                    <br/>
-                    Chat
-                  </p>
-                </button>
-              )}
             </Link>
           ))}
+        </div>
+      ) : (
+        <div className="text-center mt-5">
+          <p className="text-gray-700 dark:text-gray-300">
+            You don't have any chats. Create a dialogue and start communicating!
+          </p>
         </div>
       )}
     </form>

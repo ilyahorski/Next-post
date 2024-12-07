@@ -1,5 +1,8 @@
 export const handleCopy = ({ post, setCopied }) => {
-  setCopied(`https://next-post-two.vercel.app//post/${post.creator.username}?id=${post._id}`);
-  navigator.clipboard.writeText(`https://next-post-two.vercel.app//post/${post.creator.username}?id=${post._id}`);
+  const encodedUsername = encodeURIComponent(post.creator.username);
+  const url = `https://next-post-two.vercel.app/post/${encodedUsername}?id=${post._id}`;
+  
+  setCopied(url);
+  navigator.clipboard.writeText(url);
   setTimeout(() => setCopied(false), 1000);
 };
