@@ -180,7 +180,7 @@ const CreateChatForm = ({ closeForm }) => {
           {filteredUsers.map((user) => (
             <div
               key={user._id}
-              className="flex flex-row justify-between flex-wrap p-2 m-1 items-center gap-2 border-b border-primary-300"
+              className="flex flex-row justify-between flex-wrap p-2 m-1 items-center gap-2 border-b border-primary-600/30"
             >
               <div className="flex gap-2 justify-start items-center">
                 <Image

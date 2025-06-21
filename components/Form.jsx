@@ -25,7 +25,7 @@ const Form = (
 
   return (
     <section className='w-full max-w-full flex-start flex-col'>
-      <h2 className='head_text text-center -mt-10'>
+      <h2 className='head_text text-left -mt-10'>
         <span className='blue_gradient'>{type}e Post</span>
       </h2>
 

@@ -236,7 +236,7 @@
 }
 
 .main_gradient_dark {
-  @apply dark:before:bg-gradient-to-t from-zinc-800 to-zinc-950 backdrop-filter backdrop-blur-md;
+  @apply dark:before:bg-gradient-to-t from-zinc-950 to-black backdrop-filter backdrop-blur-md;
 }
 
 .message-list {
@@ -304,7 +304,7 @@
 }
 
 .glassmorphism {
-  @apply rounded-xl border border-gray-200 bg-gray-500/20 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur;
+  @apply rounded-xl bg-gray-600/20 shadow-[inset_0px_0px_100px_20px_rgb(0,0,0,0.7)] backdrop-blur;
 }
 
 /* postcard component */
