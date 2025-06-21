@@ -32,7 +32,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
     queryKey: ["chats"],
     queryFn: fetchChats,
     enabled: !!sessionId,
-    refetchInterval: 5000, 
+    refetchInterval: 30000, // Изменено с 5 секунд на 30 секунд
     staleTime: 60000,
     gcTime: 72000000,
     retry: 3,
@@ -83,7 +83,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
               href={`/chat/${chat._id}`}
               key={chat._id}
               className={
-                "flex flex-row relative justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-300"
+                "flex flex-row relative justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-600/30"
               }
             >
               <div className="flex gap-2 justify-start items-center">

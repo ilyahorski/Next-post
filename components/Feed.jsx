@@ -1,157 +1,101 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useCallback, useContext, useState, useRef, useEffect } from "react";
-import { CiCircleRemove } from "react-icons/ci";
+import { useContext, useMemo } from "react";
 import { PostCardList } from "~/components/PostCardList";
 import { LoadingBar } from "~/components/Loading";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { BsColumns } from "react-icons/bs";
-import { TbColumns1 } from "react-icons/tb";
 import { DisplayContext } from "~/app/provider";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
-
-const fetchPosts = async ({ pageParam = 1 }) => {
-  const response = await fetch(`/api/post?page=${pageParam}&limit=4`);
-  return response.json();
-};
+import { usePosts } from "~/utils/hooks/usePosts";
+import { usePostSearch } from "~/utils/hooks/usePostSearch";
+import { FeedHeader } from "./feed";
 
 const Feed = () => {
-  const [allPosts, setAllPosts] = useState([]);
-  const [searchText, setSearchText] = useState("");
-  const [searchTimeout, setSearchTimeout] = useState(null);
-  const [searchedResults, setSearchedResults] = useState([]);
   const { columnView, setColumnView } = useContext(DisplayContext);
   const isMobile = useMobileCheck();
-  const loaderRef = useRef();
 
   const {
-    data,
+    allPosts,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    status,
+    isLoading,
+    isError,
+    error,
     refetch,
-  } = useInfiniteQuery({
-    queryKey: ["posts"],
-    queryFn: fetchPosts,
-    getNextPageParam: (lastPage, pages) => {
-      if (pages.length * 4 < lastPage.totalPosts) {
-        return pages.length + 1;
-      }
-      return undefined;
-    },
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
+  } = usePosts();
 
-  useEffect(() => {
-    if (data) {
-      setAllPosts((prevPosts) => {
-        const newPosts = data.pages.flatMap((page) => page.posts);
-        const uniquePosts = [
-          ...new Map(
-            [...prevPosts, ...newPosts].map((post) => [post._id, post])
-          ).values(),
-        ];
-        return uniquePosts;
-      });
-    }
-  }, [data]);
+  const {
+    searchText,
+    searchedResults,
+    handleSearchChange,
+    handleTagClick,
+    clearSearch,
+  } = usePostSearch(allPosts);
 
+  const handleToggleView = () => {
+    setColumnView(!columnView);
+  };
 
-  const filterPosts = useCallback(
-    (searchtext) => {
-      const normalizedSearchText = searchtext.replace(/^#/, "").toLowerCase();
-      const regex = new RegExp(searchtext, "i");
-      return allPosts.filter(
-        (item) =>
-          regex.test(item.creator.username) ||
-          regex.test(item.tag) ||
-          (item.tag &&
-            item.tag
-              .split(",")
-              .some((tag) =>
-                tag
-                  .trim()
-                  .replace(/^#/, "")
-                  .toLowerCase()
-                  .includes(normalizedSearchText)
-              ))
-      );
-    },
-    [allPosts]
-  );
+  // Memoize the posts to display to avoid unnecessary re-renders
+  const postsToDisplay = useMemo(() => {
+    return searchText ? searchedResults : allPosts;
+  }, [searchText, searchedResults, allPosts]);
 
-  const handleSearchChange = (e) => {
-    clearTimeout(searchTimeout);
-    setSearchText(e.target.value);
+  if (isLoading) {
+    return <LoadingBar isMessage={false} />;
+  }
 
-    setSearchTimeout(
-      setTimeout(() => {
-        const searchResult = filterPosts(e.target.value);
-        setSearchedResults(searchResult);
-      }, 500)
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8">
+        <div className="text-red-500 mb-4">Error fetching posts</div>
+        <div className="text-gray-600 mb-4">{error?.message}</div>
+        <button
+          onClick={() => refetch()}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Try Again
+        </button>
+      </div>
     );
-  };
-
-  const handleTagClick = (tagName) => {
-    setSearchText(tagName);
-    const searchResult = filterPosts(tagName);
-    setSearchedResults(searchResult);
-  };
-
-  if (status === "loading") return <LoadingBar isMessage={false} />;
-  if (status === "error") return <div>Error fetching posts: {error.message}</div>;
+  }
 
   return (
     <section className="feed">
-      <div className="flex w-full items-center justify-between gap-3">
-        <div className={isMobile ? "hidden" : "cursor-pointer"}>
-          {columnView ? (
-            <BsColumns
-              onClick={() => setColumnView(!columnView)}
-              className="w-8 h-8 font-light"
-            />
-          ) : (
-            <TbColumns1
-              onClick={() => setColumnView(!columnView)}
-              className="w-8 h-8 font-light"
-            />
-          )}
-        </div>
-        <form className="relative w-full flex-center items-center">
-          <input
-            type="text"
-            placeholder="Search for a tag or a username"
-            value={searchText}
-            onChange={handleSearchChange}
-            className="search_input peer dark:text-gray-300 dark:bg-gray-800/30"
-          />
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              setSearchText("");
-            }}
-            className="w-10 h-11 absolute right-0 top-0"
-          >
-            <CiCircleRemove className="w-6 h-6" />
-          </button>
-        </form>
-      </div>
+      <FeedHeader
+        searchText={searchText}
+        onSearchChange={handleSearchChange}
+        onClearSearch={clearSearch}
+        columnView={columnView}
+        onToggleView={handleToggleView}
+        isMobile={isMobile}
+      />
 
       <InfiniteScroll
-        dataLength={allPosts.length}
+        dataLength={postsToDisplay.length}
         next={fetchNextPage}
-        hasMore={hasNextPage}
-        loader={isFetchingNextPage && <div ref={loaderRef} isMessage={false} />}
+        hasMore={hasNextPage && !searchText} // Disable infinite scroll when searching
+        loader={
+          isFetchingNextPage && (
+            <div className="flex justify-center py-4">
+              <LoadingBar isMessage={false} />
+            </div>
+          )
+        }
         endMessage={
-          <p style={{ textAlign: "center" }}>
-            <b>Yay! You have seen it all</b>
-          </p>
+          <div className="text-center py-8">
+            <p className="text-gray-600 dark:text-gray-400">
+              <b>
+                {searchText
+                  ? `Found ${postsToDisplay.length} posts`
+                  : "Yay! You have seen it all"}
+              </b>
+            </p>
+          </div>
         }
         refreshFunction={refetch}
-        pullDownToRefresh
+        pullDownToRefresh={!searchText} // Disable pull to refresh when searching
         pullDownToRefreshThreshold={100}
         pullDownToRefreshContent={
           <h3 style={{ textAlign: "center", marginTop: "50px" }}>
@@ -166,7 +110,7 @@ const Feed = () => {
       >
         <PostCardList
           columnView={columnView}
-          data={searchText ? searchedResults : allPosts}
+          data={postsToDisplay}
           handleTagClick={handleTagClick}
         />
       </InfiniteScroll>

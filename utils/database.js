@@ -24,25 +24,38 @@ let connection = null;
 export const connectToDB = async () => {
   mongoose.set('strictQuery', true);
 
-  if (connection) {
+  if (connection && mongoose.connection.readyState === 1) {
+    console.log('MongoDB is already connected');
     return connection;
   }
-
-  // if (isConnected) {
-  //   console.log('MongoDB is already connected');
-  //   return;
-  // }
 
   try {
     connection = await mongoose.connect(process.env.MONGODB_URI, {
       dbName: 'share_post',
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000, // Timeout after 5s of trying to connect
+      serverSelectionTimeoutMS: 30000, // Увеличиваем таймаут до 30 секунд
+      socketTimeoutMS: 45000, // Таймаут сокета
+      connectTimeoutMS: 30000, // Таймаут подключения
+      maxPoolSize: 10, // Максимальное количество соединений в пуле
+      retryWrites: true,
+      retryReads: true,
     });
 
-    console.log('MongoDB connected');
+    console.log('MongoDB connected successfully');
+    return connection;
   } catch (error) {
-    console.log(error);
+    console.error('MongoDB connection error:', error.message);
+    
+    // Сбрасываем connection при ошибке
+    connection = null;
+    
+    // Повторная попытка через 5 секунд
+    setTimeout(() => {
+      console.log('Retrying MongoDB connection...');
+      connectToDB();
+    }, 5000);
+    
+    throw error;
   }
 };

@@ -252,13 +252,13 @@ const CommentMessageForm = ({
         </div>
       )}
       <form onSubmit={handleSubmit(onSubmit)} className="flex-grow">
-        <div className="flex w-full justify-between items-center gap-2 bg-white dark:bg-gray-600/10 rounded-lg p-1">
+        <div className="flex w-full justify-between items-center gap-2 bg-white dark:bg-gray-600/10 rounded-lg">
           <textarea
             title={`Write your ${type} here`}
             ref={messageRef}
             defaultValue={initialValue}
             id={type}
-            className="w-full min-h-[48px] h-[48px] pl-1 max-h-32 bg-white dark:bg-gray-600/10 outline-none rounded-lg focus:border-[1px] focus:border-primary-50"
+            className="w-full min-h-[48px] h-[48px] pl-1 max-h-32 bg-white dark:bg-gray-600/10 outline-none rounded-b-lg focus:border-[1px] focus:border-primary-50/20"
             placeholder={placeholder}
             onKeyDown={handleKeyDown}
             onChange={handleChange}

@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "dependencies": {
     "@ashxjs/split-view": "^1.0.5",
     "@ducanh2912/next-pwa": "^10.2.2",
