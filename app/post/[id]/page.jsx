@@ -97,18 +97,30 @@ const Post = () => {
             {post.post ? (
                 <>
                     <ToastContainer />
-                    <div className="flex-1 p-3 mb-4 break-inside-avoid rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-950/50 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit -mt-8">
-                        <div className="flex justify-between flex-wrap p-2 mb-4 items-center gap-6 border-gray-200 border-2 rounded-lg">
-                            <div className="creator_info">
-                                <Image src={post.creator.userImage ? post.creator.userImage : post.creator.image} alt="user_image" width={50} height={50} className="rounded-full object-contain" />
+                    <div className="flex-1 p-3 mb-4 break-inside-avoid rounded-lg glassmorphism w-full h-fit -mt-8">
+                        <div className="flex justify-between flex-wrap p-2 mb-4 items-center gap-6 rounded-lg">
+                            <div className="creator_info flex items-center gap-4 w-full">
+                                <Image
+                                    src={post.creator.userImage ? post.creator.userImage : post.creator.image}
+                                    alt="user_image"
+                                    width={40}
+                                    height={40}
+                                    className="rounded-full object-contain"
+                                />
 
-                                <div className="flex flex-col">
-                                    <h3 className="font-satoshi font-semibold text-gray-500 dark:text-gray-300">{post.creator.username}</h3>
-                                    <p className="font-inter text-sm text-gray-500 dark:text-gray-500">{post.creator.email}</p>
+                                <div className="flex flex-col w-full">
+                                    <div className="flex justify-between items-center w-full">
+                                        <h3 className="font-satoshi font-semibold text-gray-500 dark:text-gray-300">
+                                            {post.creator.username}
+                                        </h3>
+                                        <span className="font-inter text-5xs text-gray-500 dark:text-gray-400">
+                                            <ReactTimeAgoWrapper date={post.createdAt} />
+                                        </span>
+                                    </div>
+                                    <p className="font-inter text-5xs text-gray-500 dark:text-gray-500">
+                                        {post.creator.email}
+                                    </p>
                                 </div>
-                            </div>
-                            <div className="flex h-12 justify-center items-start font-inter text-sm text-gray-700 dark:text-gray-400">
-                                <ReactTimeAgoWrapper date={post.createdAt} />
                             </div>
                         </div>
 
