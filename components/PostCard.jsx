@@ -26,7 +26,6 @@ const PostCard = ({ columnView, post, myPosts, setMyPosts, handleTagClick }) => 
     const router = useRouter();
     const tags = parseTags(post.tag);
     const JSImage = window.Image;
-    const postCardStyle = "flex-1 h-fit break-inside-avoid rounded-lg dark:border-0 glassmorphism bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter";
 
     const url = new URL(post.image);
     const pathname = url.pathname;
@@ -110,7 +109,7 @@ const PostCard = ({ columnView, post, myPosts, setMyPosts, handleTagClick }) => 
     return (
         <>
             {post ? (
-                <div className={`${postCardStyle} ${columnView ? " sm:w-[510px] w-[370px]" : "sm:w-[510px] w-[370px]"}`}>
+                <div className={`flex-1 h-fit break-inside-avoid glassmorphism p-6 pb-4 ${columnView ? " sm:w-[510px] w-[370px]" : "sm:w-[510px] w-[370px]"}`}>
                     <div className="flex justify-between items-end gap-5 -mt-3">
                         <div title="Click to open creator profile" className="flex-1 flex justify-start items-center gap-3 cursor-pointer" onClick={handleProfileClick}>
                             <Image
@@ -124,12 +123,12 @@ const PostCard = ({ columnView, post, myPosts, setMyPosts, handleTagClick }) => 
 
                             <div className="flex flex-col gap-2">
                                 <h3 className="font-satoshi font-semibold text-gray-900 dark:text-gray-400">{post.creator.username}</h3>
-                                <p className="font-inter text-sm text-gray-500 dark:text-gray-300">{post.creator.email}</p>
+                                <p className="font-inter text-5xs text-gray-500 dark:text-gray-300">{post.creator.email}</p>
                             </div>
                         </div>
 
                         <div className="flex flex-col items-end gap-[6px]">
-                            <div className="flex overflow-auto justify-center items-center font-inter text-sm text-gray-500">
+                            <div className="flex overflow-auto justify-center items-center font-inter text-5xs text-gray-500">
                                 <ReactTimeAgoWrapper date={post.createdAt} />
                             </div>
                             <button title="Click to copy post link" className="copy_btn" onClick={() => handleCopy({ post: post, setCopied: setCopied })}>
