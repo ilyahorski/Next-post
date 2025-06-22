@@ -14,12 +14,13 @@ export const useMessages = (chatId, sessionUserId, socket) => {
         return data;
     };
 
-    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    useInfiniteQuery({
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
         queryKey: ["messages", chatId],
         queryFn: fetchMessages,
         getNextPageParam: (lastPage, pages) => {
-            if (lastPage.usersMessages.length < 50) {return undefined;}
+            if (lastPage.usersMessages.length < 50) {
+                return undefined;
+            }
             return pages.length + 1;
         },
         enabled: !!chatId,
@@ -29,45 +30,43 @@ export const useMessages = (chatId, sessionUserId, socket) => {
         gcTime: 5 * 60 * 1000, // 5 minutes
     });
 
-    const messagesList = data
-        ? data.pages.flatMap((page) => page.usersMessages)
-        : [];
+    const messagesList = data ? data.pages.flatMap((page) => page.usersMessages) : [];
 
-    const updateMessages = useCallback((newMessage) => {
-        setNewMessageGet(true);
-        queryClient.setQueryData(["messages", chatId], (oldData) => {
-            if (!oldData) {
-                return { pages: [{ usersMessages: [newMessage] }], pageParams: [1] };
-            }
-      
-            const messageExists = oldData.pages.some(page => 
-                page.usersMessages.some(msg => msg._id === newMessage._id)
-            );
-      
-            if (messageExists) {
-                return oldData;
-            }
-      
-            return {
-                ...oldData,
-                pages: [
-                    { usersMessages: [newMessage, ...oldData.pages[0].usersMessages] },
-                    ...oldData.pages.slice(1),
-                ],
-            };
-        });
-    }, [queryClient, chatId]);
+    const updateMessages = useCallback(
+        (newMessage) => {
+            setNewMessageGet(true);
+            queryClient.setQueryData(["messages", chatId], (oldData) => {
+                if (!oldData) {
+                    return { pages: [{ usersMessages: [newMessage] }], pageParams: [1] };
+                }
+
+                const messageExists = oldData.pages.some((page) => page.usersMessages.some((msg) => msg._id === newMessage._id));
+
+                if (messageExists) {
+                    return oldData;
+                }
+
+                return {
+                    ...oldData,
+                    pages: [{ usersMessages: [newMessage, ...oldData.pages[0].usersMessages] }, ...oldData.pages.slice(1)],
+                };
+            });
+        },
+        [queryClient, chatId]
+    );
 
     // Socket event handlers
     useEffect(() => {
-        if (!socket || !chatId || !sessionUserId) {return;}
+        if (!socket || !chatId || !sessionUserId) {
+            return;
+        }
 
         socket.emit("getMessages", { chatId });
         socket.emit("markMessagesAsDelivered", { chatId, userId: sessionUserId });
 
         const handleNewMessage = (message) => {
             if (message.chatId === chatId) {
-                setNewMessages(prev => [...prev, message]);
+                setNewMessages((prev) => [...prev, message]);
                 updateMessages(message);
                 socket.emit("markMessageAsDelivered", {
                     messageId: message._id,
@@ -79,17 +78,15 @@ export const useMessages = (chatId, sessionUserId, socket) => {
 
         const handleMessageStatusUpdated = (updatedMessage) => {
             queryClient.setQueryData(["messages", chatId], (oldData) => {
-                if (!oldData) {return oldData;}
+                if (!oldData) {
+                    return oldData;
+                }
 
                 return {
                     ...oldData,
                     pages: oldData.pages.map((page) => ({
                         ...page,
-                        usersMessages: page.usersMessages.map((msg) =>
-                            msg._id === updatedMessage._id
-                                ? { ...msg, messageStatus: updatedMessage.messageStatus }
-                                : msg
-                        ),
+                        usersMessages: page.usersMessages.map((msg) => (msg._id === updatedMessage._id ? { ...msg, messageStatus: updatedMessage.messageStatus } : msg)),
                     })),
                 };
             });
@@ -98,17 +95,15 @@ export const useMessages = (chatId, sessionUserId, socket) => {
         const handleMessageUpdated = (updatedMessage) => {
             if (updatedMessage && updatedMessage._id) {
                 queryClient.setQueryData(["messages", chatId], (oldData) => {
-                    if (!oldData) {return oldData;}
+                    if (!oldData) {
+                        return oldData;
+                    }
 
                     return {
                         ...oldData,
                         pages: oldData.pages.map((page) => ({
                             ...page,
-                            usersMessages: page.usersMessages.map((msg) =>
-                                msg._id === updatedMessage._id
-                                    ? { ...msg, message: updatedMessage.message }
-                                    : msg
-                            ),
+                            usersMessages: page.usersMessages.map((msg) => (msg._id === updatedMessage._id ? { ...msg, message: updatedMessage.message } : msg)),
                         })),
                     };
                 });
@@ -119,14 +114,14 @@ export const useMessages = (chatId, sessionUserId, socket) => {
 
         const handleMessageDeleted = ({ messageId }) => {
             queryClient.setQueryData(["messages", chatId], (oldData) => {
-                if (!oldData) {return oldData;}
+                if (!oldData) {
+                    return oldData;
+                }
                 return {
                     ...oldData,
                     pages: oldData.pages.map((page) => ({
                         ...page,
-                        usersMessages: page.usersMessages.filter(
-                            (msg) => msg._id !== messageId
-                        ),
+                        usersMessages: page.usersMessages.filter((msg) => msg._id !== messageId),
                     })),
                 };
             });

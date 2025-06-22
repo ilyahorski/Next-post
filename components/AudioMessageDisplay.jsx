@@ -1,8 +1,8 @@
 "use client";
 
 import WavesurferPlayer from "@wavesurfer/react";
-import React, { useCallback, useEffect, useRef,useState } from "react";
-import { BiPause,BiPlay } from "react-icons/bi";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { BiPause, BiPlay } from "react-icons/bi";
 
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
 
@@ -68,11 +68,7 @@ const AudioMessageDisplay = ({ audioUrl }) => {
 
     return (
         <div className="flex flex-col min-w-[220px]">
-            <div
-                className={`${
-                    isMobile ? "max-w-[200px]" : "min-w-[200px]"
-                } flex flex-row-reverse -mt-2`}
-            >
+            <div className={`${isMobile ? "max-w-[200px]" : "min-w-[200px]"} flex flex-row-reverse -mt-2`}>
                 <div className="mr-2 w-10/12">
                     <WavesurferPlayer
                         waveColor={"#39988a"}
@@ -92,22 +88,11 @@ const AudioMessageDisplay = ({ audioUrl }) => {
                         onPause={onPause}
                     />
                 </div>
-                <button
-                    onClick={togglePlayPause}
-                    className="flex items-center justify-center w-2/12"
-                >
-                    {isPlaying ? (
-                        <BiPause className="w-6 h-6" />
-                    ) : (
-                        <BiPlay className="w-6 h-6" />
-                    )}
+                <button onClick={togglePlayPause} className="flex items-center justify-center w-2/12">
+                    {isPlaying ? <BiPause className="w-6 h-6" /> : <BiPlay className="w-6 h-6" />}
                 </button>
             </div>
-            <div
-                className={`${
-                    isMobile ? "max-w-[200px]" : "min-w-[200px]"
-                } flex justify-between mt-1 text-sm text-gray-600`}
-            >
+            <div className={`${isMobile ? "max-w-[200px]" : "min-w-[200px]"} flex justify-between mt-1 text-sm text-gray-600`}>
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
             </div>

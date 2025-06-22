@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect,useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BiMicrophone } from "react-icons/bi";
 
 const AudioRecorder = ({ onRecordingStart, onRecordingStop, showMediaButtons, setShowMediaButtons }) => {
@@ -22,7 +22,7 @@ const AudioRecorder = ({ onRecordingStart, onRecordingStop, showMediaButtons, se
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorderRef.current = new MediaRecorder(stream);
-      
+
             mediaRecorderRef.current.ondataavailable = (event) => {
                 if (event.data.size > 0) {
                     audioChunksRef.current.push(event.data);
@@ -41,7 +41,7 @@ const AudioRecorder = ({ onRecordingStart, onRecordingStop, showMediaButtons, se
             onRecordingStart();
             setRecordingDuration(0);
             timerRef.current = setInterval(() => {
-                setRecordingDuration(prev => prev + 1);
+                setRecordingDuration((prev) => prev + 1);
             }, 1000);
         } catch (error) {
             console.error("Error starting audio recording:", error);
@@ -74,11 +74,7 @@ const AudioRecorder = ({ onRecordingStart, onRecordingStop, showMediaButtons, se
 
     return (
         <div className="relative">
-            {isRecording && (
-                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded">
-                    {formatDuration(recordingDuration)}
-                </div>
-            )}
+            {isRecording && <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded">{formatDuration(recordingDuration)}</div>}
             <button
                 type="button"
                 onMouseDown={handleMouseDown}

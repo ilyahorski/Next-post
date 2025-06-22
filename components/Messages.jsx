@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useContext, useEffect, useRef,useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import { Loader } from "~/components/Loading";
 import MessageForm from "~/components/MessageForm";
@@ -21,7 +21,7 @@ const Messages = ({ sessionUserId }) => {
     const [isSettingOpen, setIsSettingOpen] = useState(false);
     const [background, setBackground] = useState("/assets/bg/1.jpg");
     const [replyTo, setReplyTo] = useState(null);
-  
+
     const formEndRef = useRef(null);
     const messageEndRef = useRef(null);
     const popoverRef = useRef(null);
@@ -30,21 +30,12 @@ const Messages = ({ sessionUserId }) => {
     const { id: chatId } = useParams();
 
     const socket = useContext(SocketContext);
-    const { isVideoChatVisible, setIsVideoChatVisible } =
-    useContext(VideoSocketContext);
+    const { isVideoChatVisible, setIsVideoChatVisible } = useContext(VideoSocketContext);
 
     // Custom hooks
     const userStatuses = useUserStatus(socket, sessionUserId);
-  
-    const {
-        messagesList,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        newMessageGet,
-        isLoading: messagesLoading,
-        isError: messagesError,
-    } = useMessages(chatId, sessionUserId, socket);
+
+    const { messagesList, fetchNextPage, hasNextPage, isFetchingNextPage, newMessageGet, isLoading: messagesLoading, isError: messagesError } = useMessages(chatId, sessionUserId, socket);
 
     useMessageScroll(newMessageGet, messageEndRef, formEndRef);
 
@@ -55,7 +46,7 @@ const Messages = ({ sessionUserId }) => {
         if (!response.ok) {
             throw new Error("Network response was not ok");
         }
-        
+
         return response.json();
     };
 
@@ -86,7 +77,7 @@ const Messages = ({ sessionUserId }) => {
     useEffect(() => {
         const storageKey = `chat-background-${chatId}`;
         const storedBackground = localStorage.getItem(storageKey);
-        
+
         if (storedBackground) {
             setBackground(storedBackground);
         }
@@ -128,10 +119,7 @@ const Messages = ({ sessionUserId }) => {
     }
 
     return (
-        <div
-            className="scrollableBg flex flex-col custom-height flex-grow w-full"
-            style={{ "--scrollableDiv-background": `url(${background})` }}
-        >
+        <div className="scrollableBg flex flex-col custom-height flex-grow w-full" style={{ "--scrollableDiv-background": `url(${background})` }}>
             <ChatHeader
                 chat={chat}
                 sessionUserId={sessionUserId}
@@ -142,10 +130,7 @@ const Messages = ({ sessionUserId }) => {
                 popoverRef={popoverRef}
             />
 
-            <section
-                className="scrollableDiv flex flex-col-reverse overflow-y-auto h-full w-full max-w-full min-w-0 flex-grow"
-                id="scrollableDiv"
-            >
+            <section className="scrollableDiv flex flex-col-reverse overflow-y-auto h-full w-full max-w-full min-w-0 flex-grow" id="scrollableDiv">
                 <div className="flex-grow overflow-hidden">
                     <MessageList
                         messagesList={messagesList}
@@ -161,15 +146,7 @@ const Messages = ({ sessionUserId }) => {
             </section>
 
             <div className="flex items-center w-full gap-2 mt-auto bg-black rounded-b-md">
-                <MessageForm
-                    id={chatId}
-                    chat={chat}
-                    sessionUserId={sessionUserId}
-                    formEndRef={formEndRef}
-                    replyTo={replyTo}
-                    setReplyTo={setReplyTo}
-                    messageEndRef={messageEndRef}
-                />
+                <MessageForm id={chatId} chat={chat} sessionUserId={sessionUserId} formEndRef={formEndRef} replyTo={replyTo} setReplyTo={setReplyTo} messageEndRef={messageEndRef} />
             </div>
 
             {isSettingOpen && (

@@ -2,7 +2,7 @@
 
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import { useCallback, useContext,useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { AiOutlineFileAdd } from "react-icons/ai";
 import { BiLogoTelegram, BiPaperclip } from "react-icons/bi";
@@ -16,17 +16,7 @@ import AudioRecorder from "./AudioRecorder";
 import CustomFileUpload from "./CustomFileUpload";
 import VideoRecorder from "./VideoRecorder";
 
-const CommentMessageForm = ({
-    type,
-    onFormSubmit,
-    placeholder,
-    maxLength,
-    messageRef,
-    formEndRef,
-    replyTo,
-    setReplyTo,
-    initialValue,
-}) => {
+const CommentMessageForm = ({ type, onFormSubmit, placeholder, maxLength, messageRef, formEndRef, replyTo, setReplyTo, initialValue }) => {
     const isMobile = useMobileCheck();
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -76,9 +66,7 @@ const CommentMessageForm = ({
     };
 
     const onUpload = async (event) => {
-        const mediaUrls = event.xhr.response
-            ? JSON.parse(event.xhr.response).mediaUrls
-            : [];
+        const mediaUrls = event.xhr.response ? JSON.parse(event.xhr.response).mediaUrls : [];
 
         await sendMessage(message, mediaUrls);
     };
@@ -110,7 +98,7 @@ const CommentMessageForm = ({
         if (editingMessage) {
             setValue(type, editingMessage.message);
             setMessage(editingMessage.message);
-            
+
             const length = editingMessage.message.length;
 
             if (messageRef?.current) {
@@ -137,10 +125,7 @@ const CommentMessageForm = ({
     const addEmoji = useCallback(
         (emoji) => {
             const cursorPosition = cursorPositionRef.current;
-            const newMessage =
-        message.slice(0, cursorPosition) +
-        emoji.native +
-        message.slice(cursorPosition);
+            const newMessage = message.slice(0, cursorPosition) + emoji.native + message.slice(cursorPosition);
 
             setMessage(newMessage);
             setValue(type, newMessage);
@@ -175,22 +160,15 @@ const CommentMessageForm = ({
     };
 
     const handleMediaUpload = async (mediaBlob, mediaType) => {
-        const file = new File(
-            [mediaBlob],
-            `device_record_${Date.now()}.${mediaType === "audio" ? "webm" : "mp4"}`,
-            { type: mediaType === "audio" ? "audio/webm" : "video/mp4" }
-        );
+        const file = new File([mediaBlob], `device_record_${Date.now()}.${mediaType === "audio" ? "webm" : "mp4"}`, { type: mediaType === "audio" ? "audio/webm" : "video/mp4" });
         const formData = new FormData();
         formData.append("media", file);
 
         try {
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_SERVER_URL}/upload-media`,
-                {
-                    method: "POST",
-                    body: formData,
-                }
-            );
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/upload-media`, {
+                method: "POST",
+                body: formData,
+            });
 
             if (response.ok) {
                 const { mediaUrls } = await response.json();
@@ -211,10 +189,7 @@ const CommentMessageForm = ({
                         <p className="truncate">Replying to: {replyTo.writerId.username}</p>
                         <p className="truncate">{replyTo.message || "Media"}</p>
                     </div>
-                    <button
-                        className="flex p-2 text-red-600"
-                        onClick={() => setReplyTo(null)}
-                    >
+                    <button className="flex p-2 text-red-600" onClick={() => setReplyTo(null)}>
                         <IoIosClose className="w-5 h-5" />
                     </button>
                 </div>
@@ -222,14 +197,9 @@ const CommentMessageForm = ({
             {editingMessage && (
                 <div className="flex flex-1 justify-between items-center absolute top-0 -mt-8 rounded-t-md w-full text-sm bg-zinc-950 z-5000 text-gray-300 pl-3">
                     <div className="flex flex-col max-w-[300px]">
-                        <p className="truncate">
-                            {"Edit: " + editingMessage.message || "Write a new message"}
-                        </p>
+                        <p className="truncate">{"Edit: " + editingMessage.message || "Write a new message"}</p>
                     </div>
-                    <button
-                        className="flex p-2 text-red-600"
-                        onClick={() => setEditingMessage(null)}
-                    >
+                    <button className="flex p-2 text-red-600" onClick={() => setEditingMessage(null)}>
                         <IoIosClose className="w-5 h-5" />
                     </button>
                 </div>
@@ -239,17 +209,7 @@ const CommentMessageForm = ({
                     <Picker
                         data={data}
                         onEmojiSelect={addEmoji}
-                        categories={[
-                            "frequent",
-                            "people",
-                            "nature",
-                            "food",
-                            "activity",
-                            "places",
-                            "objects",
-                            "symbols",
-                            "flags",
-                        ]}
+                        categories={["frequent", "people", "nature", "food", "activity", "places", "objects", "symbols", "flags"]}
                         onClickOutside={() => setShowEmojiPicker(false)}
                         previewPosition="none"
                         title=""
@@ -259,11 +219,7 @@ const CommentMessageForm = ({
             )}
             <form onSubmit={handleSubmit(onSubmit)} className="flex-grow">
                 <div className="flex w-full justify-between items-center bg-white dark:bg-gray-600/10 rounded-b-lg">
-                    <button
-                        type="button"
-                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        className="flex items-center justify-center w-10 h-10 p-2"
-                    >
+                    <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="flex items-center justify-center w-10 h-10 p-2">
                         <HiOutlineEmojiHappy className="w-8 h-8 text-primary-300" />
                     </button>
                     <textarea
@@ -285,31 +241,17 @@ const CommentMessageForm = ({
                             maxLength: maxLength,
                         })}
                     />
-                    {errors.message && (
-                        <p className="mt-1 text-primary-500">
-                            {errors.message.type === "maxLength" &&
-                                `Max length is ${maxLength} char.`
-                            }
-                        </p>
-                    )}
+                    {errors.message && <p className="mt-1 text-primary-500">{errors.message.type === "maxLength" && `Max length is ${maxLength} char.`}</p>}
 
                     <div className="flex items-center gap-1">
                         {type === "message" && (
                             <div className="relative flex items-center gap-1">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowMediaButtons(!showMediaButtons)}
-                                    className="flex items-center justify-center w-10 h-10"
-                                >
+                                <button type="button" onClick={() => setShowMediaButtons(!showMediaButtons)} className="flex items-center justify-center w-10 h-10">
                                     <AiOutlineFileAdd className="w-6 h-6 text-primary-300" />
                                 </button>
                                 {showMediaButtons && (
                                     <div className="absolute bottom-12 -right-[47px] flex gap-1 bg-white dark:bg-gray-800 p-1 rounded-lg shadow-lg z-5000">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowFileUpload(true)}
-                                            className="flex items-center justify-center w-10 h-10"
-                                        >
+                                        <button type="button" onClick={() => setShowFileUpload(true)} className="flex items-center justify-center w-10 h-10">
                                             <BiPaperclip className="w-6 h-6 text-primary-300" />
                                         </button>
                                         <AudioRecorder
@@ -332,12 +274,7 @@ const CommentMessageForm = ({
                             title={`Click to send a ${type}`}
                             type="submit"
                             className="flex items-center justify-center w-10 h-10 cursor-pointer"
-                            disabled={
-                                !message.trim() &&
-                                selectedFiles.length === 0 &&
-                                !isRecordingAudio &&
-                                !isRecordingVideo
-                            }
+                            disabled={!message.trim() && selectedFiles.length === 0 && !isRecordingAudio && !isRecordingVideo}
                         >
                             <BiLogoTelegram className="w-8 h-8 text-primary-300" />
                         </button>

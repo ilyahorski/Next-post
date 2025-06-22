@@ -7,7 +7,6 @@ import { SocketContext } from "~/utils/context/SocketContext";
 import CommentSendForm from "./CommentSendForm";
 
 const CommentForm = ({ userId, postId }) => {
-
     const socket = useContext(SocketContext);
 
     const onFormSubmit = (data) => {
@@ -36,13 +35,7 @@ const CommentForm = ({ userId, postId }) => {
         }
     };
 
-    return (
-        <CommentSendForm
-            onFormSubmit={onFormSubmit}
-            placeholder="Comment message"
-            maxLength={2000}
-        />
-    );
+    return <CommentSendForm onFormSubmit={onFormSubmit} placeholder="Comment message" maxLength={2000} />;
 };
 
 export default CommentForm;

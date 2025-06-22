@@ -12,15 +12,13 @@ export const GET = async (request, { params }) => {
     try {
         await connectToDB();
 
-        const chat = await Chat.findById(params.id)
-            .populate("creatorId")
-            .populate("membersList")
-            .populate("lastMessage");
+        const chat = await Chat.findById(params.id).populate("creatorId").populate("membersList").populate("lastMessage");
 
-        if (!chat) {return new Response("Chat Not Found", { status: 404 });}
+        if (!chat) {
+            return new Response("Chat Not Found", { status: 404 });
+        }
 
         return new Response(JSON.stringify(chat), { status: 200 });
-
     } catch (error) {
         return new Response("Internal Server Error", { status: 500 });
     }
@@ -68,8 +66,6 @@ export const DELETE = async (request, { params }) => {
 
         // Finally delete the user
         await Chat.findByIdAndRemove(params.id);
-
-
 
         return new Response("Chat deleted successfully", { status: 200 });
     } catch (error) {

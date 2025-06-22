@@ -14,12 +14,10 @@ export const GET = async (request, { params }) => {
         }
 
         return new Response("Like does not exist", { status: 200 });
-
     } catch (error) {
         return new Response("Failed to check like", { status: 500 });
     }
 };
-
 
 export const POST = async (request) => {
     const { userId, postId } = await request.json();
@@ -29,7 +27,6 @@ export const POST = async (request) => {
 
         const existingLike = await Like.findOne({ user: userId, post: postId });
         if (existingLike) {
-
             await Like.findByIdAndRemove(existingLike._id);
             return new Response("Like removed", { status: 200 });
         }

@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { useRef } from "react";
 import { AiOutlineUserDelete } from "react-icons/ai";
@@ -11,7 +10,7 @@ import useServiceWorker from "~/utils/hooks/useServiceWorker";
 
 import SubscribeToPush from "../components/pushNotification/SubscribeToPush";
 
-const Popover = ({ handleDelete, session, setIsPopoverOpen, onClose  }) => {
+const Popover = ({ handleDelete, session, setIsPopoverOpen, onClose }) => {
     const popoverRef = useRef(null);
 
     const { isAudioAllowed, allowAudio } = useServiceWorker();
@@ -20,37 +19,23 @@ const Popover = ({ handleDelete, session, setIsPopoverOpen, onClose  }) => {
     return (
         <div ref={popoverRef} className="bg-zinc-800 p-4 rounded-lg shadow-lg w-64 h-auto relative">
             <button className="absolute top-2 right-2" onClick={() => setIsPopoverOpen(false)}>
-        ✖
+                ✖
             </button>
             <div className="flex flex-col items-start gap-4 mt-8">
-                <Link
-                    href={"/create-post"}
-                    className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60"
-                >
+                <Link href={"/create-post"} className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60">
                     <MdOutlineLibraryAdd className="w-10 h-10" />
                     <span>Create new post</span>
                 </Link>
-                <Link
-                    href={`/profile/edit/?id=${session}`}
-                    className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60"
-                >
+                <Link href={`/profile/edit/?id=${session}`} className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60">
                     <CiEdit className="w-10 h-10" />
                     <span>Edit your profile</span>
                 </Link>
                 <SubscribeToPush />
-                <button
-                    className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60"
-                    onClick={() => allowAudio()}
-                >
+                <button className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60" onClick={() => allowAudio()}>
                     {isAudioAllowed ? <GiSoundOn className="w-10 h-10" /> : <GiSoundOff className="w-10 h-10" />}
-                    <span>
-                        {isAudioAllowed ? "Turn sound off" : "Turn sound on"}
-                    </span>
+                    <span>{isAudioAllowed ? "Turn sound off" : "Turn sound on"}</span>
                 </button>
-                <button
-                    className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60"
-                    onClick={() => handleDelete()}
-                >
+                <button className="flex gap-4 text-[20px] font-light items-center cursor-pointer text-zinc-200 hover:text-zinc-300/60 active:text-zinc-400/60" onClick={() => handleDelete()}>
                     <AiOutlineUserDelete className="w-10 h-10" />
                     <span>Delete profile</span>
                 </button>

@@ -55,7 +55,6 @@ const EmojiPickerComponent = ({ setSelectedMessage, messageId, userId, chatId })
                 skinTonesDisabled={true}
             />
         </div>
-    
     );
 };
 

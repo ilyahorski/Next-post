@@ -1,15 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useContext,useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
-import { MessageContext,SocketContext } from "~/utils/context/SocketContext";
+import { MessageContext, SocketContext } from "~/utils/context/SocketContext";
 
 export const useMessageLogic = ({ messagesList, sessionUserId }) => {
     const longPressTimer = useRef(null);
     const socket = useContext(SocketContext);
     const [isPageVisible, setIsPageVisible] = useState(true);
-    const { selectedMessage, setSelectedMessage, setEditingMessage } =
-    useContext(MessageContext);
+    const { selectedMessage, setSelectedMessage, setEditingMessage } = useContext(MessageContext);
 
     const { id: chatId } = useParams();
     const queryClient = useQueryClient();
@@ -29,10 +28,7 @@ export const useMessageLogic = ({ messagesList, sessionUserId }) => {
     // Mark messages as seen
     useEffect(() => {
         if (socket && isPageVisible) {
-            const unseenMessages = messagesList.filter(
-                (message) =>
-                    message?.writerId._id !== sessionUserId && message?.messageStatus !== "seen"
-            );
+            const unseenMessages = messagesList.filter((message) => message?.writerId._id !== sessionUserId && message?.messageStatus !== "seen");
 
             unseenMessages.forEach((message) => {
                 socket.emit("markMessageAsSeen", { messageId: message?._id, chatId });
@@ -59,16 +55,14 @@ export const useMessageLogic = ({ messagesList, sessionUserId }) => {
         if (socket) {
             socket.on("messageReactionUpdated", (updatedMessage) => {
                 queryClient.setQueryData(["messages", chatId], (oldData) => {
-                    if (!oldData) {return oldData;}
+                    if (!oldData) {
+                        return oldData;
+                    }
                     return {
                         ...oldData,
                         pages: oldData.pages.map((page) => ({
                             ...page,
-                            usersMessages: page.usersMessages.map((msg) =>
-                                msg._id === updatedMessage._id
-                                    ? { ...msg, reactions: updatedMessage.reactions }
-                                    : msg
-                            ),
+                            usersMessages: page.usersMessages.map((msg) => (msg._id === updatedMessage._id ? { ...msg, reactions: updatedMessage.reactions } : msg)),
                         })),
                     };
                 });
@@ -85,9 +79,7 @@ export const useMessageLogic = ({ messagesList, sessionUserId }) => {
     // Scroll to selected message
     useEffect(() => {
         if (selectedMessage) {
-            const selectedElement = document.getElementById(
-                `message-${selectedMessage._id}`
-            );
+            const selectedElement = document.getElementById(`message-${selectedMessage._id}`);
 
             if (selectedElement) {
                 selectedElement.scrollIntoView({ block: "nearest" });
@@ -105,7 +97,6 @@ export const useMessageLogic = ({ messagesList, sessionUserId }) => {
                 userId: sessionUserId,
                 chatId,
             });
-
         } else {
             socket.emit("addReaction", {
                 messageId: message._id,

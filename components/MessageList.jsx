@@ -7,16 +7,7 @@ import { useMessageLogic } from "~/utils/hooks/useMessageLogic";
 import DateSeparator from "./message/DateSeparator";
 import MessageItem from "./message/MessageItem";
 
-const MessageList = ({
-    messagesList,
-    isMobile,
-    sessionUserId,
-    onReply,
-    messageEndRef,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-}) => {
+const MessageList = ({ messagesList, isMobile, sessionUserId, onReply, messageEndRef, fetchNextPage, hasNextPage, isFetchingNextPage }) => {
     const messageListRef = useRef(null);
     const { ref, inView } = useInView({ threshold: 0 });
 
@@ -43,21 +34,12 @@ const MessageList = ({
     }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     const renderMessage = (message, index) => {
-        const isSameDayAsNext =
-            index < messagesList.length - 1 &&
-            isSameDay(
-                parseISO(message?.createdAt),
-                parseISO(messagesList[index + 1].createdAt)
-            );
+        const isSameDayAsNext = index < messagesList.length - 1 && isSameDay(parseISO(message?.createdAt), parseISO(messagesList[index + 1].createdAt));
 
         return (
-            <div
-                className="relative"
-                key={message?._id + index}
-                id={`message-${message?._id}`}
-            >
+            <div className="relative" key={message?._id + index} id={`message-${message?._id}`}>
                 {!isSameDayAsNext && <DateSeparator date={message?.createdAt} />}
-        
+
                 {message?.writerId?._id && (
                     <MessageItem
                         message={message}
@@ -104,9 +86,7 @@ const MessageList = ({
                     </div>
                 ) : (
                     <div className="message-list flex items-center justify-center h-full">
-                        <div className="text-gray-400 text-center">
-                            Start chatting or wait for messages to load
-                        </div>
+                        <div className="text-gray-400 text-center">Start chatting or wait for messages to load</div>
                     </div>
                 )}
             </div>

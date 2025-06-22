@@ -27,10 +27,7 @@ const ChatNameEditor = ({ chatName, onNameUpdate }) => {
                     onChange={handleNameChange}
                     placeholder="Enter chat name"
                 />
-                <OkButton 
-                    onClick={handleSave}
-                    title="Save chat name"
-                />
+                <OkButton onClick={handleSave} title="Save chat name" />
             </div>
         </div>
     );

@@ -12,26 +12,20 @@ const Home = async () => {
 
     const error = console.error;
     console.error = (...args) => {
-        if (/defaultProps/.test(args[0])) {return;}
+        if (/defaultProps/.test(args[0])) {
+            return;
+        }
         error(...args);
     };
 
     return (
         <section className="w-full flex-center flex-col">
-            <p className="desc text-center dark:text-gray-400 -mt-6">
-                Messenger for communication, creation and sharing posts.
-            </p>
+            <p className="desc text-center dark:text-gray-400 -mt-6">Messenger for communication, creation and sharing posts.</p>
             <div className="flex md:hidden w-full justify-center gap-3 mt-3 -mb-6">
-                <Link
-                    href="/create-post"
-                    className={session?.user.id ? "black_btn" : "hidden"}
-                >
+                <Link href="/create-post" className={session?.user.id ? "black_btn" : "hidden"}>
                     Create Post
                 </Link>
-                <Link
-                    href="/chat"
-                    className={session?.user.id ? "chat_btn" : "hidden"}
-                >
+                <Link href="/chat" className={session?.user.id ? "chat_btn" : "hidden"}>
                     Open Chats
                 </Link>
             </div>

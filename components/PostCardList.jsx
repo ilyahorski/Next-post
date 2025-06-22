@@ -15,18 +15,9 @@ export const PostCardList = ({ data, columnView, handleTagClick }) => {
 
     return (
         <>
-            <Masonry
-                breakpointCols={columnView ? breakpointColumn : breakpointColumnsObj}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-            >
+            <Masonry breakpointCols={columnView ? breakpointColumn : breakpointColumnsObj} className="my-masonry-grid" columnClassName="my-masonry-grid_column">
                 {data.map((post) => (
-                    <PostCard
-                        columnView={columnView}
-                        key={post._id}
-                        post={post}
-                        handleTagClick={handleTagClick}
-                    />
+                    <PostCard columnView={columnView} key={post._id} post={post} handleTagClick={handleTagClick} />
                 ))}
             </Masonry>
         </>

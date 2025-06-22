@@ -1,23 +1,11 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import React, {
-    useCallback,
-    useContext,
-    useEffect,
-    useId,
-    useRef,
-    useState,
-} from "react";
+import React, { useCallback, useContext, useEffect, useId, useRef, useState } from "react";
 import { BsArrowsAngleContract, BsArrowsAngleExpand } from "react-icons/bs";
-import {
-    FaMicrophone,
-    FaMicrophoneSlash,
-    FaVideo,
-    FaVideoSlash,
-} from "react-icons/fa";
+import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash } from "react-icons/fa";
 import { MdOutlineCameraswitch } from "react-icons/md";
-import { PiPhoneCallThin,PiPhoneSlashThin } from "react-icons/pi";
+import { PiPhoneCallThin, PiPhoneSlashThin } from "react-icons/pi";
 import { VscCallOutgoing } from "react-icons/vsc";
 import Peer from "simple-peer";
 import io from "socket.io-client";
@@ -58,8 +46,7 @@ const VideoApp = ({ chatMembers }) => {
     const router = useRouter();
     const sessionId = useContext(SessionContext);
 
-    const { isVideoChatVisible, setIsVideoChatVisible, setWidth, setHeight } =
-    useContext(VideoSocketContext);
+    const { isVideoChatVisible, setIsVideoChatVisible, setWidth, setHeight } = useContext(VideoSocketContext);
 
     const icon_style = `${expanded ? "h-[20px] w-[20px]" : "h-[10px] w-[10px]"}`;
     const button_style = `text-white font-bold  ${
@@ -158,9 +145,7 @@ const VideoApp = ({ chatMembers }) => {
     const getVideoDevices = useCallback(async () => {
         try {
             const devices = await navigator.mediaDevices.enumerateDevices();
-            const videoDevices = devices.filter(
-                (device) => device.kind === "videoinput"
-            );
+            const videoDevices = devices.filter((device) => device.kind === "videoinput");
             setDevices(videoDevices);
         } catch (error) {
             console.log("Error enumerating video devices:", error);
@@ -182,9 +167,7 @@ const VideoApp = ({ chatMembers }) => {
 
             if (connectionRef.current) {
                 const videoTrack = newStream.getVideoTracks()[0];
-                const sender = connectionRef.current
-                    .getSenders()
-                    .find((s) => s.track.kind === "video");
+                const sender = connectionRef.current.getSenders().find((s) => s.track.kind === "video");
                 sender.replaceTrack(videoTrack);
             }
         } catch (error) {
@@ -281,7 +264,6 @@ const VideoApp = ({ chatMembers }) => {
 
         if (callerSignal) {
             if (peer.destroyed) {
-
                 if (currentAudio) {
                     currentAudio.pause();
                     setCurrentAudio(null);
@@ -305,10 +287,7 @@ const VideoApp = ({ chatMembers }) => {
 
     const leaveCall = useCallback(
         (id) => {
-            if (
-                connectionRef.current &&
-        typeof connectionRef.current.destroy === "function"
-            ) {
+            if (connectionRef.current && typeof connectionRef.current.destroy === "function") {
                 connectionRef.current.destroy();
                 connectionRef.current = null;
             }
@@ -348,16 +327,14 @@ const VideoApp = ({ chatMembers }) => {
 
     useEffect(() => {
         let isMounted = true;
-        navigator.mediaDevices
-            .getUserMedia({ video: true, audio: true })
-            .then((stream) => {
-                if (isMounted) {
-                    setStream(stream);
-                    if (userVideo.current && stream) {
-                        userVideo.current.srcObject = stream;
-                    }
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+            if (isMounted) {
+                setStream(stream);
+                if (userVideo.current && stream) {
+                    userVideo.current.srcObject = stream;
                 }
-            });
+            }
+        });
         return () => {
             isMounted = false;
         };
@@ -477,12 +454,10 @@ const VideoApp = ({ chatMembers }) => {
                         muted
                         ref={userVideo}
                         autoPlay
-                        className={`absolute rounded-lg ${
-                            isMainVideo
-                                ? "w-full h-full border-teal-600 z-10"
-                                : "w-[100px] h-[60px] top-2 left-2 border-emerald-600 z-20"
-                        } object-cover border-2`}
-                    />
+                        className={`absolute rounded-lg ${isMainVideo ? "w-full h-full border-teal-600 z-10" : "w-[100px] h-[60px] top-2 left-2 border-emerald-600 z-20"} object-cover border-2`}
+                    >
+                        <track kind="captions" src="" label="English captions" />
+                    </video>
                 )}
                 {callAccepted && !callEnded && (
                     <video
@@ -491,70 +466,45 @@ const VideoApp = ({ chatMembers }) => {
                         playsInline
                         ref={partnerVideo}
                         autoPlay
-                        className={`absolute rounded-lg ${
-                            !isMainVideo
-                                ? "w-full h-full border-teal-600 z-10"
-                                : "w-[100px] h-[60px] top-2 left-2 border-emerald-600 z-20"
-                        } object-cover border-2`}
-                    />
+                        className={`absolute rounded-lg ${!isMainVideo ? "w-full h-full border-teal-600 z-10" : "w-[100px] h-[60px] top-2 left-2 border-emerald-600 z-20"} object-cover border-2`}
+                    >
+                        <track kind="captions" src="" label="English captions" />
+                    </video>
                 )}
             </div>
-            <div
-                id="noDrag"
-                className="flex flex-col absolute bottom-0 w-full justify-center items-center gap-3 z-50"
-            >
+            <div id="noDrag" className="flex flex-col absolute bottom-0 w-full justify-center items-center gap-3 z-50">
                 {sessionId &&
-          chatMembers &&
-          !callAccepted &&
-          !receivingCall &&
-          !openedFromPush &&
-          chatMembers
-              .filter((item) => item._id !== sessionId)
-              .map((item, index) => (
-                  <button
-                      key={`${index}+${item}`}
-                      title="Call"
-                      className="flex justify-center items-center w-[150px] h-[40px] text-[10px] gap-1 bg-teal-500/80 hover:bg-teal-700/80 text-white font-bold py-1 px-2 rounded  focus:outline-none focus:shadow-outline transform active:scale-95 transition duration-150 ease-in-out"
-                      onClick={() => callPeer(item._id)}
-                  >
-                      <VscCallOutgoing className="w-[20px] h-[20px]" />
-                      <p className="overflow-hidden">{item.username}</p>
-                  </button>
-              ))}
+                    chatMembers &&
+                    !callAccepted &&
+                    !receivingCall &&
+                    !openedFromPush &&
+                    chatMembers
+                        .filter((item) => item._id !== sessionId)
+                        .map((item, index) => (
+                            <button
+                                key={`${index}+${item}`}
+                                title="Call"
+                                className="flex justify-center items-center w-[150px] h-[40px] text-[10px] gap-1 bg-teal-500/80 hover:bg-teal-700/80 text-white font-bold py-1 px-2 rounded  focus:outline-none focus:shadow-outline transform active:scale-95 transition duration-150 ease-in-out"
+                                onClick={() => callPeer(item._id)}
+                            >
+                                <VscCallOutgoing className="w-[20px] h-[20px]" />
+                                <p className="overflow-hidden">{item.username}</p>
+                            </button>
+                        ))}
                 <div className="flex w-full justify-center ">
                     {receivingCall && !callEnded && (
                         <div className="flex gap-4">
                             {!callAccepted && (
-                                <button
-                                    title="Accept call"
-                                    className={`bg-cyan-500/80 hover:bg-cyan-700/80 mb-3 ${button_style}`}
-                                    onClick={acceptCall}
-                                >
+                                <button title="Accept call" className={`bg-cyan-500/80 hover:bg-cyan-700/80 mb-3 ${button_style}`} onClick={acceptCall}>
                                     <PiPhoneCallThin className={icon_style} />
                                 </button>
                             )}
                             <div className="flex gap-4">
-                                <button
-                                    title="On/Off video"
-                                    className={`bg-blue-500/80 hover:bg-blue-700/80 ${button_style}`}
-                                    onClick={toggleVideo}
-                                >
-                                    {isVideoOn ? (
-                                        <FaVideo className={icon_style} />
-                                    ) : (
-                                        <FaVideoSlash className={icon_style} />
-                                    )}
+                                <button title="On/Off video" className={`bg-blue-500/80 hover:bg-blue-700/80 ${button_style}`} onClick={toggleVideo}>
+                                    {isVideoOn ? <FaVideo className={icon_style} /> : <FaVideoSlash className={icon_style} />}
                                 </button>
-                                <button
-                                    title="On/Off audio"
-                                    className={`bg-green-500/80 hover:bg-green-700/80 ${button_style}`}
-                                    onClick={toggleAudio}
-                                >
-                                    {isAudioOn ? (
-                                        <FaMicrophone className={icon_style} />
-                                    ) : (
-                                        <FaMicrophoneSlash className={icon_style} />
-                                    )}
+                                <button title="On/Off audio" className={`bg-green-500/80 hover:bg-green-700/80 ${button_style}`} onClick={toggleAudio}>
+                                    {isAudioOn ? <FaMicrophone className={icon_style} /> : <FaMicrophoneSlash className={icon_style} />}
                                 </button>
                                 <button
                                     title="End call"

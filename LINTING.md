@@ -5,7 +5,9 @@
 ## 📁 Конфигурационные файлы
 
 ### `.eslintrc.json`
+
 Конфигурация ESLint с правилами для:
+
 - React и Next.js
 - React Hooks
 - Accessibility (a11y)
@@ -13,7 +15,9 @@
 - Качество кода
 
 ### `.prettierrc`
+
 Конфигурация Prettier с настройками:
+
 - Длина строки: 200 символов
 - Точки с запятой: обязательные
 - Кавычки: двойные
@@ -21,6 +25,7 @@
 - Trailing commas: ES5 стиль
 
 ### `.prettierignore`
+
 Исключения для Prettier (node_modules, .next, public и т.д.)
 
 ## 🚀 Установка зависимостей
@@ -30,6 +35,7 @@ npm install
 ```
 
 Все необходимые зависимости уже добавлены в `package.json`:
+
 - `eslint` - основной линтер
 - `prettier` - форматировщик кода
 - Плагины для React, Next.js, accessibility и импортов
@@ -37,6 +43,7 @@ npm install
 ## 📋 Доступные команды
 
 ### Линтинг
+
 ```bash
 # Проверка кода с помощью Next.js ESLint
 npm run lint
@@ -49,6 +56,7 @@ npm run lint:check
 ```
 
 ### Форматирование
+
 ```bash
 # Форматирование всех файлов
 npm run format
@@ -58,6 +66,7 @@ npm run format:check
 ```
 
 ### Комбинированные команды
+
 ```bash
 # Проверка линтинга и форматирования
 npm run code:check
@@ -69,6 +78,7 @@ npm run code:fix
 ## 🎯 Основные правила ESLint
 
 ### React правила
+
 - `react/jsx-key`: обязательные key в списках
 - `react/prop-types`: предупреждения о PropTypes
 - `react/no-unescaped-entities`: предупреждения о неэкранированных символах
@@ -76,6 +86,7 @@ npm run code:fix
 - `react-hooks/exhaustive-deps`: предупреждения о зависимостях
 
 ### Качество кода
+
 - `no-unused-vars`: предупреждения о неиспользуемых переменных
 - `no-console`: предупреждения о console.log (кроме warn/error)
 - `prefer-const`: предпочтение const над let
@@ -83,12 +94,14 @@ npm run code:fix
 - `eqeqeq`: строгое сравнение (===)
 
 ### Стиль кода
+
 - `semi`: обязательные точки с запятой
 - `quotes`: двойные кавычки
 - `indent`: отступы 4 пробела
 - `max-len`: максимум 200 символов в строке
 
 ### Импорты
+
 - `import/order`: сортировка импортов по группам
 - `import/no-duplicates`: запрет дублирующих импортов
 - Поддержка алиаса `~/`
@@ -96,13 +109,16 @@ npm run code:fix
 ## 🔧 Специальные настройки
 
 ### Для кастомных хуков (`utils/hooks/`)
+
 - Строгие правила React Hooks
 - Обязательная проверка зависимостей
 
 ### Для API роутов (`app/api/`)
+
 - Разрешены console.log для отладки
 
 ### Accessibility
+
 - Базовые a11y правила без избыточности
 - Предупреждения для alt-text и anchor-is-valid
 - Отключены излишне строгие правила для интерактивности
@@ -110,11 +126,13 @@ npm run code:fix
 ## 💡 Рекомендации по использованию
 
 ### В IDE
+
 1. Установите расширения ESLint и Prettier для вашей IDE
 2. Настройте автоформатирование при сохранении
 3. Включите отображение ошибок линтинга
 
 ### Перед коммитом
+
 ```bash
 # Проверьте и исправьте код
 npm run code:fix
@@ -124,6 +142,7 @@ npm run code:check
 ```
 
 ### При разработке
+
 - Следуйте правилам ESLint для лучшего качества кода
 - Используйте `npm run lint:fix` для быстрого исправления
 - Обращайте внимание на предупреждения о React Hooks
@@ -131,18 +150,21 @@ npm run code:check
 ## 🚫 Игнорирование правил
 
 ### Для отдельных строк
+
 ```javascript
 // eslint-disable-next-line rule-name
 const example = "code";
 ```
 
 ### Для файлов
+
 ```javascript
 /* eslint-disable rule-name */
 // весь файл
 ```
 
 ### Для блоков
+
 ```javascript
 /* eslint-disable rule-name */
 // код
@@ -152,12 +174,14 @@ const example = "code";
 ## 🔍 Отладка
 
 ### Проверка конфигурации
+
 ```bash
 # Проверить, какие правила применяются к файлу
 npx eslint --print-config components/Feed.jsx
 ```
 
 ### Проверка форматирования
+
 ```bash
 # Показать различия без изменений
 npx prettier --check components/Feed.jsx

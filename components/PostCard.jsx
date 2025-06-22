@@ -11,18 +11,12 @@ import Comments from "~/components/Comments";
 import ReactTimeAgoWrapper from "~/components/ReactTimeAgoWrapper";
 import Sceleton from "~/components/Sceleton";
 import VideoPlayer from "~/components/VideoPlayer";
-import { SessionContext,SocketContext } from "~/utils/context/SocketContext";
+import { SessionContext, SocketContext } from "~/utils/context/SocketContext";
 import { handleCopy } from "~/utils/handleCopy";
 import { parseTags } from "~/utils/tagStringToArray";
 import { toggleLike } from "~/utils/toggleLike";
 
-const PostCard = ({
-    columnView,
-    post,
-    myPosts,
-    setMyPosts,
-    handleTagClick,
-}) => {
+const PostCard = ({ columnView, post, myPosts, setMyPosts, handleTagClick }) => {
     const [likes, setLikes] = useState(0);
     const [liked, setLiked] = useState(false);
     const [copied, setCopied] = useState("");
@@ -32,8 +26,7 @@ const PostCard = ({
     const router = useRouter();
     const tags = parseTags(post.tag);
     const JSImage = window.Image;
-    const postCardStyle =
-    "flex-1 h-fit break-inside-avoid rounded-lg dark:border-0 glassmorphism bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter";
+    const postCardStyle = "flex-1 h-fit break-inside-avoid rounded-lg dark:border-0 glassmorphism bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter";
 
     const url = new URL(post.image);
     const pathname = url.pathname;
@@ -54,7 +47,9 @@ const PostCard = ({
     }, [JSImage, post.image]);
 
     useEffect(() => {
-        if (!sessionId || !socket) {return;}
+        if (!sessionId || !socket) {
+            return;
+        }
 
         if (socket && sessionId && post?._id) {
             socket.emit("checkLikeStatus", { userId: sessionId, postId: post?._id });
@@ -79,7 +74,9 @@ const PostCard = ({
     }, [post._id, sessionId, socket]);
 
     const handleProfileClick = () => {
-        if (post.creator._id === sessionId) {return router.push("/profile");}
+        if (post.creator._id === sessionId) {
+            return router.push("/profile");
+        }
 
         router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
     };
@@ -113,23 +110,11 @@ const PostCard = ({
     return (
         <>
             {post ? (
-                <div
-                    className={`${postCardStyle} ${
-                        columnView ? " sm:w-[510px] w-[370px]" : "sm:w-[510px] w-[370px]"
-                    }`}
-                >
+                <div className={`${postCardStyle} ${columnView ? " sm:w-[510px] w-[370px]" : "sm:w-[510px] w-[370px]"}`}>
                     <div className="flex justify-between items-end gap-5 -mt-3">
-                        <div
-                            title="Click to open creator profile"
-                            className="flex-1 flex justify-start items-center gap-3 cursor-pointer"
-                            onClick={handleProfileClick}
-                        >
+                        <div title="Click to open creator profile" className="flex-1 flex justify-start items-center gap-3 cursor-pointer" onClick={handleProfileClick}>
                             <Image
-                                src={
-                                    post.creator.userImage
-                                        ? post.creator.userImage
-                                        : post.creator.image
-                                }
+                                src={post.creator.userImage ? post.creator.userImage : post.creator.image}
                                 alt="user_image"
                                 width={50}
                                 height={50}
@@ -138,12 +123,8 @@ const PostCard = ({
                             />
 
                             <div className="flex flex-col gap-2">
-                                <h3 className="font-satoshi font-semibold text-gray-900 dark:text-gray-400">
-                                    {post.creator.username}
-                                </h3>
-                                <p className="font-inter text-sm text-gray-500 dark:text-gray-300">
-                                    {post.creator.email}
-                                </p>
+                                <h3 className="font-satoshi font-semibold text-gray-900 dark:text-gray-400">{post.creator.username}</h3>
+                                <p className="font-inter text-sm text-gray-500 dark:text-gray-300">{post.creator.email}</p>
                             </div>
                         </div>
 
@@ -151,19 +132,8 @@ const PostCard = ({
                             <div className="flex overflow-auto justify-center items-center font-inter text-sm text-gray-500">
                                 <ReactTimeAgoWrapper date={post.createdAt} />
                             </div>
-                            <button
-                                title="Click to copy post link"
-                                className="copy_btn"
-                                onClick={() => handleCopy({ post: post, setCopied: setCopied })}
-                            >
-                                <Image
-                                    src={
-                                        copied ? "/assets/icons/tick.svg" : "/assets/icons/copy.svg"
-                                    }
-                                    alt={copied ? "tick_icon" : "copy_icon"}
-                                    width={12}
-                                    height={12}
-                                />
+                            <button title="Click to copy post link" className="copy_btn" onClick={() => handleCopy({ post: post, setCopied: setCopied })}>
+                                <Image src={copied ? "/assets/icons/tick.svg" : "/assets/icons/copy.svg"} alt={copied ? "tick_icon" : "copy_icon"} width={12} height={12} />
                             </button>
                         </div>
                     </div>
@@ -215,9 +185,7 @@ const PostCard = ({
                                 ))}
                             </div>
                             <div className="flex items-center gap-2">
-                                <p className="font-satoshi text-[16px] text-gray-700 dark:text-gray-400">
-                                    {likes}
-                                </p>
+                                <p className="font-satoshi text-[16px] text-gray-700 dark:text-gray-400">{likes}</p>
                                 <button
                                     onClick={() =>
                                         toggleLike({
@@ -228,39 +196,22 @@ const PostCard = ({
                                         })
                                     }
                                 >
-                                    {liked ? (
-                                        <Heart className="h-6 w-6 text-red-500 " />
-                                    ) : (
-                                        <HeartIcon className="h-6 w-6 " />
-                                    )}
+                                    {liked ? <Heart className="h-6 w-6 text-red-500 " /> : <HeartIcon className="h-6 w-6 " />}
                                 </button>
                             </div>
                         </div>
-                        <div
-                            title="Click to open a comments"
-                            className="cursor-pointer"
-                            onClick={() => handlePostOpen(post)}
-                        >
-                            <Comments
-                                postId={post?._id}
-                                isMain={true}
-                            />
+                        <div title="Click to open a comments" className="cursor-pointer" onClick={() => handlePostOpen(post)}>
+                            <Comments postId={post?._id} isMain={true} />
                         </div>
                         <CommentForm postId={post?._id} userId={sessionId} />
                     </div>
 
                     {sessionId === post.creator._id && /^\/profile/.test(pathName) && (
                         <div className="flex justify-around gap-4 pt-3 w-full">
-                            <button
-                                className="flex w-1/2 justify-center font-inter text-xl text-green-700 cursor-pointer"
-                                onClick={() => handleEdit()}
-                            >
+                            <button className="flex w-1/2 justify-center font-inter text-xl text-green-700 cursor-pointer" onClick={() => handleEdit()}>
                                 Edit
                             </button>
-                            <button
-                                className="flex w-1/2 justify-center font-inter text-xl text-red-700 cursor-pointer"
-                                onClick={() => handleDelete()}
-                            >
+                            <button className="flex w-1/2 justify-center font-inter text-xl text-red-700 cursor-pointer" onClick={() => handleDelete()}>
                                 Delete
                             </button>
                         </div>

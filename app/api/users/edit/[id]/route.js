@@ -33,7 +33,6 @@ export const PATCH = async (request, { params }) => {
         userData.userImage = userImage || userData.userImage;
         userData.image = image || userData.image;
         userData.status = "offline" || userData.status;
-        userData.blockedUsers = userData.blockedUsers;
 
         await userData.save();
 

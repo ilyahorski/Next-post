@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext,useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 
 import Form from "~/components/Form";
 import { SessionContext } from "~/utils/context/SocketContext";
@@ -21,30 +21,9 @@ const CreatePost = () => {
         image: imageUrl,
     });
 
-    const { handleSubmit, isSubmitting } = useSubmitHandler(
-        fileData,
-        sessionId,
-        post,
-        cropperRef,
-        setPost,
-        "Failed to post data",
-        "/api/post/new",
-        "POST",
-        "/",
-        buildRequestBody
-    );
+    const { handleSubmit, isSubmitting } = useSubmitHandler(fileData, sessionId, post, cropperRef, setPost, "Failed to post data", "/api/post/new", "POST", "/", buildRequestBody);
 
-    return (
-        <Form
-            setFileData={setFileData}
-            cropperRef={cropperRef}
-            type='Creat'
-            post={post}
-            handleInputChange={handleInputChange}
-            submitting={isSubmitting}
-            handleSubmit={handleSubmit}
-        />
-    );
+    return <Form setFileData={setFileData} cropperRef={cropperRef} type="Creat" post={post} handleInputChange={handleInputChange} submitting={isSubmitting} handleSubmit={handleSubmit} />;
 };
 
 export default CreatePost;

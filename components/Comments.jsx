@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React, { useCallback,useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { Loader } from "~/components/Loading";
 import { SocketContext } from "~/utils/context/SocketContext";
@@ -20,10 +20,9 @@ const Comments = ({ postId, isMain }) => {
                 console.log("Error getting comments: ", receivedComments.message);
             } else {
                 if (
-                    receivedComments 
-          &&
-          // receivedComments.length > 0 &&
-          receivedComments[0]?.postId === postId
+                    receivedComments &&
+                    // receivedComments.length > 0 &&
+                    receivedComments[0]?.postId === postId
                 ) {
                     if (isMain) {
                         setComments([receivedComments[receivedComments.length - 1]]);
@@ -84,9 +83,13 @@ const Comments = ({ postId, isMain }) => {
         }
     }, [comments, isLoading]);
 
-    if (isLoading) {return <Loader />;}
+    if (isLoading) {
+        return <Loader />;
+    }
 
-    if (!comments || comments.length === 0) {return null;}
+    if (!comments || comments.length === 0) {
+        return null;
+    }
 
     return (
         <>
@@ -104,10 +107,7 @@ const Comments = ({ postId, isMain }) => {
                         <div className="flex gap-2 justify-start items-start">
                             <div className="flex h-[40px] min-w-[41px] pt-0.5">
                                 <Image
-                                    src={
-                                        comment?.commentatorId?.userImage ||
-                    comment?.commentatorId?.image
-                                    }
+                                    src={comment?.commentatorId?.userImage || comment?.commentatorId?.image}
                                     alt="user_image"
                                     width={40}
                                     height={40}
@@ -116,13 +116,9 @@ const Comments = ({ postId, isMain }) => {
                             </div>
 
                             <div className="flex flex-col gap-1">
-                                <h3 className="font-satoshi font-semibold text-gray-600 dark:text-gray-400 text-sm">
-                                    {comment?.commentatorId?.username}
-                                </h3>
+                                <h3 className="font-satoshi font-semibold text-gray-600 dark:text-gray-400 text-sm">{comment?.commentatorId?.username}</h3>
                                 <div className="flex overflow-auto justify-start items-center ">
-                                    <p className="font-satoshi font-normal text-gray-800 dark:text-gray-300 text-4xs">
-                                        {comment?.comment}
-                                    </p>
+                                    <p className="font-satoshi font-normal text-gray-800 dark:text-gray-300 text-4xs">{comment?.comment}</p>
                                 </div>
 
                                 {comment?.createdAt && (

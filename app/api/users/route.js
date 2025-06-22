@@ -7,7 +7,9 @@ export const GET = async (request, { params }) => {
 
         const allUser = await User.find({});
 
-        if (!allUser) {return new Response("Users Not Found", { status: 404 });}
+        if (!allUser) {
+            return new Response("Users Not Found", { status: 404 });
+        }
 
         return new Response(JSON.stringify(allUser), { status: 200 });
     } catch (error) {

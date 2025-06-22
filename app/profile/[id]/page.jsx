@@ -20,15 +20,12 @@ const UserProfile = () => {
             setUserPosts(data);
         };
 
-        if (params?.id) {fetchPosts();}
+        if (params?.id) {
+            fetchPosts();
+        }
     }, []);
 
-    return (
-        <Profile
-            name={userName}
-            data={userPosts}
-        />
-    );
+    return <Profile name={userName} data={userPosts} />;
 };
 
 export default UserProfile;

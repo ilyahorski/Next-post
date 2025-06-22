@@ -13,25 +13,12 @@ const breakpointColumnsObj = {
 
 const Profile = ({ name, myPosts, setMyPosts, session, data }) => {
     return (
-        <section className='profile'>
-            <ProfileHeader
-                name={name}
-                session={session}
-                data={data}
-            />
+        <section className="profile">
+            <ProfileHeader name={name} session={session} data={data} />
 
-            <Masonry
-                breakpointCols={breakpointColumnsObj}
-                className="my-masonry-grid"
-                columnClassName="my-masonry-grid_column"
-            >
+            <Masonry breakpointCols={breakpointColumnsObj} className="my-masonry-grid" columnClassName="my-masonry-grid_column">
                 {data.map((post) => (
-                    <PostCard
-                        key={post._id}
-                        post={post}
-                        myPosts={myPosts}
-                        setMyPosts={setMyPosts}
-                    />
+                    <PostCard key={post._id} post={post} myPosts={myPosts} setMyPosts={setMyPosts} />
                 ))}
             </Masonry>
         </section>

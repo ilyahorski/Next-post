@@ -1,7 +1,7 @@
 "use client";
 
-import { useContext,useEffect, useState } from "react";
-import { MdOutlineNotificationsActive , MdOutlineNotificationsOff } from "react-icons/md";
+import { useContext, useEffect, useState } from "react";
+import { MdOutlineNotificationsActive, MdOutlineNotificationsOff } from "react-icons/md";
 
 import { SessionContext } from "~/utils/context/SocketContext";
 
@@ -31,14 +31,10 @@ const SubscribeToPush = () => {
         }
 
         try {
-            if (
-                (navigator.userActivation && navigator.userActivation.isActive) ||
-        ("serviceWorker" in navigator && "PushManager" in window)
-            ) {
+            if ((navigator.userActivation && navigator.userActivation.isActive) || ("serviceWorker" in navigator && "PushManager" in window)) {
                 const registration = await navigator.serviceWorker.ready;
 
-                const existingSubscription =
-          await registration.pushManager.getSubscription();
+                const existingSubscription = await registration.pushManager.getSubscription();
                 if (existingSubscription) {
                     await existingSubscription.unsubscribe();
                 }
@@ -100,9 +96,7 @@ const SubscribeToPush = () => {
         }
 
         const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-        const base64 = (base64String + padding)
-            .replace(/-/g, "+")
-            .replace(/_/g, "/");
+        const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
         const rawData = window.atob(base64);
         const outputArray = new Uint8Array(rawData.length);
         for (let i = 0; i < rawData.length; ++i) {
