@@ -35,6 +35,9 @@ const CreateChatForm = ({ closeForm }) => {
         enabled: !!sessionId,
         retry: 3,
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        refetchInterval: 60000, 
+        staleTime: 120000,
+        gcTime: 72000000,
     });
 
     useEffect(() => {
