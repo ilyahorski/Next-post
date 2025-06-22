@@ -5,20 +5,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* * {
-  outline: 1px solid green !important;
-} */
+/* ==========================================================================
+   BASE STYLES
+   ========================================================================== */
 
 .dark {
   @apply text-zinc-50;
 }
 
 .no-select {
-  user-select: none; /* Отключает выделение текста на большинстве браузеров */
-  -webkit-user-select: none; /* Отключает выделение текста в Safari и Chrome */
-  -moz-user-select: none; /* Отключает выделение текста в Firefox */
-  -ms-user-select: none; /* Отключает выделение текста в Internet Explorer */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
+
+/* ==========================================================================
+   LAYOUT UTILITIES
+   ========================================================================== */
 
 .custom-height {
   @apply h-screen;
@@ -30,98 +34,349 @@
   height: calc(100dvh - 200px);
 }
 
-.scrollableDiv::-webkit-scrollbar {
+/* Flex utilities */
+.flex-center {
+  @apply flex justify-center items-center;
+}
+
+.flex-start {
+  @apply flex justify-start items-start;
+}
+
+.flex-end {
+  @apply flex justify-end items-center;
+}
+
+.flex-between {
+  @apply flex justify-between items-center;
+}
+
+/* ==========================================================================
+   SCROLLBAR STYLES
+   ========================================================================== */
+
+/* Base scrollbar mixin */
+.scrollbar-base {
+  scrollbar-width: thin;
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
-.message-list::-webkit-scrollbar {
-  width: 0;
-}
-
-/* width */
-.comment-list::-webkit-scrollbar {
-  width: 3px;
-  border-top-right-radius: 24px;
-  border-bottom-right-radius: 24px;
-}
-
-/* track */
-.comment-list::-webkit-scrollbar-track {
-  background: #087c70bf;
-  border-top-right-radius: 24px;
-  border-bottom-right-radius: 24px;
-}
-
-/* handle */
-.comment-list::-webkit-scrollbar-thumb {
-  background: #28CBA6;
-  border-top-right-radius: 24px;
-  border-bottom-right-radius: 24px;
-}
-
-/* handle on hover */
-.comment-list::-webkit-scrollbar-thumb:hover {
-  border: 1px solid #05050587;
-  border-top-right-radius: 24px;
-  border-bottom-right-radius: 24px;
-}
-/* width */
-.chat-list::-webkit-scrollbar {
-  width: 4px;
-  border-radius: 7px;
-}
-
-/* track */
-.chat-list::-webkit-scrollbar-track {
-  background: #addacf;
-  border-radius: 5px;
-}
-
-/* handle */
-.chat-list::-webkit-scrollbar-thumb {
-  background: #5C807CBF;
-  border-radius: 5px;
-}
-
-/* handle on hover */
-.chat-list::-webkit-scrollbar-thumb:hover {
-  border: 1px solid #05050587;
-  border-radius: 5px;
-}
-
-/* width */
-.creator_info::-webkit-scrollbar {
-  padding-top: 2px;
-  height: 1px;
-}
-
-.sticky.padding-small.align-l {
-  display: none !important;
-}
-
-/* width */
+/* Default scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 3px;
   background: #087c70bf;
 }
 
-/* track */
 ::-webkit-scrollbar-track {
   background: #087c70bf;
   border-radius: 5px;
 }
 
-/* handle */
 ::-webkit-scrollbar-thumb {
   background: #28CBA6;
   border-radius: 5px;
 }
 
-/* handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   border: 1px solid #05050587;
 }
+
+/* Themed scrollbars */
+.scrollbar-teal::-webkit-scrollbar {
+  width: 3px;
+  border-radius: 24px;
+}
+
+.scrollbar-teal::-webkit-scrollbar-track {
+  background: #087c70bf;
+  border-radius: 24px;
+}
+
+.scrollbar-teal::-webkit-scrollbar-thumb {
+  background: #28CBA6;
+  border-radius: 24px;
+}
+
+.scrollbar-teal::-webkit-scrollbar-thumb:hover {
+  border: 1px solid #05050587;
+  border-radius: 24px;
+}
+
+.scrollbar-gray::-webkit-scrollbar {
+  width: 4px;
+  border-radius: 7px;
+}
+
+.scrollbar-gray::-webkit-scrollbar-track {
+  background: #addacf;
+  border-radius: 5px;
+}
+
+.scrollbar-gray::-webkit-scrollbar-thumb {
+  background: #5C807CBF;
+  border-radius: 5px;
+}
+
+.scrollbar-gray::-webkit-scrollbar-thumb:hover {
+  border: 1px solid #05050587;
+  border-radius: 5px;
+}
+
+.scrollbar-minimal::-webkit-scrollbar {
+  padding-top: 2px;
+  height: 1px;
+}
+
+/* ==========================================================================
+   GLASSMORPHISM & BACKDROP EFFECTS
+   ========================================================================== */
+
+.glass-base {
+  @apply bg-clip-padding backdrop-blur-lg backdrop-filter;
+}
+
+.glass-light {
+  @apply glass-base bg-white/20;
+}
+
+.glass-dark {
+  @apply glass-base dark:bg-gray-600/10;
+}
+
+.glass-card {
+  @apply glass-base bg-white/20 dark:bg-gray-900/90;
+}
+
+.glassmorphism {
+  @apply rounded-xl bg-gray-600/20 shadow-[inset_0px_0px_100px_20px_rgb(0,0,0,0.7)] backdrop-blur;
+}
+
+/* ==========================================================================
+   BUTTON STYLES
+   ========================================================================== */
+
+.btn-base {
+  @apply rounded-full border border-black bg-transparent py-1.5 px-5 text-center text-sm font-inter flex items-center justify-center transition-all;
+}
+
+.btn-primary {
+  @apply btn-base dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 text-black hover:bg-white;
+}
+
+.black_btn {
+  @apply btn-primary dark:hover:text-cyan-400 hover:text-cyan-600;
+}
+
+.chat_btn {
+  @apply btn-primary dark:hover:text-lime-400 hover:text-lime-600;
+}
+
+.outline_btn {
+  @apply btn-primary dark:hover:text-red-400 hover:text-red-600;
+}
+
+.copy_btn {
+  @apply w-7 h-7 rounded-full bg-white/10 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur flex-center cursor-pointer;
+}
+
+/* ==========================================================================
+   INPUT STYLES
+   ========================================================================== */
+
+.input-base {
+  @apply w-full rounded-lg p-3 text-sm outline-0;
+}
+
+.form_input {
+  @apply input-base mt-2 text-gray-500 dark:text-gray-300 dark:bg-gray-600/30;
+}
+
+.form_textarea {
+  @apply input-base flex min-h-[80px] h-[100px] xs:max-h-[450px] mt-2 text-gray-500 dark:text-gray-300 dark:bg-gray-600/30;
+}
+
+.search_input {
+  @apply block w-full rounded-md border border-gray-200 bg-white py-2.5 font-satoshi pl-5 pr-12 text-sm shadow-lg font-medium focus:border-black focus:outline-none focus:ring-0;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY & GRADIENTS
+   ========================================================================== */
+
+.head_text {
+  @apply w-full text-3xl sm:text-5xl font-extrabold leading-[1.15] text-black;
+}
+
+.desc {
+  @apply mt-5 text-lg text-gray-600 sm:text-xl max-w-2xl;
+}
+
+.logo_text {
+  @apply max-sm:hidden font-satoshi font-semibold text-lg text-black tracking-wide;
+}
+
+/* Gradient text utilities */
+.gradient-text-base {
+  @apply bg-clip-text text-transparent;
+}
+
+.blue_gradient {
+  @apply gradient-text-base bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800;
+}
+
+.green_gradient {
+  @apply gradient-text-base bg-gradient-to-r from-green-600 to-green-800;
+}
+
+.orange_gradient {
+  @apply gradient-text-base bg-gradient-to-r from-orange-600 to-orange-800;
+}
+
+.red_gradient {
+  @apply gradient-text-base bg-gradient-to-r from-red-600 to-red-800;
+}
+
+/* ==========================================================================
+   LAYOUT COMPONENTS
+   ========================================================================== */
+
+.main {
+  @apply font-mulish w-screen min-h-screen fixed flex-center px-6 py-48 pointer-events-none before:block before:w-full before:h-full before:absolute before:top-0 before:bg-white/50 before:z-10 after:block after:w-full after:h-full after:absolute after:top-0 after:opacity-40 after:invert after:z-10;
+}
+
+.main_gradient_dark {
+  @apply dark:before:bg-gradient-to-t from-zinc-950 to-black backdrop-filter backdrop-blur-md;
+}
+
+.app {
+  @apply relative z-10 flex-center flex-col max-w-7xl mx-auto px-6;
+}
+
+/* ==========================================================================
+   LIST COMPONENTS
+   ========================================================================== */
+
+.list-base {
+  @apply flex-1 rounded-lg overflow-auto overscroll-contain;
+}
+
+.message-list {
+  @apply flex flex-grow w-[98%] mob:w-full flex-col-reverse gap-1 px-2 mb-2 max-h-[93%] flex-1 rounded-lg text-clip break-words break-all leading-4;
+}
+
+.chat-list {
+  @apply list-base mb-6 max-h-[93%] p-0.5 glass-dark scrollbar-gray;
+}
+
+.comment-list {
+  @apply list-base rounded-md max-h-[300px] mb-1 border border-gray-600 p-0.5 glass-light w-full h-fit scrollbar-teal;
+}
+
+.creator_info {
+  @apply flex-1 overflow-auto flex justify-start items-center gap-3 scrollbar-minimal;
+}
+
+/* ==========================================================================
+   DROPDOWN COMPONENTS
+   ========================================================================== */
+
+.dropdown {
+  @apply absolute right-0 top-full mt-3 w-full p-5 rounded-lg bg-white dark:bg-gray-600 min-w-[210px] flex flex-col gap-2 justify-end items-end;
+}
+
+.dropdown-link-base {
+  @apply text-sm font-inter text-black dark:text-gray-100 font-medium;
+}
+
+.dropdown_link_profile {
+  @apply dropdown-link-base hover:text-orange-400 dark:hover:text-orange-400;
+}
+
+.dropdown_link_post {
+  @apply dropdown-link-base hover:text-cyan-600 dark:hover:text-cyan-600;
+}
+
+.dropdown_link_chat {
+  @apply dropdown-link-base hover:text-lime-600 dark:hover:text-lime-600;
+}
+
+/* ==========================================================================
+   CARD COMPONENTS
+   ========================================================================== */
+
+.post_card {
+  @apply border-2 border-pink-700 flex-1 break-inside-avoid rounded-lg dark:border-0 glass-card p-6 pb-4 xs:w-[510px] w-[370px] h-fit;
+}
+
+.feed {
+  @apply mt-16 mx-auto w-full max-w-xl flex-center flex-col gap-2;
+}
+
+.profile {
+  @apply mx-auto w-full flex-center flex-col gap-2;
+}
+
+/* ==========================================================================
+   BACKGROUND & SPECIAL EFFECTS
+   ========================================================================== */
+
+.scrollableBg {
+  position: relative;
+}
+
+.scrollableBg::before {
+  content: '';
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-repeat: repeat;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  border-radius: 6px;
+  top: 0;
+  left: 0;
+  opacity: 0.5;
+  z-index: -1;
+  background-image: var(--scrollableDiv-background);
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes gradient-x {
+  0% { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.blink {
+  animation: blink 1s infinite;
+}
+
+.animate-gradient-x {
+  background-size: 200% 100%;
+  animation: gradient-x 5s linear infinite;
+}
+
+/* ==========================================================================
+   MASONRY LAYOUT
+   ========================================================================== */
 
 @layer utilities {
   @layer responsive {
@@ -143,42 +398,25 @@
   }
 }
 
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-.blink {
-  animation: blink 1s infinite;
-}
-
-.rmc-cropper-wrapper {
-  background: none !important;
-}
-
 .my-masonry-grid {
-  display: -webkit-box; /* not needed if autoprefixing */
-  display: -ms-flexbox; /* not needed if autoprefixing */
   display: flex;
-  margin-left: -30px; /* gutter size offset */
+  margin-left: -30px;
   margin-top: 30px;
   width: auto;
 }
+
 .my-masonry-grid_column {
-  padding-left: 30px; /* gutter size */
+  padding-left: 30px;
   background-clip: padding-box;
 }
 
-/* style your items */
-.my-masonry-grid_column > div { /* change div to reference your elements you put in <masonry> */
+.my-masonry-grid_column > div {
   margin-bottom: 30px;
 }
 
-.animate-gradient-x {
-  background-size: 200% 100%;
-  animation: gradient-x 5s linear infinite;
-}
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
 
 .truncate {
   overflow: hidden;
@@ -186,184 +424,28 @@
   white-space: nowrap;
 }
 
-@keyframes gradient-x {
-  0% {
-    background-position: 200% 0;
-  }
-  to {
-    background-position: -200% 0;
-  }
+.cropper {
+  @apply text-cyan-600 max-h-[500px];
 }
+
+/* ==========================================================================
+   THIRD-PARTY OVERRIDES
+   ========================================================================== */
+
+.rmc-cropper-wrapper {
+  background: none !important;
+}
+
+.sticky.padding-small.align-l {
+  display: none !important;
+}
+
+/* ==========================================================================
+   RESPONSIVE OVERRIDES
+   ========================================================================== */
 
 @media screen and (max-width: 640px) {
   .main {
     padding: 0;
   }
-}
-
-.cropper {
-  @apply text-cyan-600 max-h-[500px]
-}
-
-.scrollableBg {
-  position: relative;
-}
-
-.scrollableBg::before {
-  content: '';
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  /* background-attachment: fixed; */
-  background-repeat: repeat;
-  background-size: cover;
-  background-position: center;
-  pointer-events: none;
-  border-radius: 6px;
-  top: 0;
-  left: 0;
-  opacity: 0.5;
-  z-index: -1;
-  background-image: var(--scrollableDiv-background);
-}
-
-.main {
-  @apply font-mulish w-screen min-h-screen fixed flex justify-center px-6 py-48 pointer-events-none before:block before:w-full before:h-full before:absolute before:top-0 before:bg-white/50 before:z-10 after:block after:w-full after:h-full after:absolute after:top-0 after:opacity-40 after:invert after:z-10
-}
-
-.main_gradient_light {
-  @apply before:bg-gradient-to-t from-zinc-800 to-zinc-950 backdrop-filter backdrop-blur-md;
-}
-
-.main_gradient_dark {
-  @apply dark:before:bg-gradient-to-t from-zinc-950 to-black backdrop-filter backdrop-blur-md;
-}
-
-.message-list {
-  @apply flex flex-grow w-[98%] mob:w-full flex-col-reverse gap-1 px-2 mb-2 max-h-[93%] flex-1 rounded-lg text-clip break-words break-all leading-4	
-}
-
-.chat-list {
-  @apply mb-6 max-h-[93%] bg-amber-400 flex-1 rounded-lg overflow-auto overscroll-contain p-0.5 bg-white/20 dark:bg-gray-600/10 bg-clip-padding backdrop-blur-lg backdrop-filter;
-}
-
-.comment-list {
-  @apply flex-1 rounded-md max-h-[300px] mb-1 overflow-auto overscroll-contain border border-gray-600 p-0.5 bg-white/20 dark:bg-gray-600/10 bg-clip-padding backdrop-blur-lg backdrop-filter w-full h-fit;
-}
-
-.creator_info {
-  @apply flex-1 overflow-auto flex justify-start items-center gap-3
-}
-
-.app {
-  @apply relative z-10 flex justify-center items-center flex-col max-w-7xl mx-auto px-6;
-}
-
-.chat_btn {
-  @apply rounded-full border border-black bg-transparent dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 dark:hover:text-lime-400 py-1.5 px-5 text-black transition-all hover:bg-white hover:text-lime-600 text-center text-sm font-inter flex items-center justify-center;
-}
-
-.black_btn {
-  @apply rounded-full border border-black bg-transparent dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 dark:hover:text-cyan-400 py-1.5 px-5 text-black transition-all hover:bg-white hover:text-cyan-600 text-center text-sm font-inter flex items-center justify-center;
-}
-
-.outline_btn {
-  @apply rounded-full border border-black bg-transparent dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 dark:hover:text-red-400 py-1.5 px-5 text-black transition-all hover:bg-white hover:text-red-600 text-center text-sm font-inter flex items-center justify-center;
-}
-
-.search_input {
-  @apply block w-full rounded-md border border-gray-200 bg-white py-2.5 font-satoshi pl-5 pr-12 text-sm shadow-lg font-medium focus:border-black focus:outline-none focus:ring-0;
-}
-
-.copy_btn {
-  @apply w-7 h-7 rounded-full bg-white/10 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur flex justify-center items-center cursor-pointer;
-}
-
-.head_text {
-  @apply w-full text-3xl sm:text-5xl font-extrabold leading-[1.15] text-black;
-}
-
-.blue_gradient {
-  @apply bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent;
-}
-
-.green_gradient {
-  @apply bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent;
-}
-
-.orange_gradient {
-  @apply bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent;
-}
-
-.red_gradient {
-  @apply bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent;
-}
-
-.desc {
-  @apply mt-5 text-lg text-gray-600 sm:text-xl max-w-2xl;
-}
-
-.glassmorphism {
-  @apply rounded-xl bg-gray-600/20 shadow-[inset_0px_0px_100px_20px_rgb(0,0,0,0.7)] backdrop-blur;
-}
-
-/* postcard component */
-.post_card {
-  @apply border-2 border-pink-700 flex-1 break-inside-avoid rounded-lg  dark:border-0 bg-white/20 dark:bg-gray-900/90 bg-clip-padding p-6 pb-4 backdrop-blur-lg backdrop-filter xs:w-[510px] w-[370px] h-fit;
-}
-
-/* feed component */
-.feed {
-  @apply mt-16 mx-auto w-full max-w-xl flex justify-center items-center flex-col gap-2;
-}
-
-/* profile component */
-.profile {
-  @apply mx-auto w-full flex justify-center items-center flex-col gap-2;
-}
-
-/* form component */
-.form_textarea {
-  @apply w-full flex rounded-lg min-h-[80px] h-[100px] xs:max-h-[450px] mt-2 p-3 text-sm text-gray-500 dark:text-gray-300 dark:bg-gray-600/30 outline-0;
-}
-
-.form_input {
-  @apply w-full flex rounded-lg mt-2 p-3 text-sm text-gray-500 outline-0 dark:text-gray-300 dark:bg-gray-600/30;
-}
-
-/* nav component */
-.logo_text {
-  @apply max-sm:hidden font-satoshi font-semibold text-lg text-black tracking-wide;
-}
-
-.dropdown {
-  @apply absolute right-0 top-full mt-3 w-full p-5 rounded-lg bg-white dark:bg-gray-600 min-w-[210px] flex flex-col gap-2 justify-end items-end;
-}
-
-.dropdown_link_profile {
-  @apply text-sm font-inter text-black dark:text-gray-100 hover:text-orange-400 dark:hover:text-orange-400 font-medium;
-}
-
-.dropdown_link_post {
-  @apply text-sm font-inter text-black dark:text-gray-100 hover:text-cyan-600 dark:hover:text-cyan-600 font-medium;
-}
-
-.dropdown_link_chat {
-  @apply text-sm font-inter text-black dark:text-gray-100 hover:text-lime-600 dark:hover:text-lime-600 font-medium;
-}
-
-.flex-center {
-  @apply flex justify-center items-center;
-}
-
-.flex-start {
-  @apply flex justify-start items-start;
-}
-
-.flex-end {
-  @apply flex justify-end items-center;
-}
-
-.flex-between {
-  @apply flex justify-between items-center;
 }
