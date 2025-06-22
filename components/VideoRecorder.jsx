@@ -1,16 +1,11 @@
 "use client";
 
-import { useEffect,useRef, useState } from "react";
-import { BiRotateLeft,BiVideo } from "react-icons/bi";
+import { useEffect, useRef, useState } from "react";
+import { BiRotateLeft, BiVideo } from "react-icons/bi";
 
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
 
-const VideoRecorder = ({
-    onRecordingStart,
-    onRecordingStop,
-    showMediaButtons,
-    setShowMediaButtons,
-}) => {
+const VideoRecorder = ({ onRecordingStart, onRecordingStop, showMediaButtons, setShowMediaButtons }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [stream, setStream] = useState(null);
     const [facingMode, setFacingMode] = useState("user");
@@ -98,23 +93,10 @@ const VideoRecorder = ({
     return (
         <>
             {isRecording && (
-                <div
-                    style={{ top: "140px" }}
-                    className="flex items-center justify-center fixed right-[calc(50vw-100px)] bg-black bg-opacity-75 w-52 h-52 rounded-lg overflow-hidden z-5000"
-                >
-                    <video
-                        ref={videoPreviewRef}
-                        className="w-48 h-48 rounded-full object-cover"
-                        autoPlay
-                        playsInline
-                        muted
-                    />
+                <div style={{ top: "140px" }} className="flex items-center justify-center fixed right-[calc(50vw-100px)] bg-black bg-opacity-75 w-52 h-52 rounded-lg overflow-hidden z-5000">
+                    <video ref={videoPreviewRef} className="w-48 h-48 rounded-full object-cover" autoPlay playsInline muted />
                     {isMobile && (
-                        <button
-                            type="button"
-                            onClick={switchCamera}
-                            className="flex items-center justify-center w-7 h-7 absolute bottom-2 left-2 bg-gray-800 text-white rounded-full"
-                        >
+                        <button type="button" onClick={switchCamera} className="flex items-center justify-center w-7 h-7 absolute bottom-2 left-2 bg-gray-800 text-white rounded-full">
                             <BiRotateLeft className="inline-block w-5 h-5" />
                         </button>
                     )}
@@ -129,9 +111,7 @@ const VideoRecorder = ({
                     onTouchStart={handleMouseDown}
                     onTouchEnd={handleMouseUp}
                     onTouchCancel={handleMouseUp}
-                    className={`flex items-center justify-center w-10 h-10 ${
-                        isRecording ? "bg-red-500" : ""
-                    }`}
+                    className={`flex items-center justify-center w-10 h-10 ${isRecording ? "bg-red-500" : ""}`}
                 >
                     <BiVideo className="w-6 h-6 text-primary-300" />
                 </button>

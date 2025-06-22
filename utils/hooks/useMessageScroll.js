@@ -6,7 +6,6 @@ export const useMessageScroll = (newMessageGet, messageEndRef, formEndRef) => {
 
         if (newMessageGet && messageEndRef.current && formEndRef.current) {
             const scrollMessageList = () => {
-				
                 return new Promise((resolve) => {
                     window.requestAnimationFrame(() => {
                         const messageList = document.getElementById("scrollableDiv");

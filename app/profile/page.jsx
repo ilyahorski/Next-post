@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { usePathname } from "next/navigation";
-import { useContext,useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { Loader } from "~/components/Loading";
 import Profile from "~/components/Profile";
@@ -14,7 +14,9 @@ const MyProfile = () => {
     const sessionId = useContext(SessionContext);
 
     useEffect(() => {
-        if (!sessionId) {return;}
+        if (!sessionId) {
+            return;
+        }
 
         axios
             .get(`/api/users/${sessionId}/posts`)
@@ -24,21 +26,7 @@ const MyProfile = () => {
             .catch((error) => console.error(error));
     }, [sessionId]);
 
-    return (
-        <>
-            {!sessionId ? (
-                <Loader />
-            ) : (
-                <Profile
-                    name={pathname}
-                    data={myPosts}
-                    session={sessionId}
-                    myPosts={myPosts}
-                    setMyPosts={setMyPosts}
-                />
-            )}
-        </>
-    );
+    return <>{!sessionId ? <Loader /> : <Profile name={pathname} data={myPosts} session={sessionId} myPosts={myPosts} setMyPosts={setMyPosts} />}</>;
 };
 
 export default MyProfile;

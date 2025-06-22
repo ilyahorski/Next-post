@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BiLogoTelegram } from "react-icons/bi";
 
@@ -34,7 +34,6 @@ const CommentSendForm = ({ onFormSubmit, placeholder, maxLength }) => {
         setValue("comment", newValue);
     };
 
-
     return (
         <div className="flex-grow relative">
             <form onSubmit={handleSubmit(onSubmit)} className="flex-grow">
@@ -52,17 +51,8 @@ const CommentSendForm = ({ onFormSubmit, placeholder, maxLength }) => {
                             maxLength: maxLength,
                         })}
                     />
-                    {errors.comment && (
-                        <p className="mt-1 text-primary-500">
-                            {errors.comment.type === "maxLength" &&
-                `Max length is ${maxLength} char.`}
-                        </p>
-                    )}
-                    <button
-                        type="submit"
-                        className="flex items-center justify-center w-10 h-10 cursor-pointer"
-                        disabled={!message.trim()}
-                    >
+                    {errors.comment && <p className="mt-1 text-primary-500">{errors.comment.type === "maxLength" && `Max length is ${maxLength} char.`}</p>}
+                    <button type="submit" className="flex items-center justify-center w-10 h-10 cursor-pointer" disabled={!message.trim()}>
                         <BiLogoTelegram className="w-8 h-8 text-primary-300" />
                     </button>
                 </div>

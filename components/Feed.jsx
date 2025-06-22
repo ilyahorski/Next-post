@@ -16,24 +16,9 @@ const Feed = () => {
     const { columnView, setColumnView } = useContext(DisplayContext);
     const isMobile = useMobileCheck();
 
-    const {
-        allPosts,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        isLoading,
-        isError,
-        error,
-        refetch,
-    } = usePosts();
+    const { allPosts, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error, refetch } = usePosts();
 
-    const {
-        searchText,
-        searchedResults,
-        handleSearchChange,
-        handleTagClick,
-        clearSearch,
-    } = usePostSearch(allPosts);
+    const { searchText, searchedResults, handleSearchChange, handleTagClick, clearSearch } = usePostSearch(allPosts);
 
     const handleToggleView = () => {
         setColumnView(!columnView);
@@ -53,10 +38,7 @@ const Feed = () => {
             <div className="flex flex-col items-center justify-center p-8">
                 <div className="text-red-500 mb-4">Error fetching posts</div>
                 <div className="text-gray-600 mb-4">{error?.message}</div>
-                <button
-                    onClick={() => refetch()}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
+                <button onClick={() => refetch()} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                     Try Again
                 </button>
             </div>
@@ -65,14 +47,7 @@ const Feed = () => {
 
     return (
         <section className="feed">
-            <FeedHeader
-                searchText={searchText}
-                onSearchChange={handleSearchChange}
-                onClearSearch={clearSearch}
-                columnView={columnView}
-                onToggleView={handleToggleView}
-                isMobile={isMobile}
-            />
+            <FeedHeader searchText={searchText} onSearchChange={handleSearchChange} onClearSearch={clearSearch} columnView={columnView} onToggleView={handleToggleView} isMobile={isMobile} />
 
             <InfiniteScroll
                 dataLength={postsToDisplay.length}
@@ -88,33 +63,17 @@ const Feed = () => {
                 endMessage={
                     <div className="text-center py-8">
                         <p className="text-gray-600 dark:text-gray-400">
-                            <b>
-                                {searchText
-                                    ? `Found ${postsToDisplay.length} posts`
-                                    : "Yay! You have seen it all"}
-                            </b>
+                            <b>{searchText ? `Found ${postsToDisplay.length} posts` : "Yay! You have seen it all"}</b>
                         </p>
                     </div>
                 }
                 refreshFunction={refetch}
                 pullDownToRefresh={!searchText} // Disable pull to refresh when searching
                 pullDownToRefreshThreshold={100}
-                pullDownToRefreshContent={
-                    <h3 style={{ textAlign: "center", marginTop: "50px" }}>
-                        &#8595; Pull down to refresh
-                    </h3>
-                }
-                releaseToRefreshContent={
-                    <h3 style={{ textAlign: "center", marginTop: "50px" }}>
-                        &#8593; Release to refresh
-                    </h3>
-                }
+                pullDownToRefreshContent={<h3 style={{ textAlign: "center", marginTop: "50px" }}>&#8595; Pull down to refresh</h3>}
+                releaseToRefreshContent={<h3 style={{ textAlign: "center", marginTop: "50px" }}>&#8593; Release to refresh</h3>}
             >
-                <PostCardList
-                    columnView={columnView}
-                    data={postsToDisplay}
-                    handleTagClick={handleTagClick}
-                />
+                <PostCardList columnView={columnView} data={postsToDisplay} handleTagClick={handleTagClick} />
             </InfiniteScroll>
         </section>
     );

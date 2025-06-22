@@ -24,10 +24,11 @@ export const GET = async (request, { params }) => {
                 match: { $exists: true },
             });
 
-        if (!usersMessages) {return new Response("Chats Not Found", { status: 404 });}
+        if (!usersMessages) {
+            return new Response("Chats Not Found", { status: 404 });
+        }
 
         return new Response(JSON.stringify({ totalMessages, usersMessages }), { status: 200 });
-
     } catch (error) {
         return new Response("Internal Server Error", { status: 500 });
     }

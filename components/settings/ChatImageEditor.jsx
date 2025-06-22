@@ -1,7 +1,7 @@
 import "react-mobile-cropper/dist/style.css";
 
 import imageCompression from "browser-image-compression";
-import { useRef,useState } from "react";
+import { useRef, useState } from "react";
 import { Cropper } from "react-mobile-cropper";
 
 import OkButton from "./OkButton";
@@ -89,17 +89,8 @@ const ChatImageEditor = ({ chatImage, onImageUpdate }) => {
                 Change chat image
             </label>
             <div className="flex w-full gap-2 items-center">
-                <input 
-                    id="chat-image-input"
-                    className="w-full" 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleImageChange} 
-                />
-                <OkButton 
-                    onClick={handleSave}
-                    title="Save chat image"
-                />
+                <input id="chat-image-input" className="w-full" type="file" accept="image/*" onChange={handleImageChange} />
+                <OkButton onClick={handleSave} title="Save chat image" />
             </div>
 
             {cropperVisible && currentImage && (

@@ -10,14 +10,14 @@
    ========================================================================== */
 
 .dark {
-  @apply text-zinc-50;
+    @apply text-zinc-50;
 }
 
 .no-select {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 /* ==========================================================================
@@ -25,30 +25,30 @@
    ========================================================================== */
 
 .custom-height {
-  @apply h-screen;
-  height: calc(100vh - 78px);
+    @apply h-screen;
+    height: calc(100vh - 78px);
 }
 
 .custom-height-settings {
-  @apply h-screen;
-  height: calc(100dvh - 200px);
+    @apply h-screen;
+    height: calc(100dvh - 200px);
 }
 
 /* Flex utilities */
 .flex-center {
-  @apply flex justify-center items-center;
+    @apply flex justify-center items-center;
 }
 
 .flex-start {
-  @apply flex justify-start items-start;
+    @apply flex justify-start items-start;
 }
 
 .flex-end {
-  @apply flex justify-end items-center;
+    @apply flex justify-end items-center;
 }
 
 .flex-between {
-  @apply flex justify-between items-center;
+    @apply flex justify-between items-center;
 }
 
 /* ==========================================================================
@@ -57,83 +57,83 @@
 
 /* Base scrollbar mixin */
 .scrollbar-base {
-  scrollbar-width: thin;
+    scrollbar-width: thin;
 }
 
 .scrollbar-hidden {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 .scrollbar-hidden::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+    width: 0;
+    height: 0;
 }
 
 /* Default scrollbar */
 ::-webkit-scrollbar {
-  width: 3px;
-  background: #087c70bf;
+    width: 3px;
+    background: #087c70bf;
 }
 
 ::-webkit-scrollbar-track {
-  background: #087c70bf;
-  border-radius: 5px;
+    background: #087c70bf;
+    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #28CBA6;
-  border-radius: 5px;
+    background: #28cba6;
+    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  border: 1px solid #05050587;
+    border: 1px solid #05050587;
 }
 
 /* Themed scrollbars */
 .scrollbar-teal::-webkit-scrollbar {
-  width: 3px;
-  border-radius: 24px;
+    width: 3px;
+    border-radius: 24px;
 }
 
 .scrollbar-teal::-webkit-scrollbar-track {
-  background: #087c70bf;
-  border-radius: 24px;
+    background: #087c70bf;
+    border-radius: 24px;
 }
 
 .scrollbar-teal::-webkit-scrollbar-thumb {
-  background: #28CBA6;
-  border-radius: 24px;
+    background: #28cba6;
+    border-radius: 24px;
 }
 
 .scrollbar-teal::-webkit-scrollbar-thumb:hover {
-  border: 1px solid #05050587;
-  border-radius: 24px;
+    border: 1px solid #05050587;
+    border-radius: 24px;
 }
 
 .scrollbar-gray::-webkit-scrollbar {
-  width: 4px;
-  border-radius: 7px;
+    width: 4px;
+    border-radius: 7px;
 }
 
 .scrollbar-gray::-webkit-scrollbar-track {
-  background: #addacf;
-  border-radius: 5px;
+    background: #addacf;
+    border-radius: 5px;
 }
 
 .scrollbar-gray::-webkit-scrollbar-thumb {
-  background: #5C807CBF;
-  border-radius: 5px;
+    background: #5c807cbf;
+    border-radius: 5px;
 }
 
 .scrollbar-gray::-webkit-scrollbar-thumb:hover {
-  border: 1px solid #05050587;
-  border-radius: 5px;
+    border: 1px solid #05050587;
+    border-radius: 5px;
 }
 
 .scrollbar-minimal::-webkit-scrollbar {
-  padding-top: 2px;
-  height: 1px;
+    padding-top: 2px;
+    height: 1px;
 }
 
 /* ==========================================================================
@@ -141,23 +141,23 @@
    ========================================================================== */
 
 .glass-base {
-  @apply bg-clip-padding backdrop-blur-lg backdrop-filter;
+    @apply bg-clip-padding backdrop-blur-lg backdrop-filter;
 }
 
 .glass-light {
-  @apply glass-base bg-white/20;
+    @apply glass-base bg-white/20;
 }
 
 .glass-dark {
-  @apply glass-base dark:bg-gray-600/10;
+    @apply glass-base dark:bg-gray-600/10;
 }
 
 .glass-card {
-  @apply glass-base bg-white/20 dark:bg-gray-900/90;
+    @apply glass-base bg-white/20 dark:bg-gray-900/90;
 }
 
 .glassmorphism {
-  @apply rounded-xl bg-gray-600/20 shadow-[inset_0px_0px_100px_20px_rgb(0,0,0,0.7)] backdrop-blur;
+    @apply rounded-xl bg-gray-600/20 shadow-[inset_0px_0px_100px_20px_rgb(0,0,0,0.7)] backdrop-blur;
 }
 
 /* ==========================================================================
@@ -165,27 +165,27 @@
    ========================================================================== */
 
 .btn-base {
-  @apply rounded-full border border-black bg-transparent py-1.5 px-5 text-center text-sm font-inter flex items-center justify-center transition-all;
+    @apply rounded-full border border-black bg-transparent py-1.5 px-5 text-center text-sm font-inter flex items-center justify-center transition-all;
 }
 
 .btn-primary {
-  @apply btn-base dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 text-black hover:bg-white;
+    @apply btn-base dark:text-gray-300 dark:bg-gray-800 dark:hover:bg-gray-500 text-black hover:bg-white;
 }
 
 .black_btn {
-  @apply btn-primary dark:hover:text-cyan-400 hover:text-cyan-600;
+    @apply btn-primary dark:hover:text-cyan-400 hover:text-cyan-600;
 }
 
 .chat_btn {
-  @apply btn-primary dark:hover:text-lime-400 hover:text-lime-600;
+    @apply btn-primary dark:hover:text-lime-400 hover:text-lime-600;
 }
 
 .outline_btn {
-  @apply btn-primary dark:hover:text-red-400 hover:text-red-600;
+    @apply btn-primary dark:hover:text-red-400 hover:text-red-600;
 }
 
 .copy_btn {
-  @apply w-7 h-7 rounded-full bg-white/10 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur flex-center cursor-pointer;
+    @apply w-7 h-7 rounded-full bg-white/10 shadow-[inset_10px_-50px_94px_0_rgb(199,199,199,0.2)] backdrop-blur flex-center cursor-pointer;
 }
 
 /* ==========================================================================
@@ -193,19 +193,19 @@
    ========================================================================== */
 
 .input-base {
-  @apply w-full rounded-lg p-3 text-sm outline-0;
+    @apply w-full rounded-lg p-3 text-sm outline-0;
 }
 
 .form_input {
-  @apply input-base mt-2 text-gray-500 dark:text-gray-300 dark:bg-gray-600/30;
+    @apply input-base mt-2 text-gray-500 dark:text-gray-300 dark:bg-gray-600/30;
 }
 
 .form_textarea {
-  @apply input-base flex min-h-[80px] h-[100px] xs:max-h-[450px] mt-2 text-gray-500 dark:text-gray-300 dark:bg-gray-600/30;
+    @apply input-base flex min-h-[80px] h-[100px] xs:max-h-[450px] mt-2 text-gray-500 dark:text-gray-300 dark:bg-gray-600/30;
 }
 
 .search_input {
-  @apply block w-full rounded-md border border-gray-200 bg-white py-2.5 font-satoshi pl-5 pr-12 text-sm shadow-lg font-medium focus:border-black focus:outline-none focus:ring-0;
+    @apply block w-full rounded-md border border-gray-200 bg-white py-2.5 font-satoshi pl-5 pr-12 text-sm shadow-lg font-medium focus:border-black focus:outline-none focus:ring-0;
 }
 
 /* ==========================================================================
@@ -213,36 +213,36 @@
    ========================================================================== */
 
 .head_text {
-  @apply w-full text-3xl sm:text-5xl font-extrabold leading-[1.15] text-black;
+    @apply w-full text-3xl sm:text-5xl font-extrabold leading-[1.15] text-black;
 }
 
 .desc {
-  @apply mt-5 text-lg text-gray-600 sm:text-xl max-w-2xl;
+    @apply mt-5 text-lg text-gray-600 sm:text-xl max-w-2xl;
 }
 
 .logo_text {
-  @apply max-sm:hidden font-satoshi font-semibold text-lg text-black tracking-wide;
+    @apply max-sm:hidden font-satoshi font-semibold text-lg text-black tracking-wide;
 }
 
 /* Gradient text utilities */
 .gradient-text-base {
-  @apply bg-clip-text text-transparent;
+    @apply bg-clip-text text-transparent;
 }
 
 .blue_gradient {
-  @apply gradient-text-base bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800;
+    @apply gradient-text-base bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800;
 }
 
 .green_gradient {
-  @apply gradient-text-base bg-gradient-to-r from-green-600 to-green-800;
+    @apply gradient-text-base bg-gradient-to-r from-green-600 to-green-800;
 }
 
 .orange_gradient {
-  @apply gradient-text-base bg-gradient-to-r from-orange-600 to-orange-800;
+    @apply gradient-text-base bg-gradient-to-r from-orange-600 to-orange-800;
 }
 
 .red_gradient {
-  @apply gradient-text-base bg-gradient-to-r from-red-600 to-red-800;
+    @apply gradient-text-base bg-gradient-to-r from-red-600 to-red-800;
 }
 
 /* ==========================================================================
@@ -250,15 +250,15 @@
    ========================================================================== */
 
 .main {
-  @apply font-mulish w-screen min-h-screen fixed flex-center px-6 py-48 pointer-events-none before:block before:w-full before:h-full before:absolute before:top-0 before:bg-white/50 before:z-10 after:block after:w-full after:h-full after:absolute after:top-0 after:opacity-40 after:invert after:z-10;
+    @apply font-mulish w-screen min-h-screen fixed flex-center px-6 py-48 pointer-events-none before:block before:w-full before:h-full before:absolute before:top-0 before:bg-white/50 before:z-10 after:block after:w-full after:h-full after:absolute after:top-0 after:opacity-40 after:invert after:z-10;
 }
 
 .main_gradient_dark {
-  @apply dark:before:bg-gradient-to-t from-zinc-950 to-black backdrop-filter backdrop-blur-md;
+    @apply dark:before:bg-gradient-to-t from-zinc-950 to-black backdrop-filter backdrop-blur-md;
 }
 
 .app {
-  @apply relative z-10 flex-center flex-col max-w-7xl mx-auto px-6;
+    @apply relative z-10 flex-center flex-col max-w-7xl mx-auto px-6;
 }
 
 /* ==========================================================================
@@ -266,23 +266,23 @@
    ========================================================================== */
 
 .list-base {
-  @apply flex-1 rounded-lg overflow-auto overscroll-contain;
+    @apply flex-1 rounded-lg overflow-auto overscroll-contain;
 }
 
 .message-list {
-  @apply flex flex-grow w-[98%] mob:w-full flex-col-reverse gap-1 px-2 mb-2 max-h-[93%] flex-1 rounded-lg text-clip break-words break-all leading-4;
+    @apply flex flex-grow w-[98%] mob:w-full flex-col-reverse gap-1 px-2 mb-2 max-h-[93%] flex-1 rounded-lg text-clip break-words break-all leading-4;
 }
 
 .chat-list {
-  @apply list-base mb-6 max-h-[93%] p-0.5 glass-dark scrollbar-gray;
+    @apply list-base mb-6 max-h-[93%] p-0.5 glass-dark scrollbar-gray;
 }
 
 .comment-list {
-  @apply list-base rounded-md max-h-[300px] mb-1 border border-gray-600 p-0.5 glass-light w-full h-fit scrollbar-teal;
+    @apply list-base rounded-md max-h-[300px] mb-1 border border-gray-600 p-0.5 glass-light w-full h-fit scrollbar-teal;
 }
 
 .creator_info {
-  @apply flex-1 overflow-auto flex justify-start items-center gap-3 scrollbar-minimal;
+    @apply flex-1 overflow-auto flex justify-start items-center gap-3 scrollbar-minimal;
 }
 
 /* ==========================================================================
@@ -290,23 +290,23 @@
    ========================================================================== */
 
 .dropdown {
-  @apply absolute right-0 top-full mt-3 w-full p-5 rounded-lg bg-white dark:bg-gray-600 min-w-[210px] flex flex-col gap-2 justify-end items-end;
+    @apply absolute right-0 top-full mt-3 w-full p-5 rounded-lg bg-white dark:bg-gray-600 min-w-[210px] flex flex-col gap-2 justify-end items-end;
 }
 
 .dropdown-link-base {
-  @apply text-sm font-inter text-black dark:text-gray-100 font-medium;
+    @apply text-sm font-inter text-black dark:text-gray-100 font-medium;
 }
 
 .dropdown_link_profile {
-  @apply dropdown-link-base hover:text-orange-400 dark:hover:text-orange-400;
+    @apply dropdown-link-base hover:text-orange-400 dark:hover:text-orange-400;
 }
 
 .dropdown_link_post {
-  @apply dropdown-link-base hover:text-cyan-600 dark:hover:text-cyan-600;
+    @apply dropdown-link-base hover:text-cyan-600 dark:hover:text-cyan-600;
 }
 
 .dropdown_link_chat {
-  @apply dropdown-link-base hover:text-lime-600 dark:hover:text-lime-600;
+    @apply dropdown-link-base hover:text-lime-600 dark:hover:text-lime-600;
 }
 
 /* ==========================================================================
@@ -314,15 +314,15 @@
    ========================================================================== */
 
 .post_card {
-  @apply border-2 border-pink-700 flex-1 break-inside-avoid rounded-lg dark:border-0 glass-card p-6 pb-4 xs:w-[510px] w-[370px] h-fit;
+    @apply border-2 border-pink-700 flex-1 break-inside-avoid rounded-lg dark:border-0 glass-card p-6 pb-4 xs:w-[510px] w-[370px] h-fit;
 }
 
 .feed {
-  @apply mt-16 mx-auto w-full max-w-xl flex-center flex-col gap-2;
+    @apply mt-16 mx-auto w-full max-w-xl flex-center flex-col gap-2;
 }
 
 .profile {
-  @apply mx-auto w-full flex-center flex-col gap-2;
+    @apply mx-auto w-full flex-center flex-col gap-2;
 }
 
 /* ==========================================================================
@@ -330,24 +330,24 @@
    ========================================================================== */
 
 .scrollableBg {
-  position: relative;
+    position: relative;
 }
 
 .scrollableBg::before {
-  content: '';
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  background-repeat: repeat;
-  background-size: cover;
-  background-position: center;
-  pointer-events: none;
-  border-radius: 6px;
-  top: 0;
-  left: 0;
-  opacity: 0.5;
-  z-index: -1;
-  background-image: var(--scrollableDiv-background);
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-repeat: repeat;
+    background-size: cover;
+    background-position: center;
+    pointer-events: none;
+    border-radius: 6px;
+    top: 0;
+    left: 0;
+    opacity: 0.5;
+    z-index: -1;
+    background-image: var(--scrollableDiv-background);
 }
 
 /* ==========================================================================
@@ -355,23 +355,33 @@
    ========================================================================== */
 
 @keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 @keyframes gradient-x {
-  0% { background-position: 200% 0; }
-  to { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+    to {
+        background-position: -200% 0;
+    }
 }
 
 .blink {
-  animation: blink 1s infinite;
+    animation: blink 1s infinite;
 }
 
 .animate-gradient-x {
-  background-size: 200% 100%;
-  animation: gradient-x 5s linear infinite;
+    background-size: 200% 100%;
+    animation: gradient-x 5s linear infinite;
 }
 
 /* ==========================================================================
@@ -379,39 +389,39 @@
    ========================================================================== */
 
 @layer utilities {
-  @layer responsive {
-    .masonry {
-      column-gap: 1.5em;
-      column-count: 1;
+    @layer responsive {
+        .masonry {
+            column-gap: 1.5em;
+            column-count: 1;
+        }
+        .masonry-sm {
+            column-gap: 1.5em;
+            column-count: 2;
+        }
+        .masonry-md {
+            column-gap: 1.5em;
+            column-count: 3;
+        }
+        .break-inside {
+            break-inside: avoid;
+        }
     }
-    .masonry-sm {
-      column-gap: 1.5em;
-      column-count: 2;
-    }
-    .masonry-md {
-      column-gap: 1.5em;
-      column-count: 3;
-    }
-    .break-inside {
-      break-inside: avoid;
-    }
-  }
 }
 
 .my-masonry-grid {
-  display: flex;
-  margin-left: -30px;
-  margin-top: 30px;
-  width: auto;
+    display: flex;
+    margin-left: -30px;
+    margin-top: 30px;
+    width: auto;
 }
 
 .my-masonry-grid_column {
-  padding-left: 30px;
-  background-clip: padding-box;
+    padding-left: 30px;
+    background-clip: padding-box;
 }
 
 .my-masonry-grid_column > div {
-  margin-bottom: 30px;
+    margin-bottom: 30px;
 }
 
 /* ==========================================================================
@@ -419,13 +429,13 @@
    ========================================================================== */
 
 .truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .cropper {
-  @apply text-cyan-600 max-h-[500px];
+    @apply text-cyan-600 max-h-[500px];
 }
 
 /* ==========================================================================
@@ -433,11 +443,11 @@
    ========================================================================== */
 
 .rmc-cropper-wrapper {
-  background: none !important;
+    background: none !important;
 }
 
 .sticky.padding-small.align-l {
-  display: none !important;
+    display: none !important;
 }
 
 /* ==========================================================================
@@ -445,7 +455,7 @@
    ========================================================================== */
 
 @media screen and (max-width: 640px) {
-  .main {
-    padding: 0;
-  }
+    .main {
+        padding: 0;
+    }
 }

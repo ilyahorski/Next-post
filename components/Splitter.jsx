@@ -1,10 +1,4 @@
-import React, {
-    createRef,
-    useContext,
-    useEffect,
-    useRef,
-    useState,
-} from "react";
+import React, { createRef, useContext, useEffect, useRef, useState } from "react";
 
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
 
@@ -94,16 +88,17 @@ export const SplitPaneLeft = (props) => {
         }
     }, [clientWidth, isMobile]);
 
-    return <div {...props} className='flex flex-grow' ref={leftRef} />;
+    return <div {...props} className="flex flex-grow" ref={leftRef} />;
 };
 
 export const SplitPaneRight = (props) => {
     const isMobile = useMobileCheck();
 
-    if (isMobile) {return null;}
+    if (isMobile) {
+        return null;
+    }
 
-    return <div {...props} className='flex flex-grow' />;
+    return <div {...props} className="flex flex-grow" />;
 };
 
 export default SplitPane;
-

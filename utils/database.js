@@ -46,16 +46,16 @@ export const connectToDB = async () => {
         return connection;
     } catch (error) {
         console.error("MongoDB connection error:", error.message);
-    
+
         // Сбрасываем connection при ошибке
         connection = null;
-    
+
         // Повторная попытка через 5 секунд
         setTimeout(() => {
             console.log("Retrying MongoDB connection...");
             connectToDB();
         }, 5000);
-    
+
         throw error;
     }
 };

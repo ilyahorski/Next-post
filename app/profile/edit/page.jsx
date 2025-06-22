@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useContext,useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import ImageEditor from "~/components/ImageEditor";
 import { SessionContext } from "~/utils/context/SocketContext";
@@ -54,45 +54,31 @@ const MyProfile = () => {
             setGoogleDataType(data.image.split("/")[2]?.split(".")[0]);
         };
 
-        if (userId) {getUserData();}
+        if (userId) {
+            getUserData();
+        }
     }, [userId]);
 
     return (
-        <section className='w-full max-w-full flex-start flex-col -mt-8 xs:mt-0'>
-            <div className='head_text text-start xs:text-5xl xs:-mt-4 mb-4'>
-                <span className='orange_gradient'>Edit profile page</span>
+        <section className="w-full max-w-full flex-start flex-col -mt-8 xs:mt-0">
+            <div className="head_text text-start xs:text-5xl xs:-mt-4 mb-4">
+                <span className="orange_gradient">Edit profile page</span>
             </div>
-            <form
-                onSubmit={handleSubmit}
-                className='p-4 gap-5 glassmorphism w-full flex flex-col xs:flex-row min-h-[400px] h-fit'
-            >
-                <ImageEditor setFileData={setFileData} dataType={userDataType} googleDataType={googleDataType} post={post} cropperRef={cropperRef}/>
+            <form onSubmit={handleSubmit} className="p-4 gap-5 glassmorphism w-full flex flex-col xs:flex-row min-h-[400px] h-fit">
+                <ImageEditor setFileData={setFileData} dataType={userDataType} googleDataType={googleDataType} post={post} cropperRef={cropperRef} />
 
-                <div className='xs:w-[50%] w-full'>
+                <div className="xs:w-[50%] w-full">
                     <label>
-                        <div className='mt-2 font-satoshi font-semibold text-base text-gray-700 dark:text-gray-300'>
-              Change nickname
-                        </div>
-                        <input
-                            name='username'
-                            value={post.username}
-                            onChange={handleInputChange}
-                            type='text'
-                            placeholder='Nickname'
-                            className='form_input'
-                        />
+                        <div className="mt-2 font-satoshi font-semibold text-base text-gray-700 dark:text-gray-300">Change nickname</div>
+                        <input name="username" value={post.username} onChange={handleInputChange} type="text" placeholder="Nickname" className="form_input" />
                     </label>
 
-                    <div className='flex-end mt-2 mx-3 mb-5 gap-4'>
-                        <Link href='/' className='text-gray-500 dark:text-gray-300 text-sm'>
-              Cancel
+                    <div className="flex-end mt-2 mx-3 mb-5 gap-4">
+                        <Link href="/" className="text-gray-500 dark:text-gray-300 text-sm">
+                            Cancel
                         </Link>
 
-                        <button
-                            type='submit'
-                            disabled={isSubmitting}
-                            className='px-5 py-1.5 text-sm bg-primary-orange rounded-full text-white'
-                        >
+                        <button type="submit" disabled={isSubmitting} className="px-5 py-1.5 text-sm bg-primary-orange rounded-full text-white">
                             {isSubmitting ? "Updating..." : "Update"}
                         </button>
                     </div>

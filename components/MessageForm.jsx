@@ -2,44 +2,40 @@
 
 import { useContext, useRef, useState } from "react";
 
-import { MessageContext,SocketContext } from "~/utils/context/SocketContext";
+import { MessageContext, SocketContext } from "~/utils/context/SocketContext";
 
 import CommentMessageForm from "./CommentMessageForm";
 
-const MessageForm = ({
-    id,
-    chat,
-    sessionUserId,
-    replyTo,
-    setReplyTo,
-    formEndRef,
-    messageEndRef,
-}) => {
+const MessageForm = ({ id, chat, sessionUserId, replyTo, setReplyTo, formEndRef, messageEndRef }) => {
     const [newMessageGet, setNewMessageGet] = useState(false);
     const socket = useContext(SocketContext);
-  
+
     const { editingMessage, setEditingMessage } = useContext(MessageContext);
     const messageRef = useRef(null);
 
     const onFormSubmit = async (data, mediaUrls) => {
         let newMessage;
-        
+
         if (!editingMessage) {
             setNewMessageGet(true);
         }
 
         if (editingMessage) {
-            socket.emit("editMessage", {
-                messageId: editingMessage._id,
-                newText: data.message,
-                chatId: id,
-            }, (response) => {
-                if (response.status === "success") {
-                    console.log("Message updated successfully");
-                } else {
-                    console.error("Failed to update message:", response.error);
+            socket.emit(
+                "editMessage",
+                {
+                    messageId: editingMessage._id,
+                    newText: data.message,
+                    chatId: id,
+                },
+                (response) => {
+                    if (response.status === "success") {
+                        console.log("Message updated successfully");
+                    } else {
+                        console.error("Failed to update message:", response.error);
+                    }
                 }
-            });
+            );
             setEditingMessage(null);
         } else if (sessionUserId) {
             newMessage = {
@@ -67,16 +63,13 @@ const MessageForm = ({
                             lastMessage: response?.newMessage._id,
                         };
 
-                        const fetchResponse = await fetch(
-                            `/api/chats/${response.newMessage.chatId}`,
-                            {
-                                method: "PATCH",
-                                body: JSON.stringify(chatData),
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                            }
-                        );
+                        const fetchResponse = await fetch(`/api/chats/${response.newMessage.chatId}`, {
+                            method: "PATCH",
+                            body: JSON.stringify(chatData),
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        });
                     } else {
                         console.log("Error sending message: ", response.message);
                     }

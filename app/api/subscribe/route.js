@@ -8,7 +8,7 @@ export async function POST(request) {
 
     try {
         await connectToDB();
-    
+
         if (!userId) {
             console.log("User ID is required");
             return NextResponse.json({ success: false, error: "User ID is required" });
@@ -16,9 +16,9 @@ export async function POST(request) {
 
         await Subscription.deleteMany({ userId });
 
-        const existingSubscription = await Subscription.findOne({ 
-            userId, 
-            endpoint: subscription.endpoint, 
+        const existingSubscription = await Subscription.findOne({
+            userId,
+            endpoint: subscription.endpoint,
         });
 
         if (existingSubscription) {
@@ -45,7 +45,7 @@ export async function DELETE(request) {
 
     try {
         await connectToDB();
-    
+
         if (!userId || !endpoint) {
             console.log("User ID and endpoint are required");
             return NextResponse.json({ success: false, error: "User ID and endpoint are required" });

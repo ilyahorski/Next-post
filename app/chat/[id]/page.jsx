@@ -2,12 +2,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useContext, useEffect,useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { Loader } from "~/components/Loading";
 import Messages from "~/components/Messages";
 import Sidebar from "~/components/Sidebar";
-import SplitPane, { Divider,SplitPaneLeft, SplitPaneRight } from "~/components/Splitter";
+import SplitPane, { Divider, SplitPaneLeft, SplitPaneRight } from "~/components/Splitter";
 import VideoCallPlayer from "~/components/videoCallComponents/VideoCallPlayer";
 import { SessionContext } from "~/utils/context/SocketContext";
 import { VideoSocketContext } from "~/utils/context/VideoContext";
@@ -21,10 +21,12 @@ const MessageMain = () => {
     const { id: chatId } = useParams();
 
     const fetchChatMembers = async () => {
-        if (!chatId) {return [];}
+        if (!chatId) {
+            return [];
+        }
         const response = await fetch(`/api/chats/${chatId}`);
         const data = await response.json();
-        return data.membersList.map(ids => ids._id);
+        return data.membersList.map((ids) => ids._id);
     };
 
     const { data: chatMembers = [], isLoading } = useQuery({
@@ -52,46 +54,32 @@ const MessageMain = () => {
     return (
         <>
             {sessionId && !!chatMembers.length ? (
-                <SplitPane className='w-[100dvw] flex -mt-[40px]'>
+                <SplitPane className="w-[100dvw] flex -mt-[40px]">
                     <SplitPaneLeft>
                         {showCreateChatForm && isMobile ? (
                             chatMembers && isMember ? (
-                                <Messages
-                                    sessionUserId={sessionId}
-                                    closeForm={() => setShowCreateChatForm(false)}
-                                />
+                                <Messages sessionUserId={sessionId} closeForm={() => setShowCreateChatForm(false)} />
                             ) : (
-                                <div className="text-center font-normal text-[14px] my-1 text-black dark:text-zinc-100">
-                  This is a private conversation, please log in with another account.
-                                </div>
+                                <div className="text-center font-normal text-[14px] my-1 text-black dark:text-zinc-100">This is a private conversation, please log in with another account.</div>
                             )
-                        ) : (!showCreateChatForm || !isMobile) && (
-                            <Sidebar
-                                sessionUserId={sessionId}
-                                openForm={() => setShowCreateChatForm(true)}
-                            />
+                        ) : (
+                            (!showCreateChatForm || !isMobile) && <Sidebar sessionUserId={sessionId} openForm={() => setShowCreateChatForm(true)} />
                         )}
                     </SplitPaneLeft>
                     <Divider className="hidden mob:flex border border-gray-400 rounded-md mx-1 hover:cursor-col-resize" />
                     {(!isMobile || !showCreateChatForm) && (
                         <SplitPaneRight>
                             {chatMembers && isMember ? (
-                                <Messages
-                                    sessionUserId={sessionId}
-                                />
+                                <Messages sessionUserId={sessionId} />
                             ) : (
-                                <div className="text-center font-normal text-[14px] my-1 text-black dark:text-zinc-100">
-                  This is a private conversation, please log in with another account.
-                                </div>
+                                <div className="text-center font-normal text-[14px] my-1 text-black dark:text-zinc-100">This is a private conversation, please log in with another account.</div>
                             )}
                         </SplitPaneRight>
                     )}
                     {isVideoChatVisible && <VideoCallPlayer />}
                 </SplitPane>
             ) : (
-                <div>
-          No chat data available.
-                </div>
+                <div>No chat data available.</div>
             )}
         </>
     );

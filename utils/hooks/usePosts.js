@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 
 const fetchPosts = async ({ pageParam = 1 }) => {
     const response = await fetch(`/api/post?page=${pageParam}&limit=4`);
@@ -12,15 +12,7 @@ const fetchPosts = async ({ pageParam = 1 }) => {
 export const usePosts = () => {
     const [allPosts, setAllPosts] = useState([]);
 
-    const {
-        data,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        status,
-        refetch,
-        error,
-    } = useInfiniteQuery({
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status, refetch, error } = useInfiniteQuery({
         queryKey: ["posts"],
         queryFn: fetchPosts,
         getNextPageParam: (lastPage, pages) => {
@@ -40,11 +32,7 @@ export const usePosts = () => {
         if (data) {
             setAllPosts((prevPosts) => {
                 const newPosts = data.pages.flatMap((page) => page.posts || []);
-                const uniquePosts = [
-                    ...new Map(
-                        [...prevPosts, ...newPosts].map((post) => [post._id, post])
-                    ).values(),
-                ];
+                const uniquePosts = [...new Map([...prevPosts, ...newPosts].map((post) => [post._id, post])).values()];
                 return uniquePosts;
             });
         }

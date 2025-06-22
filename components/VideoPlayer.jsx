@@ -1,7 +1,7 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { CgToolbarBottom } from "react-icons/cg";
-import { FaPause,FaPlay } from "react-icons/fa";
+import { FaPause, FaPlay } from "react-icons/fa";
 import { LiaFileVideo } from "react-icons/lia";
 import ReactPlayer from "react-player";
 
@@ -32,53 +32,25 @@ const VideoPlayer = ({ full, post, preview }) => {
     };
 
     return (
-        <div
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            className="relative w-full max-h-[400px]"
-        >
-            <ReactPlayer
-                width="100%"
-                height="100%"
-                playing={isPlaying}
-                controls={controlsVisible}
-                url={preview ? preview : (post.image ? post.image : post.userImage)}
-            />
+        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="relative w-full max-h-[400px]">
+            <ReactPlayer width="100%" height="100%" playing={isPlaying} controls={controlsVisible} url={preview ? preview : post.image ? post.image : post.userImage} />
             {isHovered && (
-                <div
-                    onClick={handlePlayPause}
-                    className={controlsVisible ? "hidden" : "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"}
-                >
-                    {isPlaying
-                        ?
-                        <FaPause
-                            title='Click to pause video'
-                            className='w-8 h-8 text-gray-300 dark:text-white'
-                        />
-                        :
-                        <FaPlay
-                            title='Click to play video'
-                            className='w-8 h-8 text-gray-300 dark:text-white'
-                        />
-                    }
+                <div onClick={handlePlayPause} className={controlsVisible ? "hidden" : "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"}>
+                    {isPlaying ? (
+                        <FaPause title="Click to pause video" className="w-8 h-8 text-gray-300 dark:text-white" />
+                    ) : (
+                        <FaPlay title="Click to play video" className="w-8 h-8 text-gray-300 dark:text-white" />
+                    )}
                 </div>
             )}
-            <div
-                title='Click to display a player controls'
-                onClick={handleControlsVisibility}
-                className={preview || post.image ? "absolute top-0 right-0 m-2 cursor-pointer" : "hidden"}
-            >
-                <CgToolbarBottom className='w-6 h-6 text-gray-300 dark:text-white'/>
+            <div title="Click to display a player controls" onClick={handleControlsVisibility} className={preview || post.image ? "absolute top-0 right-0 m-2 cursor-pointer" : "hidden"}>
+                <CgToolbarBottom className="w-6 h-6 text-gray-300 dark:text-white" />
             </div>
-            {!full &&
-        <div
-            title='Click to open a post page'
-            onClick={() => handlePostOpen(post)}
-            className={preview || post.image ? "absolute top-0 left-0 m-2 cursor-pointer" : "hidden"}
-        >
-            <LiaFileVideo className='w-6 h-6 text-gray-300 dark:text-white'/>
-        </div>
-            }
+            {!full && (
+                <div title="Click to open a post page" onClick={() => handlePostOpen(post)} className={preview || post.image ? "absolute top-0 left-0 m-2 cursor-pointer" : "hidden"}>
+                    <LiaFileVideo className="w-6 h-6 text-gray-300 dark:text-white" />
+                </div>
+            )}
         </div>
     );
 };

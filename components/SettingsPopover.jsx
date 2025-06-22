@@ -2,21 +2,9 @@ import { useState } from "react";
 
 import useClickOutside from "~/utils/hooks/useClickOutside";
 
-import {
-    BackgroundSelector,
-    ChatImageEditor,
-    ChatNameEditor,
-    DeleteChatButton,
-} from "./settings";
+import { BackgroundSelector, ChatImageEditor, ChatNameEditor, DeleteChatButton } from "./settings";
 
-const SettingsPopover = ({
-    popoverRef,
-    onClose,
-    chat,
-    background,
-    setBackground,
-    setChat,
-}) => {
+const SettingsPopover = ({ popoverRef, onClose, chat, background, setBackground, setChat }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     useClickOutside(popoverRef, onClose);
@@ -68,7 +56,7 @@ const SettingsPopover = ({
 
     const handleBackgroundUpdate = (newBackground) => {
         const storageKey = `chat-background-${chat._id}`;
-        
+
         localStorage.setItem(storageKey, newBackground);
         setBackground(newBackground);
         onClose();
@@ -79,10 +67,7 @@ const SettingsPopover = ({
     };
 
     return (
-        <div
-            ref={popoverRef}
-            className="bg-zinc-800/20 backdrop-blur-md h-fit p-4 rounded-lg shadow-lg max-w-1/2 relative overflow-y-auto"
-        >
+        <div ref={popoverRef} className="bg-zinc-800/20 backdrop-blur-md h-fit p-4 rounded-lg shadow-lg max-w-1/2 relative overflow-y-auto">
             {isLoading && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
                     <div className="text-white">Updating...</div>
@@ -90,21 +75,11 @@ const SettingsPopover = ({
             )}
 
             <div className="flex flex-col items-start gap-4 mt-8">
-                <ChatImageEditor
-                    chatImage={chat?.chatImage}
-                    onImageUpdate={handleImageUpdate}
-                />
+                <ChatImageEditor chatImage={chat?.chatImage} onImageUpdate={handleImageUpdate} />
 
-                <ChatNameEditor
-                    chatName={chat?.chatName}
-                    onNameUpdate={handleNameUpdate}
-                />
+                <ChatNameEditor chatName={chat?.chatName} onNameUpdate={handleNameUpdate} />
 
-                <BackgroundSelector
-                    background={background}
-                    onBackgroundUpdate={handleBackgroundUpdate}
-                    onTemporaryBackgroundChange={handleTemporaryBackgroundChange}
-                />
+                <BackgroundSelector background={background} onBackgroundUpdate={handleBackgroundUpdate} onTemporaryBackgroundChange={handleTemporaryBackgroundChange} />
 
                 <DeleteChatButton chatId={chat._id} />
             </div>

@@ -1,7 +1,4 @@
-import {
-    IoCheckmarkDoneOutline,
-    IoCheckmarkOutline,
-} from "react-icons/io5";
+import { IoCheckmarkDoneOutline, IoCheckmarkOutline } from "react-icons/io5";
 
 const MessageStatus = ({ message, sessionUserId }) => {
     if (message?.writerId._id !== sessionUserId) {

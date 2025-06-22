@@ -4,7 +4,9 @@ export const useUserStatus = (socket, sessionUserId) => {
     const [userStatuses, setUserStatuses] = useState({});
 
     useEffect(() => {
-        if (!socket || !sessionUserId) {return;}
+        if (!socket || !sessionUserId) {
+            return;
+        }
 
         const updateStatus = (status) => {
             socket.emit("setUserStatus", { userId: sessionUserId, status });

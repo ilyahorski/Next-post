@@ -16,7 +16,9 @@ const Sidebar = ({ sessionUserId, openForm }) => {
     const sessionId = useContext(SessionContext);
 
     const fetchChats = async () => {
-        if (!sessionId) {return [];}
+        if (!sessionId) {
+            return [];
+        }
         const response = await fetch("/api/chats", {
             headers: {
                 userId: sessionId,
@@ -41,9 +43,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     });
 
-    const filteredChats = chats.filter((chat) =>
-        chat?.chatName?.toLowerCase().includes(search.toLowerCase())
-    );
+    const filteredChats = chats.filter((chat) => chat?.chatName?.toLowerCase().includes(search.toLowerCase()));
 
     if (isPending) {
         return <Loader />;
@@ -56,24 +56,10 @@ const Sidebar = ({ sessionUserId, openForm }) => {
     return (
         <form className="flex-1 w-full px-1 custom-height">
             <div className="flex gap-1 items-start">
-                <input
-                    className="w-full dark:bg-gray-600/10 p-2 mb-3 rounded"
-                    placeholder="Find chats"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-                <button
-                    className={`mob:hidden flex justify-center items-center w-[40px] h-[40px] ${
-                        chats.length === 0 ? "blink" : ""
-                    }`}
-                    type="button"
-                    onClick={openForm}
-                >
+                <input className="w-full dark:bg-gray-600/10 p-2 mb-3 rounded" placeholder="Find chats" value={search} onChange={(e) => setSearch(e.target.value)} />
+                <button className={`mob:hidden flex justify-center items-center w-[40px] h-[40px] ${chats.length === 0 ? "blink" : ""}`} type="button" onClick={openForm}>
                     <div className="flex gap-0.5 items-center flex-col">
-                        <PiUsersThin
-                            className="text-emerald-700 w-[30px] h-[30px]"
-                            placeholder="Open users list"
-                        />
+                        <PiUsersThin className="text-emerald-700 w-[30px] h-[30px]" placeholder="Open users list" />
                         <p className="text-emerald-700 font-normal text-6xs">Users</p>
                     </div>
                 </button>
@@ -81,23 +67,15 @@ const Sidebar = ({ sessionUserId, openForm }) => {
             {!!filteredChats.length && sessionUserId ? (
                 <div className="chat-list">
                     {filteredChats.map((chat) => (
-                        <Link
-                            href={`/chat/${chat._id}`}
-                            key={chat._id}
-                            className={
-                                "flex flex-row relative justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-600/30"
-                            }
-                        >
+                        <Link href={`/chat/${chat._id}`} key={chat._id} className={"flex flex-row relative justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-600/30"}>
                             <div className="flex gap-2 justify-start items-center">
                                 <Image
                                     src={
                                         chat?.chatImage
                                             ? chat.chatImage
                                             : sessionUserId === chat?.membersList[0]._id
-                                                ? chat?.membersList[1]?.userImage ||
-                                                chat?.membersList[1]?.image
-                                                : chat?.membersList[0].userImage ||
-                                                chat?.membersList[0].image
+                                              ? chat?.membersList[1]?.userImage || chat?.membersList[1]?.image
+                                              : chat?.membersList[0].userImage || chat?.membersList[0].image
                                     }
                                     alt="user_image"
                                     width={50}
@@ -107,21 +85,12 @@ const Sidebar = ({ sessionUserId, openForm }) => {
                                 <div className="flex flex-col gap-2">
                                     <p className="">{chat.chatName}</p>
                                     {chat?.lastMessage?.createdAt && (
-                                        <span
-                                            className={"absolute top-1 right-1 font-normal text-[10px] mt-1 text-white min-w-[30px]"}
-                                        >
-                                            {format(
-                                                parseISO(chat.lastMessage.createdAt),
-                                                "HH:mm, PPP"
-                                            )}
+                                        <span className={"absolute top-1 right-1 font-normal text-[10px] mt-1 text-white min-w-[30px]"}>
+                                            {format(parseISO(chat.lastMessage.createdAt), "HH:mm, PPP")}
                                         </span>
                                     )}
                                     <div className="flex max-w-[300px]">
-                                        <p className="truncate">
-                                            {chat?.lastMessage?.message
-                                                ? chat?.lastMessage?.message
-                                                : (chat?.lastMessage?.media ? "New media" : "Start messaging")}
-                                        </p>
+                                        <p className="truncate">{chat?.lastMessage?.message ? chat?.lastMessage?.message : chat?.lastMessage?.media ? "New media" : "Start messaging"}</p>
                                     </div>
                                 </div>
                             </div>
@@ -130,9 +99,7 @@ const Sidebar = ({ sessionUserId, openForm }) => {
                 </div>
             ) : (
                 <div className="text-center mt-5">
-                    <p className="text-gray-700 dark:text-gray-300">
-                        You don&#39;t have any chats. Create a dialogue and start communicating!
-                    </p>
+                    <p className="text-gray-700 dark:text-gray-300">You don&#39;t have any chats. Create a dialogue and start communicating!</p>
                 </div>
             )}
         </form>

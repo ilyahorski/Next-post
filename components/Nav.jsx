@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getProviders,signIn, signOut } from "next-auth/react";
+import { getProviders, signIn, signOut } from "next-auth/react";
 import { useContext, useEffect, useRef, useState } from "react";
 
 import DarkModeToggle from "~/components/ThemeModeToggle";
-import { SessionContext,SocketContext } from "~/utils/context/SocketContext";
+import { SessionContext, SocketContext } from "~/utils/context/SocketContext";
 import useClickOutside from "~/utils/hooks/useClickOutside";
 
 const Nav = () => {
@@ -47,71 +47,52 @@ const Nav = () => {
             });
         };
 
-        if (sessionId) {getUserData();}
+        if (sessionId) {
+            getUserData();
+        }
     }, [sessionId]);
 
     return (
         <nav className={`${pathname === "chat" ? "w-[100dvw] px-2" : "w-full"} flex-between mb-16 pt-3`}>
-            <Link href='/' className='flex gap-2 flex-center'>
-                <Image
-                    title='Click to go to home page'
-                    src='/assets/images/logo.png'
-                    alt='logo'
-                    width={140}
-                    height={90}
-                    quality={100}
-                    className='object-contain'
-                />
+            <Link href="/" className="flex gap-2 flex-center">
+                <Image title="Click to go to home page" src="/assets/images/logo.png" alt="logo" width={140} height={90} quality={100} className="object-contain" />
             </Link>
 
             {/* Desktop Navigation */}
-            <div className='md:flex hidden'>
+            <div className="md:flex hidden">
                 {sessionId && data.image ? (
-                    <div className='flex items-center gap-3 md:gap-5'>
+                    <div className="flex items-center gap-3 md:gap-5">
                         {/* <DarkModeToggle /> */}
 
-                        <Link href='/chat' className='chat_btn'>
+                        <Link href="/chat" className="chat_btn">
                             Open Chats
                         </Link>
 
-                        <Link href='/create-post' className='black_btn'>
+                        <Link href="/create-post" className="black_btn">
                             Create Post
                         </Link>
 
-                        <button
-                            type='button'
-                            onClick={handleSignOut}
-                            className='outline_btn'
-                        >
+                        <button type="button" onClick={handleSignOut} className="outline_btn">
                             Sign Out
                         </button>
 
-                        <Link
-                            title='Click to open your profile page'
-                            href='/profile'
-                        >
-                            <Image
-                                src={data?.userImage ? data?.userImage : data?.image}
-                                width={40}
-                                height={40}
-                                className='rounded-full'
-                                alt='profile'
-                            />
+                        <Link title="Click to open your profile page" href="/profile">
+                            <Image src={data?.userImage ? data?.userImage : data?.image} width={40} height={40} className="rounded-full" alt="profile" />
                         </Link>
                     </div>
                 ) : (
-                    <div className='flex items-center gap-3 md:gap-5'>
+                    <div className="flex items-center gap-3 md:gap-5">
                         {/* <DarkModeToggle /> */}
                         {providers &&
                             Object.values(providers).map((provider) => (
                                 <button
-                                    type='button'
+                                    type="button"
                                     key={provider.name}
                                     onClick={(e) => {
                                         e.preventDefault();
                                         signIn(provider.id);
                                     }}
-                                    className='black_btn'
+                                    className="black_btn"
                                 >
                                     Sign in with {provider.name}
                                 </button>
@@ -121,48 +102,25 @@ const Nav = () => {
             </div>
 
             {/* Mobile Navigation */}
-            <div ref={ref} className='md:hidden flex relative'>
+            <div ref={ref} className="md:hidden flex relative">
                 {sessionId && data.image ? (
-                    <div className='flex items-center gap-5'>
+                    <div className="flex items-center gap-5">
                         {/* <DarkModeToggle /> */}
 
-                        <Image
-                            src={data?.userImage ? data?.userImage : data?.image}
-                            width={37}
-                            height={37}
-                            className='rounded-full'
-                            alt='profile'
-                            onClick={() => setToggleDropdown(!toggleDropdown)}
-                        />
+                        <Image src={data?.userImage ? data?.userImage : data?.image} width={37} height={37} className="rounded-full" alt="profile" onClick={() => setToggleDropdown(!toggleDropdown)} />
 
                         {toggleDropdown && (
-                            <div className='dropdown z-50'>
-                                <Link
-                                    href='/profile'
-                                    className='dropdown_link_profile'
-                                    onClick={() => setToggleDropdown(false)}
-                                >
+                            <div className="dropdown z-50">
+                                <Link href="/profile" className="dropdown_link_profile" onClick={() => setToggleDropdown(false)}>
                                     My Profile
                                 </Link>
-                                <Link
-                                    href='/create-post'
-                                    className='dropdown_link_post'
-                                    onClick={() => setToggleDropdown(false)}
-                                >
+                                <Link href="/create-post" className="dropdown_link_post" onClick={() => setToggleDropdown(false)}>
                                     Create Post
                                 </Link>
-                                <Link
-                                    href='/chat'
-                                    className='dropdown_link_chat'
-                                    onClick={() => setToggleDropdown(false)}
-                                >
+                                <Link href="/chat" className="dropdown_link_chat" onClick={() => setToggleDropdown(false)}>
                                     Open Chats
                                 </Link>
-                                <button
-                                    type='button'
-                                    onClick={handleSignOut}
-                                    className='mt-5 w-full outline_btn'
-                                >
+                                <button type="button" onClick={handleSignOut} className="mt-5 w-full outline_btn">
                                     Sign Out
                                 </button>
                             </div>
@@ -173,13 +131,13 @@ const Nav = () => {
                         {providers &&
                             Object.values(providers).map((provider) => (
                                 <button
-                                    type='button'
+                                    type="button"
                                     key={provider.name}
                                     onClick={(e) => {
                                         e.preventDefault();
                                         signIn(provider.id);
                                     }}
-                                    className='black_btn'
+                                    className="black_btn"
                                 >
                                     Sign in
                                 </button>

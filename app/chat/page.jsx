@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import CreateChatForm from "~/components/CreateChatForm";
 import { Loader } from "~/components/Loading";
 import Sidebar from "~/components/Sidebar";
-import SplitPane, { Divider,SplitPaneLeft, SplitPaneRight } from "~/components/Splitter";
+import SplitPane, { Divider, SplitPaneLeft, SplitPaneRight } from "~/components/Splitter";
 import { SessionContext } from "~/utils/context/SocketContext";
 import { useMobileCheck } from "~/utils/hooks/useMobileCheck";
 
@@ -25,17 +25,12 @@ const ChatMain = () => {
     return (
         <>
             {sessionId ? (
-                <SplitPane className='w-[100dvw] flex -mt-[40px]' >
+                <SplitPane className="w-[100dvw] flex -mt-[40px]">
                     <SplitPaneLeft>
                         {showCreateChatForm && isMobile ? (
-                            <CreateChatForm
-                                closeForm={() => setShowCreateChatForm(false)} 
-                            />
-                        ) : (!showCreateChatForm || !isMobile) && (
-                            <Sidebar
-                                sessionUserId={sessionId}
-                                openForm={() => setShowCreateChatForm(true)} 
-                            />
+                            <CreateChatForm closeForm={() => setShowCreateChatForm(false)} />
+                        ) : (
+                            (!showCreateChatForm || !isMobile) && <Sidebar sessionUserId={sessionId} openForm={() => setShowCreateChatForm(true)} />
                         )}
                     </SplitPaneLeft>
                     <Divider className="hidden mob:flex border border-gray-400 rounded-md cursor-col-resize" />

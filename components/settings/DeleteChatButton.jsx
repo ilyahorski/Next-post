@@ -1,4 +1,4 @@
-import { usePathname,useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { PiTrashLight } from "react-icons/pi";
 
 const DeleteChatButton = ({ chatId }) => {
@@ -6,16 +6,14 @@ const DeleteChatButton = ({ chatId }) => {
     const pathname = usePathname().split("/")[2];
 
     const handleDelete = async () => {
-        const hasConfirmed = confirm(
-            "Are you sure you want to delete this chat and all messages?"
-        );
+        const hasConfirmed = confirm("Are you sure you want to delete this chat and all messages?");
 
         if (hasConfirmed) {
             try {
                 const response = await fetch(`/api/chats/${pathname}`, {
                     method: "DELETE",
                 });
-        
+
                 if (!response.ok) {
                     throw new Error(`Failed to delete chat: ${response.status}`);
                 }

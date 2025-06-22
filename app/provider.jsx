@@ -21,7 +21,7 @@ const Provider = ({ children, serverSession }) => {
     const [darkMode, setDarkMode] = useState(true);
     const [columnView, setColumnView] = useState(getLocalView());
     const colorTheme = darkMode ? "dark" : "";
-  
+
     useServiceWorker();
 
     useEffect(() => {

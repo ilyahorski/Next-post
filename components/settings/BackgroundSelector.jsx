@@ -1,4 +1,4 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { CgClose } from "react-icons/cg";
 
 import OkButton from "./OkButton";
@@ -18,7 +18,7 @@ const BackgroundSelector = ({ background, onBackgroundUpdate, onTemporaryBackgro
     const handleSelectChange = (event) => {
         const newBackground = event.target.value;
         setCurrentBackground(newBackground);
-    
+
         // Временно изменяем фон для предварительного просмотра
         if (onTemporaryBackgroundChange) {
             onTemporaryBackgroundChange(newBackground);
@@ -56,17 +56,10 @@ const BackgroundSelector = ({ background, onBackgroundUpdate, onTemporaryBackgro
                     ))}
                 </select>
                 <div className="flex gap-1">
-                    <button
-                        className="p-2 text-sm"
-                        onClick={handleCancel}
-                        title="Cancel changes"
-                    >
+                    <button className="p-2 text-sm" onClick={handleCancel} title="Cancel changes">
                         <CgClose className="w-8 h-8 text-red-500" />
                     </button>
-                    <OkButton 
-                        onClick={handleSave}
-                        title="Apply background"
-                    />
+                    <OkButton onClick={handleSave} title="Apply background" />
                 </div>
             </div>
         </div>

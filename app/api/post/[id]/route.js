@@ -6,10 +6,11 @@ export const GET = async (request, { params }) => {
         await connectToDB();
 
         const post = await Post.findById(params.id).populate("creator");
-        if (!post) {return new Response("Post Not Found", { status: 404 });}
+        if (!post) {
+            return new Response("Post Not Found", { status: 404 });
+        }
 
         return new Response(JSON.stringify(post), { status: 200 });
-
     } catch (error) {
         return new Response("Internal Server Error", { status: 500 });
     }

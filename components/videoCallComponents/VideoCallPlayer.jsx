@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { Resizable } from "re-resizable";
-import React, { useContext, useEffect,useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Draggable from "react-draggable";
 
 import VideoApp from "~/components/videoCallComponents/VideoApp";
@@ -20,14 +20,14 @@ const VideoCallPlayer = () => {
         e.stopPropagation();
         setIsResizing(true);
     };
-  
+
     const onResizeEnd = (e, direction, ref, d) => {
         e.stopPropagation();
         setIsResizing(false);
         setWidth(width + d.width);
         setHeight(height + d.height);
     };
-  
+
     const onDrag = (e, data) => {
         if (!isResizing) {
             setPosition({ x: data.x, y: data.y });
@@ -35,7 +35,9 @@ const VideoCallPlayer = () => {
     };
 
     useEffect(() => {
-        if (!chatId) {return;}
+        if (!chatId) {
+            return;
+        }
         const getChat = async () => {
             const response = await fetch(`/api/chats/${chatId}`);
             const data = await response.json();
@@ -70,7 +72,7 @@ const VideoCallPlayer = () => {
                     onResizeStop={onResizeEnd}
                     className="rounded-lg "
                 >
-                    <VideoApp chatMembers={chat}/>
+                    <VideoApp chatMembers={chat} />
                 </Resizable>
             </div>
         </Draggable>

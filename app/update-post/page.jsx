@@ -1,12 +1,12 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useContext,useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import Form from "~/components/Form";
 import { SessionContext } from "~/utils/context/SocketContext";
-import { useInputChangeHandler }  from "~/utils/hooks/useInputChangeHandler";
-import { useSubmitHandler }  from "~/utils/hooks/useSubmitHandler";
+import { useInputChangeHandler } from "~/utils/hooks/useInputChangeHandler";
+import { useSubmitHandler } from "~/utils/hooks/useSubmitHandler";
 
 const UpdatePost = () => {
     const [post, setPost] = useState({ post: "", tag: "", image: "" });
@@ -23,18 +23,7 @@ const UpdatePost = () => {
         image: imageUrl,
     });
 
-    const { handleSubmit, isSubmitting } = useSubmitHandler(
-        fileData,
-        sessionId,
-        post,
-        cropperRef,
-        setPost,
-        "Failed to post data",
-        `/api/post/${postId}`,
-        "PATCH",
-        "/",
-        buildRequestBody
-    );
+    const { handleSubmit, isSubmitting } = useSubmitHandler(fileData, sessionId, post, cropperRef, setPost, "Failed to post data", `/api/post/${postId}`, "PATCH", "/", buildRequestBody);
 
     useEffect(() => {
         const getPostDetails = async () => {
@@ -48,20 +37,12 @@ const UpdatePost = () => {
             });
         };
 
-        if (postId) {getPostDetails();}
+        if (postId) {
+            getPostDetails();
+        }
     }, [postId]);
 
-    return (
-        <Form
-            setFileData={setFileData}
-            cropperRef={cropperRef}
-            type='Updat'
-            post={post}
-            handleInputChange={handleInputChange}
-            submitting={isSubmitting}
-            handleSubmit={handleSubmit}
-        />
-    );
+    return <Form setFileData={setFileData} cropperRef={cropperRef} type="Updat" post={post} handleInputChange={handleInputChange} submitting={isSubmitting} handleSubmit={handleSubmit} />;
 };
 
 export default UpdatePost;
