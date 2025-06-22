@@ -27,8 +27,8 @@ const ChatHeader = ({ chat, sessionUserId, userStatuses, isVideoChatVisible, onT
                                 chat?.chatImage
                                     ? chat?.chatImage
                                     : sessionUserId === chat?.membersList[0]._id
-                                      ? chat?.membersList[1]?.userImage || chat?.membersList[1]?.image
-                                      : chat?.membersList[0].userImage || chat?.membersList[0].image
+                                        ? chat?.membersList[1]?.userImage || chat?.membersList[1]?.image
+                                        : chat?.membersList[0].userImage || chat?.membersList[0].image
                             }
                             alt="chat_image"
                             width={40}
