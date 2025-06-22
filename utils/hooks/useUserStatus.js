@@ -1,57 +1,56 @@
 import { useEffect, useState } from "react";
 
 export const useUserStatus = (socket, sessionUserId) => {
-  const [userStatuses, setUserStatuses] = useState({});
+    const [userStatuses, setUserStatuses] = useState({});
 
-  useEffect(() => {
-    if (!socket || !sessionUserId) return;
+    useEffect(() => {
+        if (!socket || !sessionUserId) {return;}
 
-    const updateStatus = (status) => {
-      socket.emit("setUserStatus", { userId: sessionUserId, status });
-    };
+        const updateStatus = (status) => {
+            socket.emit("setUserStatus", { userId: sessionUserId, status });
+        };
 
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        updateStatus("offline");
-      } else {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                updateStatus("offline");
+            } else {
+                updateStatus("online");
+            }
+        };
+
+        const handleFocus = () => updateStatus("online");
+        const handleBlur = () => updateStatus("offline");
+
+        // Set initial status
         updateStatus("online");
-      }
-    };
 
-    const handleFocus = () => updateStatus("online");
-    const handleBlur = () => updateStatus("offline");
+        // Add event listeners
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        window.addEventListener("focus", handleFocus);
+        window.addEventListener("blur", handleBlur);
 
-    // Set initial status
-    updateStatus("online");
+        // Send status update every 10 seconds
+        const statusInterval = setInterval(() => updateStatus("online"), 10000);
 
-    // Add event listeners
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("focus", handleFocus);
-    window.addEventListener("blur", handleBlur);
+        // Listen for user status updates
+        const handleUserStatusUpdated = ({ userId, status, username }) => {
+            setUserStatuses((prevStatuses) => ({
+                ...prevStatuses,
+                [userId]: { status, username },
+            }));
+        };
 
-    // Send status update every 10 seconds
-    const statusInterval = setInterval(() => updateStatus("online"), 10000);
+        socket.on("userStatusUpdated", handleUserStatusUpdated);
 
-    // Listen for user status updates
-    const handleUserStatusUpdated = ({ userId, status, username }) => {
-      setUserStatuses((prevStatuses) => ({
-        ...prevStatuses,
-        [userId]: { status, username },
-      }));
-    };
+        return () => {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+            window.removeEventListener("focus", handleFocus);
+            window.removeEventListener("blur", handleBlur);
+            clearInterval(statusInterval);
+            socket.off("userStatusUpdated", handleUserStatusUpdated);
+            updateStatus("offline");
+        };
+    }, [socket, sessionUserId]);
 
-    socket.on("userStatusUpdated", handleUserStatusUpdated);
-
-    return () => {
-      // Cleanup
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("focus", handleFocus);
-      window.removeEventListener("blur", handleBlur);
-      clearInterval(statusInterval);
-      socket.off("userStatusUpdated", handleUserStatusUpdated);
-      updateStatus("offline");
-    };
-  }, [socket, sessionUserId]);
-
-  return userStatuses;
+    return userStatuses;
 };

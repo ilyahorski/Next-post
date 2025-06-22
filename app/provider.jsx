@@ -1,15 +1,16 @@
 "use client";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SessionProvider } from "next-auth/react";
+import { PrimeReactProvider } from "primereact/api";
+import Tailwind from "primereact/passthrough/tailwind";
 import { createContext, useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
+
 import SocketProvider from "~/utils/context/SocketContext";
 import VideoContextProvider from "~/utils/context/VideoContext";
 import useServiceWorker from "~/utils/hooks/useServiceWorker";
 import { getLocalView } from "~/utils/localSrorageService";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { PrimeReactProvider } from "primereact/api";
-import Tailwind from "primereact/passthrough/tailwind";
-import { twMerge } from "tailwind-merge";
 
 export const ThemeContext = createContext();
 export const DisplayContext = createContext();
@@ -17,52 +18,52 @@ export const DisplayContext = createContext();
 const queryClient = new QueryClient();
 
 const Provider = ({ children, serverSession }) => {
-  const [darkMode, setDarkMode] = useState(true);
-  const [columnView, setColumnView] = useState(getLocalView());
-  const colorTheme = darkMode ? "dark" : "";
+    const [darkMode, setDarkMode] = useState(true);
+    const [columnView, setColumnView] = useState(getLocalView());
+    const colorTheme = darkMode ? "dark" : "";
   
-  useServiceWorker();
+    useServiceWorker();
 
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("dark");
+    useEffect(() => {
+        const root = window.document.documentElement;
+        root.classList.remove("dark");
 
-    if (darkMode) {
-      root.classList.add(colorTheme);
-    }
+        if (darkMode) {
+            root.classList.add(colorTheme);
+        }
 
-    localStorage.setItem("theme", JSON.stringify(darkMode));
-  }, [darkMode]);
+        localStorage.setItem("theme", JSON.stringify(darkMode));
+    }, [darkMode]);
 
-  useEffect(() => {
-    localStorage.setItem("columnView", JSON.stringify(columnView));
-  }, [columnView]);
+    useEffect(() => {
+        localStorage.setItem("columnView", JSON.stringify(columnView));
+    }, [columnView]);
 
-  return (
-    <SessionProvider>
-      <SocketProvider serverSession={serverSession}>
-        <PrimeReactProvider
-          value={{
-            unstyled: true,
-            pt: Tailwind,
-            ptOptions: {
-              mergeSections: true,
-              mergeProps: true,
-              classNameMergeFunction: twMerge,
-            },
-          }}
-        >
-          <QueryClientProvider client={queryClient}>
-            <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
-              <DisplayContext.Provider value={{ columnView, setColumnView }}>
-                <VideoContextProvider>{children}</VideoContextProvider>
-              </DisplayContext.Provider>
-            </ThemeContext.Provider>
-          </QueryClientProvider>
-        </PrimeReactProvider>
-      </SocketProvider>
-    </SessionProvider>
-  );
+    return (
+        <SessionProvider>
+            <SocketProvider serverSession={serverSession}>
+                <PrimeReactProvider
+                    value={{
+                        unstyled: true,
+                        pt: Tailwind,
+                        ptOptions: {
+                            mergeSections: true,
+                            mergeProps: true,
+                            classNameMergeFunction: twMerge,
+                        },
+                    }}
+                >
+                    <QueryClientProvider client={queryClient}>
+                        <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
+                            <DisplayContext.Provider value={{ columnView, setColumnView }}>
+                                <VideoContextProvider>{children}</VideoContextProvider>
+                            </DisplayContext.Provider>
+                        </ThemeContext.Provider>
+                    </QueryClientProvider>
+                </PrimeReactProvider>
+            </SocketProvider>
+        </SessionProvider>
+    );
 };
 
 export default Provider;

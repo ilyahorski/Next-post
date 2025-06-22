@@ -1,46 +1,49 @@
 import { useEffect } from "react";
 
 export const useMessageScroll = (newMessageGet, messageEndRef, formEndRef) => {
-  useEffect(() => {
-    let timeout;
+    useEffect(() => {
+        let timeout;
 
-    if (newMessageGet && messageEndRef.current && formEndRef.current) {
-      const scrollMessageList = () => {
-        return new Promise((resolve) => {
-          window.requestAnimationFrame(() => {
-            const messageList = document.getElementById("scrollableDiv");
-            if (messageList) {
-              messageEndRef.current.scrollIntoView({
-                block: "end",
-              });
-              resolve();
-            } else {
-              resolve();
-            }
-          });
-        });
-      };
+        if (newMessageGet && messageEndRef.current && formEndRef.current) {
+            const scrollMessageList = () => {
+				
+                return new Promise((resolve) => {
+                    window.requestAnimationFrame(() => {
+                        const messageList = document.getElementById("scrollableDiv");
 
-      const scrollEntireContainer = () => {
-        window.requestAnimationFrame(() => {
-          const container = document.getElementById("messagesContainer");
-          if (container) {
-            timeout = setTimeout(() => {
-              window.requestAnimationFrame(() =>
-                formEndRef.current.scrollIntoView({
-                  block: "end",
-                })
-              );
-            }, 200);
-          }
-        });
-      };
+                        if (messageList) {
+                            messageEndRef.current.scrollIntoView({
+                                block: "end",
+                            });
+                            resolve();
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+            };
 
-      scrollMessageList().then(scrollEntireContainer);
-    }
+            const scrollEntireContainer = () => {
+                window.requestAnimationFrame(() => {
+                    const container = document.getElementById("messagesContainer");
 
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [newMessageGet, messageEndRef, formEndRef]);
+                    if (container) {
+                        timeout = setTimeout(() => {
+                            window.requestAnimationFrame(() =>
+                                formEndRef.current.scrollIntoView({
+                                    block: "end",
+                                })
+                            );
+                        }, 200);
+                    }
+                });
+            };
+
+            scrollMessageList().then(scrollEntireContainer);
+        }
+
+        return () => {
+            clearTimeout(timeout);
+        };
+    }, [newMessageGet, messageEndRef, formEndRef]);
 };

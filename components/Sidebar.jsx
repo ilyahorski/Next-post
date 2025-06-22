@@ -1,140 +1,142 @@
 "use client";
 
-import { useContext, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { PiUsersThin } from "react-icons/pi";
-import { SessionContext } from "~/utils/context/SocketContext";
-import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { format, parseISO } from "date-fns";
+import Image from "next/image";
+import Link from "next/link";
+import { useContext, useState } from "react";
+import { PiUsersThin } from "react-icons/pi";
+
+import { SessionContext } from "~/utils/context/SocketContext";
+
 import { Loader } from "./Loading";
 
 const Sidebar = ({ sessionUserId, openForm }) => {
-  const [search, setSearch] = useState("");
-  const sessionId = useContext(SessionContext);
+    const [search, setSearch] = useState("");
+    const sessionId = useContext(SessionContext);
 
-  const fetchChats = async () => {
-    if (!sessionId) return [];
-    const response = await fetch("/api/chats", {
-      headers: {
-        userId: sessionId,
-      },
+    const fetchChats = async () => {
+        if (!sessionId) {return [];}
+        const response = await fetch("/api/chats", {
+            headers: {
+                userId: sessionId,
+            },
+        });
+        return response.json();
+    };
+
+    const {
+        data: chats = [],
+        isPending,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ["chats"],
+        queryFn: fetchChats,
+        enabled: !!sessionId,
+        refetchInterval: 30000,
+        staleTime: 60000,
+        gcTime: 72000000,
+        retry: 3,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     });
-    return response.json();
-  };
 
-  const {
-    data: chats = [],
-    isPending,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["chats"],
-    queryFn: fetchChats,
-    enabled: !!sessionId,
-    refetchInterval: 30000, // Изменено с 5 секунд на 30 секунд
-    staleTime: 60000,
-    gcTime: 72000000,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
+    const filteredChats = chats.filter((chat) =>
+        chat?.chatName?.toLowerCase().includes(search.toLowerCase())
+    );
 
-  const filteredChats = chats.filter((chat) =>
-    chat?.chatName?.toLowerCase().includes(search.toLowerCase())
-  );
+    if (isPending) {
+        return <Loader />;
+    }
 
-  if (isPending) {
-    return <Loader />;
-  }
+    if (isError) {
+        return <span>Error: {error.message}</span>;
+    }
 
-  if (isError) {
-    return <span>Error: {error.message}</span>;
-  }
-
-  return (
-    <form className="flex-1 w-full px-1 custom-height">
-      <div className="flex gap-1 items-start">
-        <input
-          className="w-full dark:bg-gray-600/10 p-2 mb-3 rounded"
-          placeholder="Find chats"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button
-          className={`mob:hidden flex justify-center items-center w-[40px] h-[40px] ${
-            chats.length === 0 ? "blink" : ""
-          }`}
-          type="button"
-          onClick={openForm}
-        >
-          <div className="flex gap-0.5 items-center flex-col">
-            <PiUsersThin
-              className="text-emerald-700 w-[30px] h-[30px]"
-              placeholder="Open users list"
-            />
-            <p className="text-emerald-700 font-normal text-6xs">Users</p>
-          </div>
-        </button>
-      </div>
-      {!!filteredChats.length && sessionUserId ? (
-        <div className="chat-list">
-          {filteredChats.map((chat) => (
-            <Link
-              href={`/chat/${chat._id}`}
-              key={chat._id}
-              className={
-                "flex flex-row relative justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-600/30"
-              }
-            >
-              <div className="flex gap-2 justify-start items-center">
-                <Image
-                  src={
-                    chat?.chatImage
-                      ? chat.chatImage
-                      : sessionUserId === chat?.membersList[0]._id
-                      ? chat?.membersList[1]?.userImage ||
-                        chat?.membersList[1]?.image
-                      : chat?.membersList[0].userImage ||
-                        chat?.membersList[0].image
-                  }
-                  alt="user_image"
-                  width={50}
-                  height={50}
-                  className="rounded-full object-fill h-[50px] w-[50px]"
+    return (
+        <form className="flex-1 w-full px-1 custom-height">
+            <div className="flex gap-1 items-start">
+                <input
+                    className="w-full dark:bg-gray-600/10 p-2 mb-3 rounded"
+                    placeholder="Find chats"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                 />
-                <div className="flex flex-col gap-2">
-                  <p className="">{chat.chatName}</p>
-                  {chat?.lastMessage?.createdAt && (
-                    <span
-                      className={`absolute top-1 right-1 font-normal text-[10px] mt-1 text-white min-w-[30px]`}
-                    >
-                      {format(
-                        parseISO(chat.lastMessage.createdAt),
-                        "HH:mm, PPP"
-                      )}
-                    </span>
-                  )}
-                  <div className="flex max-w-[300px]">
-                    <p className="truncate">
-                      {chat?.lastMessage?.message
-                        ? chat?.lastMessage?.message
-                        : (chat?.lastMessage?.media ? "New media" : "Start messaging")}
-                    </p>
-                  </div>
+                <button
+                    className={`mob:hidden flex justify-center items-center w-[40px] h-[40px] ${
+                        chats.length === 0 ? "blink" : ""
+                    }`}
+                    type="button"
+                    onClick={openForm}
+                >
+                    <div className="flex gap-0.5 items-center flex-col">
+                        <PiUsersThin
+                            className="text-emerald-700 w-[30px] h-[30px]"
+                            placeholder="Open users list"
+                        />
+                        <p className="text-emerald-700 font-normal text-6xs">Users</p>
+                    </div>
+                </button>
+            </div>
+            {!!filteredChats.length && sessionUserId ? (
+                <div className="chat-list">
+                    {filteredChats.map((chat) => (
+                        <Link
+                            href={`/chat/${chat._id}`}
+                            key={chat._id}
+                            className={
+                                "flex flex-row relative justify-between flex-wrap p-2 m-1 items-start gap-2 border-b border-primary-600/30"
+                            }
+                        >
+                            <div className="flex gap-2 justify-start items-center">
+                                <Image
+                                    src={
+                                        chat?.chatImage
+                                            ? chat.chatImage
+                                            : sessionUserId === chat?.membersList[0]._id
+                                                ? chat?.membersList[1]?.userImage ||
+                                                chat?.membersList[1]?.image
+                                                : chat?.membersList[0].userImage ||
+                                                chat?.membersList[0].image
+                                    }
+                                    alt="user_image"
+                                    width={50}
+                                    height={50}
+                                    className="rounded-full object-fill h-[50px] w-[50px]"
+                                />
+                                <div className="flex flex-col gap-2">
+                                    <p className="">{chat.chatName}</p>
+                                    {chat?.lastMessage?.createdAt && (
+                                        <span
+                                            className={"absolute top-1 right-1 font-normal text-[10px] mt-1 text-white min-w-[30px]"}
+                                        >
+                                            {format(
+                                                parseISO(chat.lastMessage.createdAt),
+                                                "HH:mm, PPP"
+                                            )}
+                                        </span>
+                                    )}
+                                    <div className="flex max-w-[300px]">
+                                        <p className="truncate">
+                                            {chat?.lastMessage?.message
+                                                ? chat?.lastMessage?.message
+                                                : (chat?.lastMessage?.media ? "New media" : "Start messaging")}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>
+                    ))}
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center mt-5">
-          <p className="text-gray-700 dark:text-gray-300">
-            You don't have any chats. Create a dialogue and start communicating!
-          </p>
-        </div>
-      )}
-    </form>
-  );
+            ) : (
+                <div className="text-center mt-5">
+                    <p className="text-gray-700 dark:text-gray-300">
+                        You don&#39;t have any chats. Create a dialogue and start communicating!
+                    </p>
+                </div>
+            )}
+        </form>
+    );
 };
 
 export default Sidebar;
