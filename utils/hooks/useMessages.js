@@ -7,20 +7,81 @@ export const useMessages = (chatId, sessionUserId, socket) => {
     const queryClient = useQueryClient();
 
     const fetchMessages = async ({ pageParam = 1 }) => {
-        const response = await fetch(`/api/message?page=${pageParam}&limit=50`, {
-            headers: { chatId },
-        });
-        const data = await response.json();
-        return data;
+        const maxRetries = 3;
+        let lastError;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`Fetching messages - attempt ${attempt}/${maxRetries}, page: ${pageParam}, chatId: ${chatId}`);
+                
+                const response = await fetch(`/api/message?page=${pageParam}&limit=20`, {
+                    headers: { 
+                        chatId,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`API Error (${response.status}):`, errorText);
+                    
+                    // Don't retry on client errors (4xx)
+                    if (response.status >= 400 && response.status < 500) {
+                        throw new Error(`Client error: ${response.status} - ${errorText}`);
+                    }
+                    
+                    // Retry on server errors (5xx)
+                    if (response.status >= 500) {
+                        lastError = new Error(`Server error: ${response.status} - ${errorText}`);
+                        
+                        if (attempt < maxRetries) {
+                            const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Exponential backoff, max 5s
+                            console.log(`Retrying in ${delay}ms...`);
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            continue;
+                        }
+                        throw lastError;
+                    }
+                }
+
+                const data = await response.json();
+                
+                console.log(`Successfully fetched ${data.usersMessages?.length || 0} messages`);
+                
+                return data;
+
+            } catch (error) {
+                console.error(`Fetch attempt ${attempt} failed:`, error.message);
+                lastError = error;
+                
+                if (attempt < maxRetries && (error.name === "TypeError" || error.message.includes("fetch"))) {
+                    // Network errors - retry with exponential backoff
+                    const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+                    
+                    console.log(`Network error, retrying in ${delay}ms...`);
+                    
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    
+                    continue;
+                }
+                
+                if (attempt === maxRetries) {
+                    throw lastError;
+                }
+            }
+        }
+        
+        throw lastError;
     };
 
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
         queryKey: ["messages", chatId],
         queryFn: fetchMessages,
         getNextPageParam: (lastPage, pages) => {
-            if (lastPage.usersMessages.length < 50) {
+            if (lastPage.usersMessages.length < 20) {
                 return undefined;
             }
+            
             return pages.length + 1;
         },
         enabled: !!chatId,
@@ -117,6 +178,7 @@ export const useMessages = (chatId, sessionUserId, socket) => {
                 if (!oldData) {
                     return oldData;
                 }
+                
                 return {
                     ...oldData,
                     pages: oldData.pages.map((page) => ({
@@ -147,6 +209,7 @@ export const useMessages = (chatId, sessionUserId, socket) => {
             const timer = setTimeout(() => {
                 setNewMessages([]);
             }, 100);
+            
             return () => clearTimeout(timer);
         }
     }, [newMessages]);

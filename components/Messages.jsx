@@ -98,7 +98,7 @@ const Messages = ({ sessionUserId }) => {
     };
 
     // Loading and error states
-    if (chatLoading || messagesLoading) {
+    if (messagesLoading) {
         return <Loader />;
     }
 
