@@ -3,6 +3,7 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 export const SocketContext = createContext();
 export const SessionContext = createContext();
@@ -15,6 +16,8 @@ const SocketProvider = ({ children, serverSession }) => {
     const [sessionUserId, setSessionUserId] = useState(serverSession?.user?.id || null);
     const [chatId, setChatId] = useState(null);
     const { data: session, status, update } = useSession();
+    const pathname = usePathname();
+    const isChatRoute = useMemo(() => pathname?.startsWith("/chat/"), [pathname]);
 
     useEffect(() => {
         if (sessionUserId) {
@@ -29,6 +32,10 @@ const SocketProvider = ({ children, serverSession }) => {
     useEffect(() => {
         if (!sessionUserId) {
             update();
+            return;
+        }
+
+        if (isChatRoute && !chatId) {
             return;
         }
 
@@ -47,7 +54,7 @@ const SocketProvider = ({ children, serverSession }) => {
         return () => {
             newSocket.close();
         };
-    }, [sessionUserId, chatId]);
+    }, [sessionUserId, chatId, isChatRoute, update]);
 
     const socketContextValue = useMemo(
         () => ({
