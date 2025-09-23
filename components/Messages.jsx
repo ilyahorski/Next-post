@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Loader } from "~/components/Loading";
 import MessageForm from "~/components/MessageForm";
@@ -39,8 +39,12 @@ const Messages = ({ sessionUserId }) => {
 
     useMessageScroll(newMessageGet, messageEndRef, formEndRef);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setChatId(chatId ?? null);
+
+        return () => {
+            setChatId(null);
+        };
     }, [chatId, setChatId]);
 
     // Fetch chat data
