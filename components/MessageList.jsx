@@ -26,7 +26,6 @@ const MessageList = ({ messagesList, isMobile, sessionUserId, onReply, messageEn
         scrollToMessage,
     } = useMessageLogic({ messagesList, sessionUserId });
 
-    // Handle infinite scroll
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
