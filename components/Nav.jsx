@@ -16,7 +16,7 @@ const Nav = () => {
     const [data, setData] = useState({ username: "", userImage: "", image: "" });
     const ref = useRef(null);
     const pathname = usePathname().split("/")[1];
-    const socket = useContext(SocketContext);
+    const { socket } = useContext(SocketContext);
     const sessionId = useContext(SessionContext);
 
     useClickOutside(ref, () => setToggleDropdown(false));
@@ -24,7 +24,7 @@ const Nav = () => {
     const handleSignOut = (e) => {
         e.preventDefault();
         setToggleDropdown(false);
-        socket.disconnect();
+        socket?.disconnect();
         signOut({ callbackUrl: "/" });
     };
 

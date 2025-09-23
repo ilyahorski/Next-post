@@ -11,7 +11,7 @@ const Comments = ({ postId, isMain }) => {
     const [comments, setComments] = useState([]);
     const endOfComments = useRef(null);
 
-    const socket = useContext(SocketContext);
+    const { socket } = useContext(SocketContext);
 
     const handleCommentsReceived = useCallback(
         (receivedComments) => {

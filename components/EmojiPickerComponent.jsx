@@ -6,7 +6,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { SocketContext } from "~/utils/context/SocketContext";
 
 const EmojiPickerComponent = ({ setSelectedMessage, messageId, userId, chatId }) => {
-    const socket = useContext(SocketContext);
+    const { socket } = useContext(SocketContext);
     const pickerRef = useRef(null);
     const [isExpanded, setIsExpanded] = useState(false);
 

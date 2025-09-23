@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
 import { useSession } from "next-auth/react";
 
@@ -13,6 +13,7 @@ const SocketProvider = ({ children, serverSession }) => {
     const [selectedMessage, setSelectedMessage] = useState(null);
     const [editingMessage, setEditingMessage] = useState(null);
     const [sessionUserId, setSessionUserId] = useState(serverSession?.user?.id || null);
+    const [chatId, setChatId] = useState(null);
     const { data: session, status, update } = useSession();
 
     useEffect(() => {
@@ -31,10 +32,14 @@ const SocketProvider = ({ children, serverSession }) => {
             return;
         }
 
+        const query = { userId: sessionUserId };
+
+        if (chatId) {
+            query.chatId = chatId;
+        }
+
         const newSocket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`, {
-            query: {
-                userId: sessionUserId,
-            },
+            query,
         });
 
         setSocket(newSocket);
@@ -42,11 +47,20 @@ const SocketProvider = ({ children, serverSession }) => {
         return () => {
             newSocket.close();
         };
-    }, [sessionUserId]);
+    }, [sessionUserId, chatId]);
+
+    const socketContextValue = useMemo(
+        () => ({
+            socket,
+            chatId,
+            setChatId,
+        }),
+        [socket, chatId]
+    );
 
     return (
         <SessionContext.Provider value={sessionUserId}>
-            <SocketContext.Provider value={socket}>
+            <SocketContext.Provider value={socketContextValue}>
                 <MessageContext.Provider value={{ selectedMessage, setSelectedMessage, editingMessage, setEditingMessage }}>{children}</MessageContext.Provider>
             </SocketContext.Provider>
         </SessionContext.Provider>

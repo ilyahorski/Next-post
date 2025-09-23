@@ -32,7 +32,7 @@ const PostCard = ({ columnView, post, myPosts, setMyPosts, handleTagClick }) => 
     const fileWithExtension = pathname.split("/").pop();
     const type = fileWithExtension.split("-")[0];
 
-    const socket = useContext(SocketContext);
+    const { socket } = useContext(SocketContext);
     const sessionId = useContext(SessionContext);
 
     useEffect(() => {

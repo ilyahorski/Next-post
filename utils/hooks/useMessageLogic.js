@@ -6,7 +6,7 @@ import { MessageContext, SocketContext } from "~/utils/context/SocketContext";
 
 export const useMessageLogic = ({ messagesList, sessionUserId }) => {
     const longPressTimer = useRef(null);
-    const socket = useContext(SocketContext);
+    const { socket } = useContext(SocketContext);
     const [isPageVisible, setIsPageVisible] = useState(true);
     const { selectedMessage, setSelectedMessage, setEditingMessage } = useContext(MessageContext);
 

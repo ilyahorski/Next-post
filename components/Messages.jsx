@@ -29,7 +29,7 @@ const Messages = ({ sessionUserId }) => {
     const isMobile = useMobileCheck();
     const { id: chatId } = useParams();
 
-    const socket = useContext(SocketContext);
+    const { socket, setChatId } = useContext(SocketContext);
     const { isVideoChatVisible, setIsVideoChatVisible } = useContext(VideoSocketContext);
 
     // Custom hooks
@@ -38,6 +38,10 @@ const Messages = ({ sessionUserId }) => {
     const { messagesList, fetchNextPage, hasNextPage, isFetchingNextPage, newMessageGet, isLoading: messagesLoading, isError: messagesError } = useMessages(chatId, sessionUserId, socket);
 
     useMessageScroll(newMessageGet, messageEndRef, formEndRef);
+
+    useEffect(() => {
+        setChatId(chatId ?? null);
+    }, [chatId, setChatId]);
 
     // Fetch chat data
     const fetchChat = async (chatId) => {
