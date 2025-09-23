@@ -28,6 +28,7 @@ const SocketProvider = ({ children, serverSession }) => {
     useEffect(() => {
         if (!sessionUserId) {
             update();
+            return;
         }
 
         const newSocket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`, {
