@@ -24,8 +24,10 @@ const MessageMain = () => {
         if (!chatId) {
             return [];
         }
+		
         const response = await fetch(`/api/chats/${chatId}`);
         const data = await response.json();
+
         return data.membersList.map((ids) => ids._id);
     };
 
