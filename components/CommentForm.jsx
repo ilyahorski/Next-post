@@ -7,7 +7,7 @@ import { SocketContext } from "~/utils/context/SocketContext";
 import CommentSendForm from "./CommentSendForm";
 
 const CommentForm = ({ userId, postId }) => {
-    const socket = useContext(SocketContext);
+    const { socket } = useContext(SocketContext);
 
     const onFormSubmit = (data) => {
         if (socket) {

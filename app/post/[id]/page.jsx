@@ -33,7 +33,7 @@ const Post = () => {
     const [type, setType] = useState("");
     const [allComments, setAllComments] = useState({});
 
-    const socket = useContext(SocketContext);
+    const { socket } = useContext(SocketContext);
 
     useEffect(() => {
         if (!sessionId) {

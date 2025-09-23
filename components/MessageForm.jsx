@@ -8,7 +8,7 @@ import CommentMessageForm from "./CommentMessageForm";
 
 const MessageForm = ({ id, chat, sessionUserId, replyTo, setReplyTo, formEndRef, messageEndRef }) => {
     const [newMessageGet, setNewMessageGet] = useState(false);
-    const socket = useContext(SocketContext);
+    const { socket } = useContext(SocketContext);
 
     const { editingMessage, setEditingMessage } = useContext(MessageContext);
     const messageRef = useRef(null);
