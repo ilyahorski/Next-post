@@ -1,4 +1,5 @@
 import Post from "~/models/post";
+import "~/models/user";
 import { connectToDB } from "~/utils/database";
 
 export const GET = async (request, { params }) => {
