@@ -77,9 +77,9 @@ const Messages = ({ sessionUserId }) => {
         const actionType = urlParams.get("type") === "reject";
 
         if (openedFromPush && !actionType) {
-            setIsVideoChatVisible(!isVideoChatVisible);
+            setIsVideoChatVisible(true);
         }
-    }, [isVideoChatVisible, setIsVideoChatVisible]);
+    }, [setIsVideoChatVisible]);
 
     // Handle background storage
     useEffect(() => {
