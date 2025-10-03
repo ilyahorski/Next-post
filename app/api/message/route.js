@@ -1,4 +1,6 @@
 import Message from "~/models/message";
+import "~/models/chat";
+import "~/models/user";
 import { checkConnection, connectToDB } from "~/utils/database";
 
 export const GET = async (request, { params }) => {
