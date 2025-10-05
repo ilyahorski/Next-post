@@ -2,6 +2,48 @@ const channel = new BroadcastChannel("sw-messages");
 const CACHE_NAME = "notification-icons-v1";
 const ICONS_TO_CACHE = ["/assets/icons/call.png", "/assets/icons/callr.png"];
 
+const CALL_STATUS_CACHE = "call-status";
+const CHAT_DATA_CACHE = "chat-data";
+
+async function getCallStatus(chatId) {
+  const cache = await caches.open(CALL_STATUS_CACHE);
+  const response = await cache.match(`call-status-${chatId}`);
+
+  if (!response) {
+    return null;
+  }
+
+  try {
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to parse call status", error);
+    return null;
+  }
+}
+
+async function setCallStatus(chatId, status) {
+  const cache = await caches.open(CALL_STATUS_CACHE);
+  const payload = {
+    status,
+    chatId,
+    timestamp: Date.now(),
+  };
+
+  await cache.put(
+    `call-status-${chatId}`,
+    new Response(JSON.stringify(payload), {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  );
+}
+
+async function clearChatData() {
+  const cache = await caches.open(CHAT_DATA_CACHE);
+  await cache.delete("current-chat-data");
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ICONS_TO_CACHE))
@@ -43,18 +85,7 @@ self.addEventListener("notificationclose", function (event) {
     });
 
     // Сохраняем информацию о закрытии вызова в кэше
-    caches.open("call-status").then((cache) => {
-      cache.put(
-        "last-call-status",
-        new Response(
-          JSON.stringify({
-            status: "closed",
-            chatId: data.chatId,
-            timestamp: Date.now(),
-          })
-        )
-      );
-    });
+    event.waitUntil(setCallStatus(data.chatId, "closed"));
   }
 });
 
@@ -71,15 +102,18 @@ self.addEventListener("push", function (event) {
     );
     event.waitUntil(
       caches
-        .open("chat-data")
+        .open(CHAT_DATA_CACHE)
         .then((cache) => cache.put("current-chat-data", chatDataResponse))
     );
   }
 
   event.waitUntil(
-    self.clients
-      .matchAll({ type: "window", includeUncontrolled: true })
-      .then(function (clients) {
+    (async function () {
+      const clients = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+      try {
         let isChatOpen = false;
         const chatUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/chat/${data.chatId}`;
 
@@ -90,7 +124,7 @@ self.addEventListener("push", function (event) {
             data.type !== "call"
           ) {
             isChatOpen = true;
-            client.focus();
+            await client.focus();
             break;
           }
         }
@@ -114,6 +148,17 @@ self.addEventListener("push", function (event) {
         };
 
         if (type === "call") {
+          if (!data.chatId) {
+            return;
+          }
+
+          const callStatus = await getCallStatus(data.chatId);
+          if (callStatus && ["accepted", "closed"].includes(callStatus.status)) {
+            return;
+          }
+
+          await setCallStatus(data.chatId, "ringing");
+
           options.actions = [
             {
               action: "accept",
@@ -137,15 +182,18 @@ self.addEventListener("push", function (event) {
 
           return self.registration.showNotification(title, options);
         } else if (!isChatOpen) {
-          return self.registration
-            .getNotifications({ tag: notificationTag })
-            .then((existingNotifications) => {
-              if (existingNotifications.length === 0) {
-                return self.registration.showNotification(title, options);
-              }
-            });
+          const existingNotifications = await self.registration.getNotifications({
+            tag: notificationTag,
+          });
+
+          if (existingNotifications.length === 0) {
+            return self.registration.showNotification(title, options);
+          }
         }
-      })
+      } catch (error) {
+        console.error("Failed to process push event", error);
+      }
+    })()
   );
 });
 
@@ -159,7 +207,7 @@ self.addEventListener("notificationclick", function (event) {
     (async function () {
       try {
         // Открываем кэш и пытаемся получить данные текущего чата
-        const cache = await caches.open("chat-data");
+        const cache = await caches.open(CHAT_DATA_CACHE);
         const response = await cache.match("current-chat-data");
 
         if (response) {
@@ -190,6 +238,13 @@ self.addEventListener("notificationclick", function (event) {
               });
 
               console.log(`Call ${event.action} for chatId: ${chatId}`);
+
+              if (event.action === "accept") {
+                await setCallStatus(chatId, "accepted");
+                await clearChatData();
+              } else if (event.action === "reject") {
+                await setCallStatus(chatId, "closed");
+              }
             }
 
             if (event.action === "reject") {
@@ -222,7 +277,7 @@ self.addEventListener("notificationclick", function (event) {
           console.log("No chat data found in cache, opening default chat window.");
           // Если данных нет, очищаем кэш и открываем стандартное окно чата
           await caches.delete("action-data");
-          await caches.delete("chat-data");
+          await caches.delete(CHAT_DATA_CACHE);
           await self.clients.openWindow(`${self.location.origin}/chat`);
         }
       } catch (error) {
@@ -238,5 +293,22 @@ self.addEventListener("notificationclick", function (event) {
 // Добавляем обработчик сообщений от основного потока (если понадобится)
 self.addEventListener("message", (event) => {
   console.log("SW received message:", event.data);
-  // Здесь можно обрабатывать сообщения от основного потока, если это необходимо
+
+  const { data } = event;
+  if (!data) {
+    return;
+  }
+
+  if (data.type === "CALL_ENDED" && data.chatId) {
+    event.waitUntil(
+      (async () => {
+        if (data.action === "accept") {
+          await setCallStatus(data.chatId, "accepted");
+          await clearChatData();
+        } else if (data.action === "reject" || data.action === "closed") {
+          await setCallStatus(data.chatId, "closed");
+        }
+      })()
+    );
+  }
 });
