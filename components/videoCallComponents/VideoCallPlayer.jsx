@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { Resizable } from "re-resizable";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import Draggable from "react-draggable";
 
 import VideoApp from "~/components/videoCallComponents/VideoApp";
@@ -28,7 +28,7 @@ const VideoCallPlayer = () => {
 
             return { x: clampedX, y: clampedY };
         },
-        [bounds],
+        [bounds]
     );
 
     const updateBounds = useCallback(
@@ -52,7 +52,7 @@ const VideoCallPlayer = () => {
             setBounds(newBounds);
             setPosition((prevPosition) => clampPosition(prevPosition, newBounds));
         },
-        [clampPosition, height, width],
+        [clampPosition, height, width]
     );
 
     const onResizeStart = (e) => {
@@ -131,8 +131,8 @@ const VideoCallPlayer = () => {
                         height: 500,
                     }}
                     size={{
-                        width: width,
-                        height: height,
+                        width,
+                        height,
                     }}
                     minHeight={200}
                     minWidth={175}
