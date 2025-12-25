@@ -1,9 +1,9 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { createContext, useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
-import { useSession } from "next-auth/react";
-import { usePathname } from "next/navigation";
 
 export const SocketContext = createContext();
 export const SessionContext = createContext();
@@ -15,7 +15,7 @@ const SocketProvider = ({ children, serverSession }) => {
     const [editingMessage, setEditingMessage] = useState(null);
     const [sessionUserId, setSessionUserId] = useState(serverSession?.user?.id || null);
     const [chatId, setChatId] = useState(null);
-    const { data: session, status, update } = useSession();
+    const { data: session, update } = useSession();
     const pathname = usePathname();
     const isChatRoute = useMemo(() => pathname?.startsWith("/chat/"), [pathname]);
 
@@ -23,11 +23,12 @@ const SocketProvider = ({ children, serverSession }) => {
         if (sessionUserId) {
             return;
         }
+
         const currentSession = serverSession || session;
         if (currentSession?.user?.id) {
             setSessionUserId(currentSession.user.id);
         }
-    }, [serverSession, session]);
+    }, [serverSession, session, sessionUserId]);
 
     useEffect(() => {
         if (!sessionUserId) {
@@ -47,6 +48,9 @@ const SocketProvider = ({ children, serverSession }) => {
 
         const newSocket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`, {
             query,
+            transports: ["websocket"],
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
         });
 
         setSocket(newSocket);
@@ -65,10 +69,17 @@ const SocketProvider = ({ children, serverSession }) => {
         [socket, chatId]
     );
 
+    const messageContextValue = useMemo(() => ({
+        selectedMessage,
+        setSelectedMessage,
+        editingMessage,
+        setEditingMessage,
+    }), [selectedMessage, editingMessage]);
+
     return (
         <SessionContext.Provider value={sessionUserId}>
             <SocketContext.Provider value={socketContextValue}>
-                <MessageContext.Provider value={{ selectedMessage, setSelectedMessage, editingMessage, setEditingMessage }}>{children}</MessageContext.Provider>
+                <MessageContext.Provider value={messageContextValue}>{children}</MessageContext.Provider>
             </SocketContext.Provider>
         </SessionContext.Provider>
     );
