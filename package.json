@@ -85,6 +85,6 @@
         "utf-8-validate": "^5.0.10"
     },
     "engines": {
-        "node": "20.x"
+        "node": "24.x"
     }
 }
